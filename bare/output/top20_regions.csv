@@ -1,0 +1,21 @@
+region,wines,reviews,avg_rating,avg_price,weighted_rating
+Bolgheri Sassicaia,76,307787,4.62,534.022,4.616
+Bolgheri Superiore,78,145757,4.495,274.172,4.489
+Amarone della Valpolicella Classico,157,628140,4.339,243.153,4.338
+Brunello di Montalcino,404,872758,4.271,196.543,4.27
+Abruzzo,33,1356521,4.261,102.614,4.26
+Primitivo di Manduria,95,387600,4.257,160.617,4.256
+Amarone della Valpolicella,37,42380,4.243,188.379,4.234
+Umbrië,38,65803,4.197,164.353,4.192
+Bolgheri,148,449866,4.175,183.398,4.174
+Isola dei Nuraghi,23,27800,4.183,125.581,4.172
+Barolo,278,307865,4.167,204.72,4.166
+Lugana,46,130745,4.161,108.178,4.159
+Barbaresco,83,148394,4.154,191.226,4.152
+Moscato d’Asti,30,125698,4.113,167.926,4.112
+Menfi,27,45482,4.107,188.786,4.104
+Südtirol - Alto Adige,72,70471,4.072,127.888,4.071
+Toscane,712,3034932,4.07,220.328,4.07
+Maremma Toscana,23,18477,4.074,157.772,4.068
+Valpolicella Ripasso,88,341334,4.038,132.899,4.037
+Verona,38,130077,4.032,196.689,4.031

@@ -4,89 +4,97 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Status
 
-This is a **spec-driven, pre-implementation** project. The repo currently contains only:
-
-- `README.md` — full product description and recommended structure
-- `PRD.md` — detailed product requirements, scoring model, and pipeline spec
-- `Upload/Vivino-export.xlsx` — raw input dataset (4.1 MB Excel, multi-sheet, Dutch Vivino crawler output)
-- `Upload/Pyton-script.docx` — reference for how the data was originally scraped (reference only, not the project focus)
-
-There is **no source code, no pipeline, no dashboard, and no dependency manifest yet**. When asked to "build" or "run" something, treat the README and PRD as the design document and scaffold from there. Do not invent additional commands or files that the spec does not call for.
-
-## Project Domain
-
-**CantinaIQ / Slurpini Partner Intelligence Engine** — turns a raw Vivino export into a cleaned, scored, segmented dataset that helps Slurpini (a Dutch importer of Italian wines) prioritise Italian producers and regions for partnership outreach.
-
-The dataset is treated as a **consumer-preference signal**, not as a measure of objective wine quality. This framing matters: low-review wines with high ratings must not be ranked above high-review wines with slightly lower ratings.
-
-## Architecture (target, per spec)
-
-The pipeline is a linear, reproducible flow. Each stage reads from the previous stage's output:
+This repo holds **two parallel deliverables** for the ADA Applied AI Bootcamp Final Assignment (the Slurpini wine case). The split is deliberate — see the root `README.md` for the framing. Do not collapse them into one.
 
 ```
-Excel (Upload/Vivino-export.xlsx)
-  → ingestion       (combine sheets, raw dataframe)
-  → cleaning        (normalise country/region, numeric coercion, dedupe, filter to Italian)
-  → validation      (Pandera/Great Expectations rules — see PRD §10)
-  → enrichment      (producer_name, macro_region, price_segment, confidence_segment,
-                     market_segment, inferred_grape_or_style, enrichment_confidence)
-  → scoring         (Slurpini Partner Intelligence Score — 5 weighted components)
-  → export          (parquet + JSON for dashboard)
-  → Next.js dashboard (5 pages: Executive, Region, Producer, Opportunity Matrix, Methodology)
+bare/             ← minimum-viable answer to ADA's brief.
+                    Complete and runnable. One pandas notebook + crawler-extension
+                    script + half-page recommendation. ~150 LOC total. Outputs
+                    baked into the .ipynb.
+
+supercharged/     ← HBO/academic-grade answer to the same business question.
+                    Fully specified (design + plan), implementation pending.
+                    Polars + DuckDB + Pandera + Pydantic-validated Hydra configs +
+                    Hypothesis property tests + instrumented run-logging +
+                    Jinja2-templated reports + Next.js dashboard (planned).
+                    See supercharged/docs/superpowers/ for spec + plan.
+
+data/             ← does NOT exist at repo root. Each track owns its own
+                    bare/data/raw/ and supercharged/data/raw/ so each is
+                    independently runnable.
 ```
 
-Target tech stack from the spec: **Polars + DuckDB + Parquet** for data, **Pandera/Great Expectations** for validation, **Next.js + Tailwind + shadcn/ui + Recharts/Tremor** for the dashboard. Pandas is acceptable as a simpler fallback but the spec prefers Polars.
+## Audience and framing
 
-Target directory layout (from README §6 / PRD §20) — create these under the repo root when scaffolding:
+The supercharged track exists to demonstrate that the ADA bootcamp's bar sits below HBO/academic level. The artefact's quality is the argument; do not editorialise about ADA inside the code or docs. Let the work speak.
 
-```
-data/{raw,interim,processed,exports}/
-src/{ingestion,cleaning,validation,enrichment,scoring,export}/
-notebooks/   dashboard/   reports/   docs/
-```
+The bare track exists to defuse the "you didn't do the assignment" counter-argument. It must remain *minimum-viable* — do not over-engineer it. If you find yourself adding sensitivity analysis or schema contracts to `/bare/`, stop: that work belongs in `/supercharged/`.
 
-The raw input lives in `Upload/` today; either move it to `data/raw/` or have the ingestion layer read from `Upload/` directly. Confirm with the user before moving the source file.
+The contrast between the two is the value proposition. Maintain it.
 
-## Critical Domain Rules (do not violate)
+## Working in `/bare/`
 
-These rules come from PRD §10, §12.4, §13 and are easy to get wrong:
+- Single source of truth: `bare/notebooks/slurpini-analysis.ipynb`.
+- Stack: pandas + matplotlib + openpyxl. No Polars, no Pydantic, no Hydra.
+- Producer extraction: first-word heuristic (deliberately imperfect; the imperfection is the contrast point).
+- Re-run via `cd bare && jupyter notebook notebooks/slurpini-analysis.ipynb` and run all cells, or:
+  `python crawler-extension.py` for the extension script alone.
+- The data lives at `bare/data/raw/Vivino-export.xlsx`. Notebook paths are relative (`../data/raw/...`).
+- Headline numbers from the real data:
+  - 409,758 raw rows across 16 sheets
+  - 5,786 unique Italian wines after dedupe + validation
+  - 179 distinct regions, 564 producer fragments (first-word heuristic)
 
-1. **Bayesian weighted rating, not raw average.** A 4.8/12-reviews wine must not outrank a 4.4/5000-reviews wine. Use `(n/(n+m))·rating + (m/(n+m))·global_mean`, where `m` is a minimum-review threshold tuned to the cleaned Italian dataset.
-2. **Filter to Italian wines only** for the main recommendation model. The dataset has mixed-country contamination across sheets.
-3. **Producer extraction is heuristic.** Mark with `enrichment_confidence` (High/Medium/Low). Never present inferred fields as ground truth.
-4. **Sustainability is not in the data.** Do not use it as a scoring factor. It is a future-enhancement field only.
-5. **Scoring weights are business assumptions** (35/20/20/15/10 in PRD §13) and must remain adjustable — don't hard-code them deep in calculation logic.
-6. **Confidence segmentation thresholds** (PRD §12.4): <50 / 50–250 / 250–1,000 / >1,000 reviews → Low / Emerging / Reliable / Strong Market Signal.
+## Working in `/supercharged/`
+
+- Pre-implementation. The full design is in `supercharged/docs/superpowers/specs/2026-05-15-cantinaiq-data-pipeline-design.md`. The implementation plan with bite-sized TDD tasks is in `supercharged/docs/superpowers/plans/2026-05-15-cantinaiq-data-pipeline.md`.
+- Read those two files before touching anything under `supercharged/`. Do not invent new structure or commands not in the spec.
+- Target stack: Polars 1.x · DuckDB 1.x · Pandera 0.20+ · Hydra 1.3+ · Pydantic 2.x · Typer · Jinja2 · Matplotlib · uv · Ruff · mypy · Pytest + Hypothesis.
+- Architecture principle (do not violate): every stage is a pure function of `(input parquet, config) → (output parquet, run-log JSON)`. No hidden state, no side-effects outside `data/`.
+- Data lives at `supercharged/data/raw/Vivino-export.xlsx`. When the pipeline is built, intermediate parquets land in `supercharged/data/{interim,processed,exports}/` and run-logs in `supercharged/data/runs/<run-id>/`.
+
+## Critical domain rules (apply across both tracks)
+
+1. **Bayesian weighted rating, not raw average.** A 4.8/12-reviews wine must not outrank a 4.4/5000-reviews wine. Both tracks use `(n/(n+m))·rating + (m/(n+m))·global_mean` with `m` derived from the data (bare uses median, supercharged makes it configurable with explicit `m_strategy`).
+2. **Filter to Italian wines on the cleaned `country` field, not on sheet name.** The Excel sheet split is noise: every sheet contains wines from many countries.
+3. **Mojibake on diacritics is Mac-Roman ↔ UTF-8.** `Itali√´` → `Italië` via `s.encode('mac_roman').decode('utf-8')`. Latin-1 will NOT work.
+4. **Tuple-encoded strings** in country/region: `"('Italië',)"` → unwrap via regex `^\(\s*'([^']*)'\s*,\s*\)$`.
+5. **Producer extraction is heuristic.** In bare: first-word. In supercharged: alias whitelist + LLM disambiguation. Never present inferred fields as ground truth.
+6. **Sustainability is not in the dataset.** Do not use it as a scoring factor in either track.
+
+## Data shape, post-cleaning
+
+After the (track-specific) cleaning steps both tracks converge on ~5,786 rows with columns:
+
+| Column | Type | Notes |
+|---|---|---|
+| `name` | str | Original wine name, includes vintage suffix |
+| `country` | str | `Italië` after mojibake fix |
+| `region` | str | Mix of macro-region, appellation, and sub-region |
+| `rating` | float | 0.0 – 5.0 |
+| `rating_count` | int | ≥ 1 after validation |
+| `price` | float | EUR, > 0 after validation |
+| `source_sheet` | str | Metadata only — not a country filter |
+
+Supercharged track adds `wine_name_normalised`, `vintage`, `producer_hint`, `producer_name` (post-extraction), `macro_region`, `price_segment`, `confidence_segment`, `enrichment_confidence`, `inferred_grape_or_style`, then `weighted_rating`, `value_score`, `composite_score`, `market_segment`, `run_config_hash`.
 
 ## Commands
 
-No build/test/lint commands exist yet. When the pipeline is built, the spec proposes (README §16) — these are placeholders to validate with the user before committing to them:
-
+`/bare`:
 ```bash
-# Python pipeline (proposed)
-uv sync                                          # or: pip install -r requirements.txt
-python -m src.ingestion.load_data
-python -m src.cleaning.clean_data
-python -m src.validation.validate_data
-python -m src.enrichment.enrich_data
-python -m src.scoring.score_wines
-python -m src.export.export_dashboard_data
-
-# Dashboard (proposed)
-cd dashboard && npm install && npm run dev
+cd bare
+pip install -r requirements.txt
+jupyter notebook notebooks/slurpini-analysis.ipynb       # interactive
+python crawler-extension.py                              # standalone
 ```
 
-When asked to "run the pipeline" before any code exists, surface that nothing is implemented yet and propose the first stage to scaffold.
+`/supercharged` (planned — pipeline not yet implemented):
+```bash
+cd supercharged
+uv sync
+uv run cantinaiq run all                                 # full pipeline
+uv run cantinaiq report build                            # render reports
+uv run pytest --cov-fail-under=85
+```
 
-## Working With the Raw Data
-
-Known quality issues already catalogued in PRD §10 — expect and handle them upfront rather than discovering them mid-pipeline:
-
-- Tuple-like string values from the crawler (e.g. `"('Italy',)"`)
-- Encoding issues in country names
-- Mixed-country data across sheets (sheet name is not a reliable country filter)
-- Region names mixing macro-regions, appellations, and local areas
-- Missing/zero prices and ratings
-- Duplicate wine records
-
-The dataset is ~4 MB Excel. Read it once into Parquet under `data/interim/` and work from Parquet downstream — re-reading the xlsx on every stage is slow and unnecessary.
+When asked to "run the supercharged pipeline" before its code is implemented, point at the plan and propose the first phase to scaffold.

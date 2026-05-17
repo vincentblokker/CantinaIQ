@@ -10,8 +10,16 @@ node_modules/
 dist/
 build/
 .ipynb_checkpoints/
-data/interim/
-data/processed/
-data/exports/
+
+# Track-specific generated artefacts.
+# Note: bare/output/ is COMMITTED so examiners see results without running
+# the notebook. Supercharged generated artefacts are gitignored — they
+# regenerate deterministically from `uv run cantinaiq run all`.
+supercharged/data/interim/
+supercharged/data/processed/
+supercharged/data/exports/
+supercharged/data/runs/
+supercharged/reports/generated/
+
 *.parquet
 *.duckdb
