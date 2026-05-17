@@ -1,0 +1,401 @@
+<!doctype html>
+{#
+  CantinaIQ — Findings & Recommendations (one-pager) — Jinja2 template.
+
+  Renders against a ReportContext built by src/cantinaiq/reporting/context.py
+  (see plan Task 12.2). Extends the base RunBundle with three view-models the
+  builder must populate when this template is added to TEMPLATES_BY_NAME:
+
+    findings.problem               str   (editorial; lives in config/reporting.yaml)
+    findings.limitations           list[str], length 3
+    top_producers                  list[dict] length 5, each:
+        rank, producer_name, region_label, recommendation, weighted_rating,
+        avg_price, reason, pill_fill, pill_stroke, pill_dot
+    matrix.split.price_eur         float (e.g. 60.0)
+    matrix.split.rating            float (e.g. 4.05)
+    matrix.bubbles                 list[dict], each:
+        cx, cy, r, fill, stroke_color, stroke_width, label?
+    matrix.callouts                list[dict] (label, x, y, line_x1, line_y1, line_x2, line_y2)
+    matrix.totals                  {producers, wines}
+
+  Render via:
+      cantinaiq report build --only findings-one-pager
+#}
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>CantinaIQ — Findings &amp; Recommendations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper:    #FBF8F3;
+      --paper-2:  #F4EFE6;
+      --surface:  #FFFCF8;
+      --surface-2:#F8F2E8;
+      --ink:      #1A1714;
+      --ink-2:    #3A332C;
+      --ink-3:    #6B6258;
+      --ink-4:    #9A8F82;
+      --rule:     #E8E0D5;
+      --rule-2:   #D9CFBF;
+      --sage:     #6B8E4E;
+      --terra:    #9B3A2F;
+      --inkblue:  #1F3A5F;
+      --umber:    #8B7355;
+      --plum:     #5B3A8C;
+      --serif:    "Source Serif 4", Georgia, serif;
+      --sans:     "Inter", -apple-system, system-ui, sans-serif;
+      --mono:     "JetBrains Mono", ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #DDD8CC; }
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      font-size: 9.5pt;
+      line-height: 1.42;
+      font-feature-settings: "tnum";
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      width: 210mm;
+      height: 297mm;
+      background: var(--paper);
+      margin: 18px auto;
+      padding: 14mm 14mm 12mm;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto auto auto 1fr auto auto;
+      row-gap: 2.5mm;
+      box-shadow: 0 6px 30px rgba(40, 32, 22, 0.18);
+      overflow: hidden;
+    }
+
+    /* Masthead */
+    .masthead { display: grid; grid-template-columns: minmax(0, 1fr) 64mm; column-gap: 10mm; padding-bottom: 4mm; border-bottom: 1px solid var(--ink); align-items: end; }
+    .masthead .left { min-width: 0; }
+    .brand { display: flex; align-items: center; gap: 8px; margin-bottom: 3mm; }
+    .brand .glyph { width: 22px; height: 22px; border-radius: 4px; background: var(--ink); color: var(--paper); font-family: var(--serif); display: grid; place-items: center; font-size: 13px; }
+    .brand .name { font-family: var(--serif); font-size: 13pt; letter-spacing: -0.01em; }
+    .brand .org { color: var(--ink-4); font-family: var(--mono); font-size: 8pt; margin-left: 4px; }
+    .doc-title { font-family: var(--serif); font-size: 20pt; line-height: 1.04; letter-spacing: -0.018em; color: var(--ink); text-wrap: balance; }
+    .doc-sub { font-family: var(--serif); font-style: italic; font-size: 10pt; color: var(--ink-3); margin-top: 5px; }
+    .meta { text-align: right; font-family: var(--mono); font-size: 7.5pt; color: var(--ink-3); line-height: 1.7; min-width: 0; white-space: nowrap; }
+    .meta .ln { display: block; }
+    .meta .lbl { color: var(--ink-4); margin-right: 6px; }
+    .meta .stamp { display: inline-block; margin-top: 6px; padding: 3px 8px; border: 1px solid var(--terra); color: var(--terra); letter-spacing: 0.08em; text-transform: uppercase; font-size: 7pt; white-space: nowrap; }
+
+    /* Problem */
+    .problem { display: grid; grid-template-columns: 26mm minmax(0, 1fr); gap: 8mm; align-items: start; }
+    .section-num { font-family: var(--mono); font-size: 8.5pt; color: var(--ink-4); letter-spacing: 0.12em; text-transform: uppercase; padding-top: 8px; border-top: 1px solid var(--rule); }
+    .section-num b { display: block; color: var(--ink); font-family: var(--serif); font-weight: 400; font-size: 11pt; letter-spacing: 0; text-transform: none; margin-top: 4px; }
+    .problem p { font-family: var(--serif); font-size: 13pt; line-height: 1.32; letter-spacing: -0.005em; color: var(--ink); margin: 0; text-wrap: balance; }
+    .problem p em { font-style: italic; color: var(--terra); font-weight: 400; }
+
+    /* Approach */
+    .approach { display: grid; grid-template-columns: 26mm minmax(0, 1fr); gap: 8mm; }
+    .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4mm; }
+    .tile { background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 2mm 2.5mm; position: relative; display: flex; flex-direction: column; gap: 1.2mm; }
+    .tile .step { font-family: var(--mono); font-size: 7pt; color: var(--ink-4); letter-spacing: 0.12em; }
+    .tile .glyph-box { width: 100%; height: 7mm; border: 1px solid var(--rule); border-radius: 3px; background: var(--paper); display: grid; place-items: center; overflow: hidden; }
+    .tile h3 { font-family: var(--serif); font-weight: 400; font-size: 11pt; letter-spacing: -0.005em; margin: 0; color: var(--ink); line-height: 1.18; }
+    .tile p { margin: 0; font-size: 7.5pt; color: var(--ink-3); line-height: 1.4; }
+    .tile .stat { font-family: var(--serif); font-variant-numeric: tabular-nums; font-size: 8pt; color: var(--ink); margin-top: auto; padding-top: 1.5mm; border-top: 1px dashed var(--rule); }
+    .tile .stat b { font-weight: 500; }
+    .tile .stat .mono { font-family: var(--mono); font-size: 8pt; color: var(--ink-4); }
+
+    /* Matrix */
+    .matrix-wrap { display: grid; grid-template-columns: 26mm minmax(0, 1fr); gap: 8mm; min-height: 58mm; }
+    .matrix { background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; display: grid; grid-template-columns: minmax(0, 1fr) 38mm; grid-template-rows: auto minmax(0, 1fr); overflow: hidden; }
+    .matrix .head { grid-column: 1 / -1; padding: 2.5mm 4mm; display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--rule); }
+    .matrix .head h4 { margin: 0; font-family: var(--serif); font-size: 11pt; font-weight: 400; letter-spacing: -0.005em; }
+    .matrix .head .sub { font-size: 8.5pt; color: var(--ink-3); }
+    .matrix .head .tag { font-family: var(--mono); font-size: 7.5pt; color: var(--ink-3); }
+    .matrix .chart-cell { position: relative; min-height: 0; min-width: 0; padding: 2mm 2mm 1mm; }
+    .matrix svg.chart { display: block; width: 100%; height: 100%; }
+    .matrix .key { border-left: 1px solid var(--rule); padding: 2mm 3mm 2mm; display: flex; flex-direction: column; gap: 1mm; background: var(--paper); overflow: hidden; }
+    .key h5 { font-family: var(--mono); font-size: 6.5pt; color: var(--ink-4); letter-spacing: 0.1em; text-transform: uppercase; margin: 0 0 0.5mm 0; }
+    .quad { display: flex; gap: 2mm; align-items: flex-start; font-size: 8pt; }
+    .quad .dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 4px; flex: 0 0 auto; }
+    .quad b { font-family: var(--serif); font-weight: 400; color: var(--ink); font-size: 8.5pt; line-height: 1.15; }
+    .quad .desc { color: var(--ink-3); font-family: var(--mono); font-size: 6.5pt; line-height: 1.4; }
+    .key .meth-note { margin-top: auto; font-family: var(--serif); font-style: italic; font-size: 6.5pt; color: var(--ink-3); border-top: 1px solid var(--rule); padding-top: 1.5mm; line-height: 1.35; }
+
+    /* Top 5 */
+    .top5-wrap { display: grid; grid-template-columns: 26mm minmax(0, 1fr); gap: 8mm; }
+    .top5 { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3mm; }
+    .rec { background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 2.5mm 2.5mm; display: flex; flex-direction: column; gap: 0.6mm; position: relative; }
+    .rec .rank { position: absolute; top: 2.5mm; right: 3mm; font-family: var(--mono); font-size: 7pt; color: var(--ink-4); }
+    .rec .pn { font-family: var(--serif); font-size: 10.5pt; line-height: 1.1; letter-spacing: -0.01em; color: var(--ink); padding-right: 8mm; }
+    .rec .region { font-size: 7pt; color: var(--ink-3); font-family: var(--mono); letter-spacing: 0.04em; text-transform: uppercase; }
+    .rec .pill { display: inline-flex; align-items: center; gap: 4px; align-self: flex-start; padding: 1px 6px 2px; border-radius: 999px; border: 1px solid; font-size: 7pt; font-weight: 500; margin: 0.5mm 0; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+    .rec .pill .dot { width: 4px; height: 4px; border-radius: 50%; flex: 0 0 auto; }
+    .rec .pill .lbl-text { overflow: hidden; text-overflow: ellipsis; }
+    .rec .nums { display: flex; gap: 4mm; padding-top: 1mm; border-top: 1px dashed var(--rule); margin-top: auto; }
+    .rec .nums .k { font-family: var(--mono); font-size: 6pt; color: var(--ink-4); text-transform: uppercase; letter-spacing: 0.06em; display: block; }
+    .rec .nums .v { font-family: var(--serif); font-size: 10.5pt; color: var(--ink); font-variant-numeric: tabular-nums; }
+    .rec .reason { font-family: var(--serif); font-size: 8pt; line-height: 1.28; color: var(--ink-2); text-wrap: pretty; margin-top: 1mm; }
+
+    /* Footer */
+    .footer { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8mm; padding-top: 3mm; border-top: 1px solid var(--ink); }
+    .limits h5, .meth h5 { font-family: var(--mono); font-size: 7pt; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-4); margin: 0 0 2mm 0; }
+    .limits ol { margin: 0; padding-left: 16px; font-family: var(--serif); font-size: 8pt; line-height: 1.38; color: var(--ink-2); }
+    .limits li { margin-bottom: 1mm; padding-left: 2px; }
+    .limits li::marker { color: var(--ink-4); font-family: var(--mono); font-size: 7.5pt; }
+
+    .meth .formula { background: var(--paper-2); border: 1px solid var(--rule); border-radius: 3px; padding: 2mm 4mm; font-family: var(--serif); font-size: 9.5pt; display: flex; align-items: center; gap: 10px; justify-content: center; margin-bottom: 1.5mm; }
+    .meth .formula .frac { display: inline-flex; flex-direction: column; align-items: center; }
+    .meth .formula .num { border-bottom: 1px solid var(--ink); padding: 0 10px 1px; }
+    .meth .formula .den { padding-top: 1px; }
+    .meth .rep { font-family: var(--mono); font-size: 7.5pt; color: var(--ink-3); line-height: 1.6; display: grid; grid-template-columns: 1fr 1fr; gap: 1mm 4mm; }
+    .meth .rep .lbl { color: var(--ink-4); }
+
+    @page { size: A4; margin: 0; }
+    @media print {
+      body { background: #fff; }
+      .page { margin: 0; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <!-- MASTHEAD -->
+    <header class="masthead">
+      <div class="left">
+        <div class="brand">
+          <span class="glyph">C</span>
+          <span class="name">CantinaIQ</span>
+          <span class="org">Slurpini Partner Intelligence Engine</span>
+        </div>
+        <div class="doc-title">Findings &amp; Recommendations</div>
+        <div class="doc-sub">A board-level one-pager from the {{ run.run_id }} pipeline run</div>
+      </div>
+      <div class="meta">
+        <div class="ln"><span class="lbl">Run</span>{{ run.started_at.strftime("%Y-%m-%d %H:%M UTC") }}</div>
+        <div class="ln"><span class="lbl">Hash</span>{{ run.stages.scoring.config_hash }} · v{{ run.package_version }}</div>
+        <div class="ln"><span class="lbl">Methodology</span>M-{{ run.started_at.strftime("%Y.%m") }}</div>
+        <div class="ln"><span class="lbl">Working set</span>{{ run.stages.scoring.post_rows | thousands }} wines · {{ matrix.totals.producers | thousands }} producers</div>
+        <div class="stamp">Confidential · buying committee</div>
+      </div>
+    </header>
+
+    <!-- PROBLEM -->
+    <section class="problem">
+      <div class="section-num">§ 01 <b>Problem</b></div>
+      <p>{{ findings.problem | safe }}</p>
+    </section>
+
+    <!-- APPROACH -->
+    <section class="approach">
+      <div class="section-num">§ 02 <b>Approach</b></div>
+      <div class="tiles">
+
+        <div class="tile">
+          <div class="step">STEP 01</div>
+          <div class="glyph-box">
+            <svg width="56" height="22" viewBox="0 0 56 36" preserveAspectRatio="xMidYMid meet">
+              <rect x="2"  y="6"  width="52" height="3" fill="#1A1714"/>
+              <rect x="6"  y="12" width="44" height="3" fill="#8B7355"/>
+              <rect x="11" y="18" width="34" height="3" fill="#8B7355" opacity="0.7"/>
+              <rect x="17" y="24" width="22" height="3" fill="#8B7355" opacity="0.45"/>
+              <rect x="22" y="30" width="12" height="3" fill="#6B8E4E"/>
+            </svg>
+          </div>
+          <h3>Clean &amp; validate the Italian wine universe</h3>
+          <p>Cleaning cascade against Vivino + DOC/DOCG references.</p>
+          <div class="stat"><b>{{ run.stages.ingestion.post_rows | thousands }}</b> ingested <span class="mono">→</span> <b>{{ run.stages.cleaning.post_rows | thousands }}</b> wines retained <span class="mono">· {{ (run.stages.cleaning.post_rows / run.stages.ingestion.post_rows * 100) | round(1) }}%</span></div>
+        </div>
+
+        <div class="tile">
+          <div class="step">STEP 02</div>
+          <div class="glyph-box">
+            <svg width="78" height="22" viewBox="0 0 78 36" preserveAspectRatio="xMidYMid meet">
+              <path d="M2 30 C 12 30, 16 8, 22 8 S 32 30, 42 30" stroke="#1A1714" fill="none" stroke-width="1.2"/>
+              <line x1="22" y1="8" x2="22" y2="30" stroke="#9B3A2F" stroke-width="1" stroke-dasharray="2 2"/>
+              <rect x="48" y="8"  width="26" height="4" fill="#1F3A5F"/>
+              <rect x="48" y="14" width="20" height="4" fill="#8B7355"/>
+              <rect x="48" y="20" width="18" height="4" fill="#6B8E4E"/>
+              <rect x="48" y="26" width="14" height="4" fill="#5B3A8C"/>
+            </svg>
+          </div>
+          <h3>Score with Bayesian-shrunk rating + 5-factor composite</h3>
+          <p>Shrinkage toward μ = {{ run.stages.scoring.custom.global_mean_rating | round(2) }} with m = {{ run.stages.scoring.custom.m_used }}, then weighted.</p>
+          <div class="stat"><b>5</b> components · <span class="mono">{{ (run.stages.scoring.custom.weights_used.weighted_rating * 100) | round(0) | int }} / {{ (run.stages.scoring.custom.weights_used.market_confidence * 100) | round(0) | int }} / {{ (run.stages.scoring.custom.weights_used.value_for_money * 100) | round(0) | int }} / {{ (run.stages.scoring.custom.weights_used.premium_fit * 100) | round(0) | int }} / {{ (run.stages.scoring.custom.weights_used.portfolio_opportunity * 100) | round(0) | int }}</span></div>
+        </div>
+
+        <div class="tile">
+          <div class="step">STEP 03</div>
+          <div class="glyph-box">
+            <svg width="78" height="22" viewBox="0 0 78 36" preserveAspectRatio="xMidYMid meet">
+              <rect x="6" y="4"  width="66" height="4" fill="#5B3A8C"/>
+              <rect x="6" y="10" width="56" height="4" fill="#1F3A5F"/>
+              <rect x="6" y="16" width="44" height="4" fill="#6B8E4E"/>
+              <rect x="6" y="22" width="28" height="4" fill="#8B7355"/>
+              <rect x="6" y="28" width="14" height="4" fill="#9B3A2F"/>
+            </svg>
+          </div>
+          <h3>Segment producers into five opportunity classes</h3>
+          <p>Joint thresholds on rating, composite and fit.</p>
+          <div class="stat"><b>{{ matrix.totals.producers | thousands }}</b> shortlisted · <span class="mono">Target · Premium · Value · Monitor · Avoid</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MATRIX -->
+    <section class="matrix-wrap">
+      <div class="section-num">§ 03 <b>Centrepiece</b></div>
+      <div class="matrix">
+        <div class="head">
+          <div>
+            <h4>Opportunity matrix — price (log) × Bayesian rating</h4>
+            <div class="sub">Each bubble is a producer · area ∝ review count · quadrants split at €{{ matrix.split.price_eur | round(0) | int }} / rating {{ matrix.split.rating | round(2) }}</div>
+          </div>
+          <div class="tag">{{ matrix.totals.producers | thousands }} producers · {{ matrix.totals.wines | thousands }} wines</div>
+        </div>
+
+        <div class="chart-cell">
+          <svg class="chart" viewBox="0 0 600 320" preserveAspectRatio="xMidYMid meet">
+            <!-- quadrant tints -->
+            <rect x="60" y="20" width="180" height="120" fill="rgba(107,142,78,0.05)"/>
+            <rect x="240" y="20" width="320" height="120" fill="rgba(31,58,95,0.05)"/>
+            <rect x="60" y="140" width="180" height="140" fill="rgba(139,115,85,0.05)"/>
+            <rect x="240" y="140" width="320" height="140" fill="rgba(155,58,47,0.05)"/>
+
+            <!-- grid + axes -->
+            <g font-family="JetBrains Mono" font-size="9" fill="#9A8F82">
+              <line x1="60"  y1="280" x2="60"  y2="20" stroke="#E8E0D5"/>
+              <line x1="60"  y1="280" x2="560" y2="280" stroke="#1A1714" stroke-width="0.6"/>
+              <line x1="103" y1="280" x2="103" y2="20" stroke="#E8E0D5"/>
+              <text x="103" y="295" text-anchor="middle">€10</text>
+              <line x1="186" y1="280" x2="186" y2="20" stroke="#E8E0D5"/>
+              <text x="186" y="295" text-anchor="middle">€20</text>
+              <line x1="295" y1="280" x2="295" y2="20" stroke="#E8E0D5"/>
+              <text x="295" y="295" text-anchor="middle">€50</text>
+              <line x1="378" y1="280" x2="378" y2="20" stroke="#E8E0D5"/>
+              <text x="378" y="295" text-anchor="middle">€100</text>
+              <line x1="461" y1="280" x2="461" y2="20" stroke="#E8E0D5"/>
+              <text x="461" y="295" text-anchor="middle">€200</text>
+              <line x1="60" y1="247" x2="560" y2="247" stroke="#E8E0D5"/>
+              <text x="54" y="250" text-anchor="end">3.4</text>
+              <line x1="60" y1="201" x2="560" y2="201" stroke="#E8E0D5"/>
+              <text x="54" y="204" text-anchor="end">3.7</text>
+              <line x1="60" y1="155" x2="560" y2="155" stroke="#E8E0D5"/>
+              <text x="54" y="158" text-anchor="end">4.0</text>
+              <line x1="60" y1="109" x2="560" y2="109" stroke="#E8E0D5"/>
+              <text x="54" y="112" text-anchor="end">4.3</text>
+              <line x1="60" y1="63"  x2="560" y2="63"  stroke="#E8E0D5"/>
+              <text x="54" y="66" text-anchor="end">4.6</text>
+            </g>
+
+            <!-- quadrant separators -->
+            <line x1="240" y1="20" x2="240" y2="280" stroke="#D9CFBF" stroke-dasharray="3 3"/>
+            <line x1="60" y1="140" x2="560" y2="140" stroke="#D9CFBF" stroke-dasharray="3 3"/>
+
+            <text x="68"  y="36"  font-family="Source Serif 4" font-size="12" fill="#4A6B36">Hidden Gems</text>
+            <text x="552" y="36"  font-family="Source Serif 4" font-size="12" fill="#1F3A5F" text-anchor="end">Premium Icons</text>
+            <text x="68"  y="272" font-family="Source Serif 4" font-size="12" fill="#6E5A36">Budget Risk</text>
+            <text x="552" y="272" font-family="Source Serif 4" font-size="12" fill="#7B2A22" text-anchor="end">Overpriced Risk</text>
+
+            <text x="310" y="315" font-family="Inter" font-size="9" fill="#6B6258" text-anchor="middle">Average price, € · log scale</text>
+            <text x="14" y="150" font-family="Inter" font-size="9" fill="#6B6258" text-anchor="middle" transform="rotate(-90 14 150)">Bayesian-weighted rating</text>
+
+            <!-- Bubbles, projected by context-builder -->
+            <g fill-opacity="0.55">
+              {% for b in matrix.bubbles %}
+              <circle cx="{{ b.cx | round(1) }}" cy="{{ b.cy | round(1) }}" r="{{ b.r | round(1) }}" fill="{{ b.fill }}" stroke="{{ b.stroke_color }}" stroke-width="{{ b.stroke_width }}"/>
+              {% endfor %}
+            </g>
+
+            <!-- Callouts on top-3 -->
+            <g font-family="Source Serif 4" font-size="9.5" fill="#1A1714">
+              {% for c in matrix.callouts %}
+              <line x1="{{ c.line_x1 }}" y1="{{ c.line_y1 }}" x2="{{ c.line_x2 }}" y2="{{ c.line_y2 }}" stroke="#1A1714" stroke-width="0.5"/>
+              <text x="{{ c.x }}" y="{{ c.y }}">{{ c.label }}</text>
+              {% endfor %}
+            </g>
+          </svg>
+        </div>
+
+        <aside class="key">
+          <h5>Quadrant key</h5>
+          <div class="quad"><span class="dot" style="background:#6B8E4E"></span><div><b>Hidden Gems</b><div class="desc">≥ {{ matrix.split.rating | round(2) }} · &lt; €{{ matrix.split.price_eur | round(0) | int }}</div></div></div>
+          <div class="quad"><span class="dot" style="background:#1F3A5F"></span><div><b>Premium Icons</b><div class="desc">≥ {{ matrix.split.rating | round(2) }} · ≥ €{{ matrix.split.price_eur | round(0) | int }}</div></div></div>
+          <div class="quad"><span class="dot" style="background:#8B7355"></span><div><b>Budget Risk</b><div class="desc">&lt; {{ matrix.split.rating | round(2) }} · &lt; €{{ matrix.split.price_eur | round(0) | int }}</div></div></div>
+          <div class="quad"><span class="dot" style="background:#9B3A2F"></span><div><b>Overpriced Risk</b><div class="desc">&lt; {{ matrix.split.rating | round(2) }} · ≥ €{{ matrix.split.price_eur | round(0) | int }}</div></div></div>
+
+          <div style="margin-top: 1mm; padding-top: 1.5mm; border-top: 1px solid var(--rule)">
+            <h5>Bubble size</h5>
+            <svg viewBox="0 0 130 24" width="100%" height="20">
+              <circle cx="10"  cy="14" r="3"  fill="#1A1714" fill-opacity="0.5"/>
+              <circle cx="40"  cy="14" r="7"  fill="#1A1714" fill-opacity="0.5"/>
+              <circle cx="85"  cy="14" r="12" fill="#1A1714" fill-opacity="0.5"/>
+              <text x="10" y="24" font-size="6.5" font-family="JetBrains Mono" text-anchor="middle" fill="#9A8F82">200</text>
+              <text x="40" y="24" font-size="6.5" font-family="JetBrains Mono" text-anchor="middle" fill="#9A8F82">1k</text>
+              <text x="85" y="24" font-size="6.5" font-family="JetBrains Mono" text-anchor="middle" fill="#9A8F82">5k revs</text>
+            </svg>
+          </div>
+
+          <div class="meth-note">Sage outline marks sustainability flag (preview enrichment).</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- TOP 5 -->
+    <section class="top5-wrap">
+      <div class="section-num">§ 04 <b>Top 5 recommendations</b></div>
+      <div class="top5">
+        {% for p in top_producers[:5] %}
+        <article class="rec">
+          <span class="rank">{{ "%02d"|format(p.rank) }}</span>
+          <div class="pn">{{ p.producer_name }}</div>
+          <div class="region">{{ p.region_label }}</div>
+          <span class="pill" style="color:{{ p.pill_stroke }}; background:{{ p.pill_fill }}; border-color:{{ p.pill_stroke }}">
+            <span class="dot" style="background:{{ p.pill_dot }}"></span>{{ p.recommendation }}
+          </span>
+          <div class="reason">{{ p.reason }}</div>
+          <div class="nums">
+            <div><span class="k">Rating</span><span class="v">{{ p.weighted_rating | round(2) }}</span></div>
+            <div><span class="k">Price</span><span class="v">€{{ p.avg_price | round(0) | int }}</span></div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="limits">
+        <h5>§ 05  Limitations the committee must hold</h5>
+        <ol>
+          {% for limit in findings.limitations[:3] %}
+          <li>{{ limit | safe }}</li>
+          {% endfor %}
+        </ol>
+      </div>
+      <div class="meth">
+        <h5>§ 06  Methodology &amp; reproducibility</h5>
+        <div class="formula">
+          <span>r<sub>w</sub></span>
+          <span>=</span>
+          <span class="frac">
+            <span class="num">n · r̄ + m · μ</span>
+            <span class="den">n + m</span>
+          </span>
+          <span style="font-style: italic; font-size: 8.5pt; color: var(--ink-3); margin-left: 6px;">m = {{ run.stages.scoring.custom.m_used }} · μ = {{ run.stages.scoring.custom.global_mean_rating | round(2) }}</span>
+        </div>
+        <div class="rep">
+          <div><span class="lbl">Run timestamp</span></div><div>{{ run.started_at.strftime("%Y-%m-%d %H:%M UTC") }}</div>
+          <div><span class="lbl">Config hash</span></div><div>{{ run.stages.scoring.config_hash }} · v{{ run.package_version }}</div>
+          <div><span class="lbl">Methodology</span></div><div>M-{{ run.started_at.strftime("%Y.%m") }}</div>
+          <div><span class="lbl">Working set</span></div><div>{{ run.stages.scoring.post_rows | thousands }} wines · {{ matrix.totals.producers | thousands }} producers</div>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+</body>
+</html>

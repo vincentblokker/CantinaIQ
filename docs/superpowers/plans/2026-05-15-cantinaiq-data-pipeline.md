@@ -5627,6 +5627,313 @@ git commit -m "feat(reporting): methodology.md.j2 with editorial + injected numb
 
 ---
 
+### Task 13.7: Wire findings one-pager template into report build
+
+**Context:** `reports/templates/findings-one-pager.html.j2` already exists (ported from a Claude Design output, see `reports/findings-one-pager.html` for the reference render with mock data). The template expects extra context fields beyond `RunBundle`: `top_producers`, `matrix.bubbles`, `matrix.callouts`, `matrix.split`, `matrix.totals`, `findings.problem`, `findings.limitations`. This task adds the context-builder for that template and registers it in the report CLI.
+
+**Files:**
+- Create: `src/cantinaiq/reporting/findings.py`
+- Create: `config/reporting/findings.yaml` (editorial copy)
+- Modify: `src/cantinaiq/config/models.py` (add `ReportingConfig.findings`)
+- Modify: `src/cantinaiq/reporting/renderer.py` (allow extra context dict)
+- Modify: `src/cantinaiq/reporting/cli.py` (register `findings-one-pager`)
+- Create: `tests/reporting/test_findings_template.py`
+
+- [ ] **Step 1: Editorial copy in `config/reporting/findings.yaml`**
+
+```yaml
+problem: |
+  Slurpini must commit annual buying budget to a small set of Italian
+  producers before Vinitaly, with rating evidence that is <em>thinly
+  distributed, vintage-mixed and platform-biased</em> — every wrong
+  commitment costs a year of shelf and a quarter of margin.
+limitations:
+  - "<b>Selection bias.</b> Producers without a Vivino footprint are invisible to the pipeline; small natural-wine producers are systematically under-counted."
+  - "<b>Vintage compression.</b> Ratings are mean-pooled across in-scope vintages, which under-weights producers with strong recent runs."
+  - "<b>Single-platform anchoring.</b> Review distributions are drawn from one consumer platform — palate bias is Anglophone."
+```
+
+- [ ] **Step 2: Pill colour map + bubble projection in `src/cantinaiq/reporting/findings.py`**
+
+```python
+"""Context-builder for the findings-one-pager template."""
+
+from __future__ import annotations
+
+import math
+from typing import Any
+
+import polars as pl
+
+PILL_BY_RECOMMENDATION = {
+    "Premium Brand Builder": {"stroke": "#5B3A8C", "fill": "rgba(91,58,140,0.10)", "dot": "#5B3A8C", "abbr": "Brand Builder"},
+    "Target":                {"stroke": "#1F3A5F", "fill": "rgba(31,58,95,0.10)", "dot": "#1F3A5F", "abbr": "Target"},
+    "Value Opportunity":     {"stroke": "#4A6B36", "fill": "rgba(107,142,78,0.14)", "dot": "#6B8E4E", "abbr": "Value Opp."},
+    "Monitor":               {"stroke": "#6B6258", "fill": "rgba(107,98,88,0.08)", "dot": "#6B6258", "abbr": "Monitor"},
+    "Avoid for Now":         {"stroke": "#7B2A22", "fill": "rgba(155,58,47,0.10)", "dot": "#9B3A2F", "abbr": "Avoid"},
+}
+
+SEGMENT_FILL = {
+    "Hidden Gem":           "#6B8E4E",
+    "Premium Icon":         "#1F3A5F",
+    "Commercial Value":     "#8B7355",
+    "Overpriced Risk":      "#9B3A2F",
+    "Low Confidence Niche": "#8B7355",
+}
+
+
+def _project_x(price: float) -> float:
+    return 60.0 + (math.log10(max(price, 1.0)) - 1.0) / (math.log10(320.0) - 1.0) * 500.0
+
+
+def _project_y(rating: float) -> float:
+    return 280.0 - (rating - 3.0) / (4.7 - 3.0) * 260.0
+
+
+def _bubble_radius(reviews: int) -> float:
+    # area ∝ reviews; r ∝ sqrt(reviews); calibrated so 5000 reviews → r ≈ 13
+    return min(max(math.sqrt(max(reviews, 1)) * 0.18, 3.0), 14.0)
+
+
+def build_findings_context(
+    producers_scored: pl.DataFrame,
+    wines_scored: pl.DataFrame,
+    price_split: float,
+    rating_split: float,
+    reasons: dict[str, str],
+    findings_copy: dict[str, Any],
+) -> dict[str, Any]:
+    top5 = (
+        producers_scored.sort("composite_score", descending=True)
+                        .head(5)
+                        .to_dicts()
+    )
+    top_producers: list[dict[str, Any]] = []
+    for i, p in enumerate(top5, start=1):
+        pill = PILL_BY_RECOMMENDATION.get(p["recommendation"], PILL_BY_RECOMMENDATION["Monitor"])
+        top_producers.append({
+            "rank": i,
+            "producer_name": p["producer_name"],
+            "region_label": p["macro_region"],
+            "recommendation": pill["abbr"],
+            "weighted_rating": p["weighted_rating"],
+            "avg_price": p["avg_price"],
+            "reason": reasons.get(p["producer_name"], ""),
+            "pill_stroke": pill["stroke"],
+            "pill_fill": pill["fill"],
+            "pill_dot": pill["dot"],
+        })
+
+    bubbles: list[dict[str, Any]] = []
+    for row in producers_scored.to_dicts():
+        fill = SEGMENT_FILL.get(row["market_segment"], "#8B7355")
+        bubbles.append({
+            "cx": _project_x(row["avg_price"]),
+            "cy": _project_y(row["weighted_rating"]),
+            "r": _bubble_radius(row["total_reviews"]),
+            "fill": fill,
+            "stroke_color": fill,
+            "stroke_width": 0.6,
+        })
+
+    callouts: list[dict[str, Any]] = []
+    for p in top5[:3]:
+        cx = _project_x(p["avg_price"])
+        cy = _project_y(p["weighted_rating"])
+        callouts.append({
+            "label": p["producer_name"],
+            "x": cx + 8,
+            "y": cy - 16,
+            "line_x1": cx,
+            "line_y1": cy,
+            "line_x2": cx + 6,
+            "line_y2": cy - 14,
+        })
+
+    return {
+        "top_producers": top_producers,
+        "matrix": {
+            "split": {"price_eur": price_split, "rating": rating_split},
+            "bubbles": bubbles,
+            "callouts": callouts,
+            "totals": {"producers": producers_scored.height, "wines": wines_scored.height},
+        },
+        "findings": findings_copy,
+    }
+```
+
+- [ ] **Step 3: Extend `render_report` to accept extra context**
+
+In `src/cantinaiq/reporting/renderer.py`, change the signature:
+
+```python
+def render_report(
+    template_name: str,
+    bundle: RunBundle,
+    templates_dir: Path,
+    out_path: Path,
+    figures_dir: Path | None = None,
+    extra_context: dict[str, Any] | None = None,
+) -> Path:
+    ...
+    ctx = build_context(bundle)
+    ctx["figures_dir"] = str(figures_dir) if figures_dir else ""
+    if extra_context:
+        ctx.update(extra_context)
+    ...
+```
+
+- [ ] **Step 4: Register the template in `src/cantinaiq/reporting/cli.py`**
+
+```python
+TEMPLATES_BY_NAME = {
+    "data-quality":       "data-quality.md.j2",
+    "methodology":        "methodology.md.j2",
+    "findings-one-pager": "findings-one-pager.html.j2",
+}
+```
+
+And in `build`, when `name == "findings-one-pager"`, load `producers_scored.parquet` + `wines_scored.parquet` from `data/processed/`, read editorial copy from `config/reporting/findings.yaml`, build the extra context via `build_findings_context`, and pass it to `render_report`.
+
+- [ ] **Step 5: Write the test**
+
+```python
+# tests/reporting/test_findings_template.py
+from datetime import datetime, timezone
+from pathlib import Path
+
+import polars as pl
+
+from cantinaiq.reporting.findings import build_findings_context
+from cantinaiq.reporting.renderer import render_report
+from cantinaiq.runlog.schema import RunBundle, StageRunLog
+
+TEMPLATES = Path("reports/templates")
+
+
+def _bundle() -> RunBundle:
+    return RunBundle(
+        run_id="2026-05-16T00-00__abc12345",
+        started_at=datetime(2026, 5, 16, 14, 22, tzinfo=timezone.utc),
+        finished_at=datetime(2026, 5, 16, 14, 28, tzinfo=timezone.utc),
+        stages={
+            "ingestion": StageRunLog(
+                stage="ingestion",
+                started_at=datetime(2026, 5, 16, 14, 22, tzinfo=timezone.utc),
+                finished_at=datetime(2026, 5, 16, 14, 23, tzinfo=timezone.utc),
+                pre_rows=0, post_rows=47291,
+                config_hash="abc12345",
+                config_snapshot_ref="config/snapshots/abc12345.yaml",
+            ),
+            "cleaning": StageRunLog(
+                stage="cleaning",
+                started_at=datetime(2026, 5, 16, 14, 23, tzinfo=timezone.utc),
+                finished_at=datetime(2026, 5, 16, 14, 24, tzinfo=timezone.utc),
+                pre_rows=47291, post_rows=8247,
+                config_hash="abc12345",
+                config_snapshot_ref="config/snapshots/abc12345.yaml",
+            ),
+            "scoring": StageRunLog(
+                stage="scoring",
+                started_at=datetime(2026, 5, 16, 14, 25, tzinfo=timezone.utc),
+                finished_at=datetime(2026, 5, 16, 14, 27, tzinfo=timezone.utc),
+                pre_rows=8247, post_rows=8247,
+                config_hash="abc12345",
+                config_snapshot_ref="config/snapshots/abc12345.yaml",
+                custom={
+                    "m_used": 38,
+                    "m_strategy": "auto-median",
+                    "global_mean_rating": 3.84,
+                    "weights_used": {
+                        "weighted_rating": 0.35, "market_confidence": 0.20,
+                        "value_for_money": 0.20, "premium_fit": 0.15,
+                        "portfolio_opportunity": 0.10,
+                    },
+                },
+            ),
+        },
+        pipeline_config={},
+        cli_args=[],
+        git_sha=None,
+        python_version="3.13.0",
+        package_version="0.1.0",
+    )
+
+
+def test_findings_one_pager_renders(tmp_path: Path):
+    producers = pl.DataFrame([
+        {"producer_name": "Tenuta San Guido", "macro_region": "Toscana", "wines_in_dataset": 4,
+         "total_reviews": 4500, "avg_price": 248.0, "weighted_rating": 4.58,
+         "value_score": 1.2, "composite_score": 0.92,
+         "market_segment": "Premium Icon", "recommendation": "Premium Brand Builder",
+         "run_config_hash": "abc12345"},
+        {"producer_name": "Gaja", "macro_region": "Piemonte", "wines_in_dataset": 3,
+         "total_reviews": 1800, "avg_price": 212.0, "weighted_rating": 4.54,
+         "value_score": 1.1, "composite_score": 0.89,
+         "market_segment": "Premium Icon", "recommendation": "Premium Brand Builder",
+         "run_config_hash": "abc12345"},
+        {"producer_name": "Marchesi Antinori", "macro_region": "Toscana", "wines_in_dataset": 12,
+         "total_reviews": 5200, "avg_price": 96.0, "weighted_rating": 4.38,
+         "value_score": 1.3, "composite_score": 0.85,
+         "market_segment": "Premium Icon", "recommendation": "Target",
+         "run_config_hash": "abc12345"},
+        {"producer_name": "COS", "macro_region": "Sicilia", "wines_in_dataset": 5,
+         "total_reviews": 450, "avg_price": 38.0, "weighted_rating": 4.16,
+         "value_score": 1.5, "composite_score": 0.78,
+         "market_segment": "Hidden Gem", "recommendation": "Value Opportunity",
+         "run_config_hash": "abc12345"},
+        {"producer_name": "Mastroberardino", "macro_region": "Campania", "wines_in_dataset": 6,
+         "total_reviews": 380, "avg_price": 42.0, "weighted_rating": 4.07,
+         "value_score": 1.4, "composite_score": 0.74,
+         "market_segment": "Hidden Gem", "recommendation": "Value Opportunity",
+         "run_config_hash": "abc12345"},
+    ])
+    wines = pl.DataFrame({"wine_name": ["x"] * 8247})
+    extra = build_findings_context(
+        producers_scored=producers,
+        wines_scored=wines,
+        price_split=60.0,
+        rating_split=4.05,
+        reasons={
+            "Tenuta San Guido": "Anchor prestige tier; protect existing allocation.",
+            "Gaja": "Hold annual cadence; rating stable, no upside.",
+            "Marchesi Antinori": "Top composite at €96 — pivotal Premium-tier producer.",
+            "COS": "Rating 4.16 at €38 — strongest margin-per-quality this run.",
+            "Mastroberardino": "South-Italy diversification; under-represented region.",
+        },
+        findings_copy={
+            "problem": "Test problem statement.",
+            "limitations": ["Lim A.", "Lim B.", "Lim C."],
+        },
+    )
+    out = render_report(
+        template_name="findings-one-pager.html.j2",
+        bundle=_bundle(),
+        templates_dir=TEMPLATES,
+        out_path=tmp_path / "one-pager.html",
+        extra_context=extra,
+    )
+    text = out.read_text()
+    assert "Tenuta San Guido" in text
+    assert "8,247 wines" in text
+    assert "m = 38" in text
+    assert "μ = 3.84" in text
+    assert "Test problem statement." in text
+    assert "Lim A." in text
+```
+
+- [ ] **Step 6: Run, fix, commit**
+
+```bash
+uv run pytest tests/reporting/test_findings_template.py -v
+git add src/cantinaiq/reporting/findings.py src/cantinaiq/reporting/renderer.py \
+        src/cantinaiq/reporting/cli.py config/reporting/findings.yaml \
+        tests/reporting/test_findings_template.py
+git commit -m "feat(reporting): wire findings-one-pager.html.j2 into report build"
+```
+
+---
+
 ## Self-review
 
 After implementation, re-run the entire test suite and confirm acceptance criteria from spec §11:
