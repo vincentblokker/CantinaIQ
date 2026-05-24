@@ -58,7 +58,7 @@ no_implicit_optional = true
 plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
-module = ["hydra.*", "omegaconf.*", "matplotlib.*", "fastexcel.*"]
+module = ["hydra.*", "omegaconf.*", "matplotlib.*", "fastexcel.*", "yaml"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

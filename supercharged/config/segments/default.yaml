@@ -1,0 +1,15 @@
+prices:
+  entry_max: 15.0
+  accessible_premium_max: 30.0
+  premium_max: 75.0
+confidence:
+  low_max: 50
+  emerging_max: 250
+  reliable_max: 1000
+market:
+  hidden_gem_min_rating: 4.2
+  premium_icon_min_rating: 4.3
+  premium_icon_min_price: 75.0
+  overpriced_max_rating: 4.0
+  overpriced_min_price: 75.0
+  low_confidence_review_max: 50

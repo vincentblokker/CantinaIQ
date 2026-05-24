@@ -1,0 +1,6 @@
+# @package scoring.weights
+weighted_rating: 0.35
+market_confidence: 0.20
+value_for_money: 0.20
+premium_fit: 0.15
+portfolio_opportunity: 0.10

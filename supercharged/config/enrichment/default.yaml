@@ -1,0 +1,11 @@
+aliases_path: data/reference/producer_aliases.csv
+macro_regions_path: data/reference/macro_regions.csv
+known_top50_path: data/reference/known_producers_top50.csv
+coverage_target_overall: 0.80
+coverage_target_per_region: 0.70
+llm:
+  model: claude-haiku-4-5-20251001
+  temperature: 0.0
+  batch_size: 50
+  max_retries: 3
+  cache_path: data/reference/llm_cache.parquet

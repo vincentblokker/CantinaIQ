@@ -1,0 +1,7 @@
+defaults:
+  - cleaning: default
+  - enrichment: default
+  - scoring: default
+  - segments: default
+  - paths: default
+  - _self_
