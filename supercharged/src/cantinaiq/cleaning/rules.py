@@ -43,9 +43,16 @@ _ENCODING_MAP: dict[str, str] = {
 
 
 def fix_encoding(value: str) -> str:
-    """Fix UTF-8-bytes-read-as-Latin-1 mojibake on diacritics."""
+    """Fix mojibake on diacritics. Tries Mac-Roman ↔ UTF-8 first (the real
+    Vivino-export.xlsx pattern, e.g. `Itali√´` → `Italië`), then falls back
+    to a Latin-1-style character map (used by some test fixtures). Already-
+    correct UTF-8 strings are returned unchanged."""
     if not value:
         return value
+    try:
+        return value.encode("mac_roman").decode("utf-8")
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        pass
     out = value
     for bad, good in _ENCODING_MAP.items():
         out = out.replace(bad, good)

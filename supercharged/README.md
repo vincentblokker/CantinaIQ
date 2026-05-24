@@ -8,6 +8,27 @@ The goal is not to replace human wine expertise. The goal is to reduce selection
 
 ---
 
+## Quickstart
+
+```bash
+cd supercharged
+uv sync                                       # install pinned deps
+CANTINAIQ_DISABLE_LLM=1 uv run cantinaiq run all   # ~5s on the full dataset
+uv run cantinaiq report build                 # render reports
+uv run cantinaiq status                       # latest run summary
+uv run cantinaiq audit <config-hash>          # snapshot + matching runs
+```
+
+Outputs:
+- `data/processed/*.parquet` — wines / producers / regions scored
+- `data/exports/*.json` — JSON contracts for downstream (sub-projects C, D)
+- `reports/generated/{data-quality.md, methodology.md, findings-one-pager.html}`
+- `data/runs/<run-id>/` — full run-log per stage + atomic checksums
+
+For the LLM-disambiguation pass on ambiguous producers (spec §5.2), set `ANTHROPIC_API_KEY` and drop the `CANTINAIQ_DISABLE_LLM` env var. Without it, pass-1 (alias whitelist + honorific prefix + first-token fallback) handles the bulk; ambiguous rows are flagged in the run-log under `enrichment.custom.warnings.coverage`.
+
+---
+
 ## 1. Project Context
 
 Slurpini is an importer of high-quality Italian wines with a strong focus on sustainability. The company receives collaboration requests from many Italian wine producers and needs a more structured way to decide which producers, regions or wine types deserve attention.

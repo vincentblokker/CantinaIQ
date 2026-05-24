@@ -17,9 +17,37 @@ from cantinaiq.config.models import PipelineConfig
 from cantinaiq.pipeline import register_stage
 from cantinaiq.runlog import RunLog
 
+DUTCH_TO_ENGLISH_COUNTRY: dict[str, str] = {
+    "Italië": "Italy",
+    "Frankrijk": "France",
+    "Spanje": "Spain",
+    "Duitsland": "Germany",
+    "Portugal": "Portugal",
+    "Argentinië": "Argentina",
+    "Chili": "Chile",
+    "Australië": "Australia",
+    "Verenigde Staten": "USA",
+    "Griekenland": "Greece",
+    "Hongarije": "Hungary",
+    "Libanon": "Lebanon",
+    "Oostenrijk": "Austria",
+    "Zwitserland": "Switzerland",
+    "Zuid-Afrika": "South Africa",
+    "Nieuw-Zeeland": "New Zealand",
+    "Servië": "Serbia",
+    "Uruguay": "Uruguay",
+}
+
 
 def _clean_country_region(value: str | None) -> str:
     return fix_encoding(parse_tuple_string(value or ""))
+
+
+def _normalise_country(value: str) -> str:
+    """Map Dutch country names to English so downstream Pandera schema
+    (isin=['Italy']) matches the cleaned values."""
+    cleaned = (value or "").strip()
+    return DUTCH_TO_ENGLISH_COUNTRY.get(cleaned, cleaned)
 
 
 def _first_word(name: str | None) -> str | None:
@@ -82,8 +110,14 @@ def run_cleaning(cfg: PipelineConfig, run_id: str) -> Path:
         if (removed := before - df.height) > 0:
             drops["invalid_price"] = removed
 
-        # 4. Country titlecase + strip.
-        df = df.with_columns(pl.col("country").str.strip_chars().str.to_titlecase())
+        # 4. Country titlecase + strip + Dutch→English normalisation. Pandera
+        #    schema expects "Italy" but the source data labels rows in Dutch.
+        df = df.with_columns(
+            pl.col("country")
+            .str.strip_chars()
+            .str.to_titlecase()
+            .map_elements(_normalise_country, return_dtype=pl.String)
+        )
 
         # 5. IT filter — must run *after* tuple-parse + titlecase.
         target = cfg.cleaning.italian_country_token
