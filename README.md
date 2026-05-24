@@ -37,7 +37,7 @@ Both tracks use the same input data (`data/raw/Vivino-export.xlsx`, kept in each
 | **Dashboard** | None | Next.js + Tailwind + shadcn/ui (designed in `/supercharged/reports/findings-one-pager.html`, planned in `/supercharged/docs/superpowers/specs/`) |
 | **Limitations discussion** | 4 bullets | Bias quantification, external-validity discussion, sensitivity sweeps on scoring weights, top-N stability analysis |
 
-Both arrive at recommendations of comparable directional shape (Antinori / Gaja / Tenuta San Guido at the top; Etna and Taurasi as value plays). The difference is **how defensibly** that recommendation is reached.
+Both arrive at recommendations of comparable directional shape (Bolgheri Sassicaia / Brunello / Amarone Classico at the top by weighted rating; Primitivo di Manduria, Abruzzo and Lugana as value plays). The difference is **how defensibly** that recommendation is reached.
 
 ## Pick a path
 

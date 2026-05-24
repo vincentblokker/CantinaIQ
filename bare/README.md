@@ -2,14 +2,42 @@
 
 This directory is the **bare-essentials** deliverable for the ADA Applied AI Bootcamp Final Assignment (the Slurpini wine case). It is the minimum that satisfies the brief verbatim: one notebook, pandas, basic EDA, a written recommendation, and a demonstrative crawler extension.
 
-The companion track lives in `../supercharged/` and answers the same business question with significantly more rigour (Polars + DuckDB pipeline, Bayesian-shrunk composite scoring, Pydantic-validated config with snapshot/audit, Pandera schema contracts, Hypothesis property tests, Jinja2-templated reports, sensitivity analysis). The reason for delivering both is documented in the repository root `README.md`.
+The companion track lives in [`../supercharged/`](../supercharged/) and answers the same business question with significantly more rigour (Polars + DuckDB pipeline, Bayesian-shrunk composite scoring, Pydantic-validated config with snapshot/audit, Pandera schema contracts, Hypothesis property tests, Jinja2-templated reports, sensitivity analysis). The reason for delivering **both** is documented in the repository root [`README.md`](../README.md).
+
+---
+
+## For the reviewer — TL;DR
+
+| You want to see… | Open |
+|---|---|
+| The half-page recommendation for Slurpini | [`recommendation.md`](recommendation.md) |
+| The full analysis, with charts and intermediate tables | [`notebooks/slurpini-analysis.ipynb`](notebooks/slurpini-analysis.ipynb) (outputs baked in — no need to run) |
+| The crawler extension code | [`crawler-extension.py`](crawler-extension.py) |
+| Top-30 producers / top-20 regions as flat CSV | [`output/`](output/) |
+| The raw input | [`data/raw/Vivino-export.xlsx`](data/raw/) |
+
+Estimated review time: **10–15 minutes** if you read the recommendation and skim the notebook. **30 seconds** to re-run the notebook end-to-end on the provided dataset.
+
+---
+
+## Assignment brief mapping
+
+The ADA brief asks for three deliverables. Here is where each one lives in this directory:
+
+| Brief requirement | Delivered by | Notes |
+|---|---|---|
+| **(i) Extend the existing crawler** with at least one new field | [`crawler-extension.py`](crawler-extension.py) | Adds two derived fields (`vintage`, `producer_hint`) computed from existing data, plus a documented stub for network-scraped fields (`alcohol_percentage`, `grape_varieties`, `food_pairings`, `sustainability_claim`) — see file header for the rationale on not running network calls against Vivino. |
+| **(ii) Perform EDA** on the resulting dataset | [`notebooks/slurpini-analysis.ipynb`](notebooks/slurpini-analysis.ipynb) | 20 cells, 8 sections (load → clean → producer extraction → top regions → top producers → value scatter → export → recommendation). Outputs and charts are baked into the notebook so the reviewer does not need to run anything. |
+| **(iii) Produce a written recommendation** for Slurpini | [`recommendation.md`](recommendation.md) | Half-A4, non-technical, addressed to a buying-committee reader. Every claim traces back to a CSV in [`output/`](output/) or a cell in the notebook. |
+
+---
 
 ## What's in here
 
 ```
 bare/
 ├── README.md                            ← this file
-├── recommendation.md                    ← half-A4 prose recommendation (read this first)
+├── recommendation.md                    ← half-A4 prose recommendation
 ├── requirements.txt                     ← pandas, openpyxl, matplotlib, jupyter
 ├── notebooks/
 │   └── slurpini-analysis.ipynb          ← end-to-end analysis (outputs baked in)
@@ -24,52 +52,147 @@ bare/
     └── wines_extended.csv
 ```
 
+---
+
 ## Run it
+
+Tested on **Python 3.13** (Homebrew) and **Python 3.11** (pyenv). Any 3.10+ should work.
 
 ```bash
 cd bare
-python -m venv .venv && source .venv/bin/activate
+python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 jupyter notebook notebooks/slurpini-analysis.ipynb
-# Run all cells top-to-bottom (~30 seconds).
+# Run all cells top-to-bottom (~30 seconds end-to-end).
 ```
 
-Or, for the crawler extension alone:
+Or — faster, if you have `uv` installed:
+
+```bash
+cd bare
+uv venv && source .venv/bin/activate
+uv pip install -r requirements.txt
+jupyter nbconvert --to notebook --execute notebooks/slurpini-analysis.ipynb \
+    --output slurpini-analysis.ipynb
+```
+
+For the crawler extension on its own:
 
 ```bash
 python crawler-extension.py
-# Writes output/wines_extended.csv with two extra columns.
+# Writes output/wines_extended.csv with two extra columns (vintage, producer_hint).
 ```
+
+**What to verify after a clean run:**
+- The notebook executes with **0 errors**.
+- `output/top20_regions.csv`, `output/top30_producers.csv`, `output/wines_extended.csv` are regenerated.
+- Headline numbers in the notebook output match the [Headline numbers](#headline-numbers) section below.
+
+---
 
 ## What the notebook does, in order
 
-1. **Load** all 16 sheets of `Vivino-export.xlsx`, parse each row's CSV-encoded text cell.
-2. **Clean** — unwrap tuple-encoded country/region, fix Mac-Roman ↔ UTF-8 mojibake on diacritics, coerce numeric columns.
-3. **Filter** to Italian wines, deduplicate across sheets, drop rows missing rating/price/review-count.
-4. **Rank** regions and producers by Bayesian-shrunk weighted rating (anchor `m` = median review count, `μ` = global mean).
-5. **Visualise** — three matplotlib charts (top regions, top producers, value-vs-price scatter).
-6. **Export** the top-N tables to CSV for the recommendation document.
+1. **Load** all 16 sheets of `Vivino-export.xlsx`. Each row in the source is a CSV-encoded string in a single cell; the notebook parses that into proper columns.
+2. **Clean** —
+   - unwrap tuple-encoded country/region (`"('Italië',)"` → `Italië`),
+   - fix Mac-Roman ↔ UTF-8 mojibake on diacritics (`Itali√´` → `Italië`),
+   - coerce numeric columns to numbers.
+3. **Filter & deduplicate** — filter to the cleaned `country == "Italië"` (note: the sheet split is noise — every sheet contains wines from many countries), drop rows missing rating/price/review-count, deduplicate across sheets on `(name, rating, price)`.
+4. **Producer extraction** — first-word heuristic. Deliberately imperfect; the imperfection is acknowledged in the limitations and is part of the contrast with the supercharged track.
+5. **Rank regions** by Bayesian-shrunk weighted rating (qualifying threshold: ≥ 20 wines).
+6. **Rank producers** by Bayesian-shrunk weighted rating (qualifying threshold: ≥ 3 wines).
+7. **Visualise** value-for-money — log-scale price vs. weighted-rating scatter with the median-rating and median-price lines drawn in.
+8. **Export** the shortlist tables and the extended wines table to CSV.
 
-The notebook acknowledges its own limitations inline (first-word producer heuristic, single-platform bias, vintage compression, no sustainability data).
+The final markdown cell summarises the headline finding and links back to `recommendation.md`.
 
-## Headline numbers
+---
 
-- Raw rows across all sheets: **409,758**
-- Italian wines after cleaning + dedupe: **5,786**
-- Distinct Italian regions: **179**
-- Producer fragments (first-word heuristic): **564**
-- Top region by weighted rating: **Brunello di Montalcino**
-- Top region in the value-opportunity zone: **Etna Rosso** (Sicilia) / **Taurasi** (Campania)
+## Methodology choices, and why
 
-Full rankings in `output/top20_regions.csv` and `output/top30_producers.csv`. Written recommendation in `recommendation.md`.
+These are the decisions that materially shape the rankings. Each is defended in two lines so the reviewer does not have to reverse-engineer them from the code.
+
+**Bayesian-shrunk weighted rating, not raw average.**
+A wine with rating 4.8 over 12 reviews must not outrank a wine with rating 4.4 over 5,000 reviews — the second carries far more signal. The standard fix is to shrink each rating toward the global mean in proportion to how few reviews it has:
+
+```
+weighted = (n / (n + m)) * rating  +  (m / (n + m)) * global_mean
+```
+
+where `n` is the rating count for the row (or the sum across a group), `m` is the shrinkage anchor, and `global_mean` is the dataset-wide mean rating. As `n → ∞` the weighted rating tends to the row's own rating; as `n → 0` it tends to the global mean.
+
+**Anchor `m` = median review count, not a magic number.**
+A common alternative is to hard-code `m = 50` or `m = 250` (IMDb-style). Both are arbitrary. Using the dataset median (`m = 1,791` for this run) makes the choice data-driven and reproducible: half the rows pull rating-ward, half pull mean-ward, no manual tuning. The trade-off is that `m` can shift between dataset versions; the supercharged track makes `m` an explicit, logged config parameter with sensitivity analysis.
+
+**Qualifying thresholds (≥ 20 wines per region, ≥ 3 per producer).**
+The shrinkage already discounts low-`n` rows, but very-low-`n` aggregates remain noisy. The thresholds remove the long tail of single-wine "regions" and single-wine "producers" that would otherwise dominate by accident. These thresholds are stated inline in the notebook output (qualifying regions: 51 / 179; qualifying producers: 309 / 564).
+
+**Italian filter on the cleaned `country` field, not on sheet name.**
+The Excel sheet split looks like a country partition, but it is not — every sheet contains wines from many countries. Filtering on `country == "Italië"` after cleaning is the only correct cut.
+
+**First-word producer extraction.**
+The dataset has no producer column; producer name has to be inferred from the wine name. The bare track uses `name.split()[0]`. This is wrong for multi-word producers ("Tenuta San Guido" → "Tenuta") and is explicitly listed as a limitation. The supercharged track replaces this with an alias whitelist + LLM disambiguation. Within the bare track's minimum-viable scope, first-word is the honest, transparent baseline.
+
+---
+
+## Headline numbers (from this run)
+
+- Raw rows across all 16 sheets: **409,758**
+- Italian rows after cleaning (before dedupe): **77,382**
+- Italian wines after dedupe + validation: **5,786**
+- Distinct Italian regions: **179** (qualifying for ranking, ≥ 20 wines: **51**)
+- Producer fragments (first-word heuristic): **564** (qualifying, ≥ 3 wines: **309**)
+- Global mean rating across Italian dataset: **4.008**
+- Shrinkage anchor `m` (median rating count): **1,791**
+
+### Top 10 regions by weighted rating
+
+| Region | Wines | Reviews | Avg. rating | Avg. price (€) | Weighted rating |
+|---|---:|---:|---:|---:|---:|
+| Bolgheri Sassicaia | 76 | 307,787 | 4.62 | 534.02 | **4.62** |
+| Bolgheri Superiore | 78 | 145,757 | 4.50 | 274.17 | **4.49** |
+| Amarone della Valpolicella Classico | 157 | 628,140 | 4.34 | 243.15 | **4.34** |
+| Brunello di Montalcino | 404 | 872,758 | 4.27 | 196.54 | **4.27** |
+| Abruzzo | 33 | 1,356,521 | 4.26 | 102.61 | **4.26** |
+| Primitivo di Manduria | 95 | 387,600 | 4.26 | 160.62 | **4.26** |
+| Amarone della Valpolicella | 37 | 42,380 | 4.24 | 188.38 | **4.23** |
+| Umbrië | 38 | 65,803 | 4.20 | 164.35 | **4.19** |
+| Bolgheri | 148 | 449,866 | 4.18 | 183.40 | **4.17** |
+| Isola dei Nuraghi | 23 | 27,800 | 4.18 | 125.58 | **4.17** |
+
+### Top 10 producers by weighted rating (first-word heuristic)
+
+| Producer fragment | Wines | Reviews | Avg. rating | Avg. price (€) | Weighted rating |
+|---|---:|---:|---:|---:|---:|
+| Masseto | 10 | 6,650 | 4.68 | 1364.85 | **4.54** |
+| Carpano | 3 | 7,614 | 4.50 | 42.05 | **4.41** |
+| Dal *(likely "Dal Forno Romano")* | 4 | 3,393 | 4.60 | 236.62 | **4.40** |
+| Biondi-Santi | 15 | 22,147 | 4.43 | 355.99 | **4.40** |
+| Casanova | 50 | 92,727 | 4.35 | 183.43 | **4.35** |
+| Quintarelli | 9 | 5,409 | 4.40 | 571.59 | **4.30** |
+| Ornellaia | 132 | 581,167 | 4.30 | 225.05 | **4.30** |
+| Valdicava | 4 | 4,113 | 4.35 | 291.85 | **4.25** |
+| Gaja | 72 | 130,908 | 4.25 | 219.75 | **4.25** |
+| Guerrieri | 14 | 11,598 | 4.28 | 48.99 | **4.24** |
+
+Full tables: [`output/top20_regions.csv`](output/top20_regions.csv), [`output/top30_producers.csv`](output/top30_producers.csv). Prose synthesis with concrete buy/hold recommendations: [`recommendation.md`](recommendation.md).
+
+---
 
 ## Known limitations
 
-These are surfaced in both the notebook and `recommendation.md`:
+Surfaced in both the notebook and `recommendation.md`. Listing them here so the reviewer does not have to dig:
 
-1. **Producer extraction is heuristic** — first-word matching mis-attributes multi-word producer names ("Tenuta San Guido" → "Tenuta", grouped with every other "Tenuta X"). The supercharged track addresses this with an alias whitelist + LLM disambiguation.
-2. **Vintage compression** — averaging across vintages under-weights producers with strong recent runs.
-3. **Vivino is not the Dutch wine market** — its user base is Anglophone-skewed; natural-wine producers are systematically under-counted.
-4. **Sustainability is absent from the dataset** — Slurpini's USP cannot be scored from this data; certification must be checked separately.
+1. **Producer extraction is heuristic.** First-word matching mis-attributes multi-word producer names ("Tenuta San Guido" → "Tenuta", grouped with every other "Tenuta X"; "Dal Forno Romano" → "Dal"). The supercharged track addresses this with an alias whitelist + LLM disambiguation against a known top-50 list.
+2. **Vintage compression.** Wines from multiple vintages are averaged together; producers with strong recent runs are under-weighted.
+3. **Vivino is not the Dutch wine market.** Its user base is Anglophone-skewed and younger; natural-wine and biodynamic producers are systematically under-counted. Any recommendation made from Vivino data alone is directional, not authoritative.
+4. **Sustainability is absent from the dataset.** Slurpini's USP cannot be scored from this data; certification status must be checked separately, per producer, before commitment.
+5. **No statistical sensitivity analysis.** The bare track reports one set of weighted ratings under one shrinkage choice. The rankings would shift under different `m` values; that sweep is in scope for the supercharged track, not here.
 
 These limitations are precisely what the supercharged track exists to address.
+
+---
+
+## Contact
+
+Vincent Blokker · vincentblokker@gmail.com

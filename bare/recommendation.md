@@ -14,18 +14,20 @@ Working set after cleaning: **5,786 unique Italian wines**.
 
 **Regions to prioritise** (top of the weighted-rating ranking, ≥20 wines):
 
-The Tuscan blue-chip appellations dominate the top of the list — **Brunello di Montalcino** and **Bolgheri Superiore** sit at the top, followed by **Barolo** and **Barbaresco** in Piemonte. Outside the obvious icons, **Etna Rosso** (Sicilia) and **Taurasi** (Campania) score strongly at materially lower price points — these are the regions where the data points toward "value opportunity" rather than "prestige hold".
+The top of the list is dominated by Tuscan blue-chip appellations: **Bolgheri Sassicaia** (4.62), **Bolgheri Superiore** (4.49), and **Brunello di Montalcino** (4.27), with **Amarone della Valpolicella Classico** (4.34) the strongest non-Tuscan entry. These are prestige holds — high rating, but also high average price (€196–€534).
+
+The value-opportunity zone — above-median weighted rating, below-median average price — is led by **Primitivo di Manduria** (Puglia, 95 wines, avg €161), **Abruzzo** (33 wines, avg €103), **Lugana** (46 wines, avg €108), and **Südtirol – Alto Adige** (72 wines, avg €128). These are the regions where the data points to "expand" rather than "hold".
 
 **Producers to prioritise** (top of the weighted-rating ranking, ≥3 wines):
 
-The top of the list contains the names Slurpini almost certainly already knows: **Antinori**, **Gaja**, **Biondi-Santi**, **Ornellaia**, **Tenuta San Guido** (visible as the fragmented "Tenuta" row — see limitations). These are low-risk, high-prestige anchors.
+The top of the list contains the names Slurpini almost certainly already knows: **Masseto**, **Biondi-Santi**, **Ornellaia**, **Gaja**, **Antinori**, plus the fragmented "Tenuta" row that almost certainly represents **Tenuta San Guido** (Sassicaia) — see limitations on producer extraction. These are low-risk, high-prestige anchors.
 
-The more actionable finding is one tier down: producers with weighted ratings between 4.15 and 4.25 at price points €40–€100 — they outperform their price segment and are under-represented in most Dutch wine retail.
+The more actionable finding is one tier down: producers with weighted ratings between 4.15 and 4.25 at price points €40–€200 — they outperform their price segment and are under-represented in most Dutch wine retail.
 
 ## Concretely, what we recommend
 
-1. **Hold** the prestige tier (Antinori, Gaja, Biondi-Santi, Tenuta San Guido, Ornellaia). The data confirms what Slurpini already does — these are defensible anchors.
-2. **Add** one Etna Rosso producer and one Taurasi producer in the €30–€50 price band. Both regions are under-represented in the Dutch market and the rating evidence supports them.
+1. **Hold** the prestige tier (Masseto, Antinori, Gaja, Biondi-Santi, Tenuta San Guido, Ornellaia). The data confirms what Slurpini already does — these are defensible anchors.
+2. **Expand** in Puglia (Primitivo di Manduria) and Abruzzo. Both regions sit in the value-opportunity zone — above-median weighted rating at well-below-median average price — and are under-represented in most Dutch wine retail.
 3. **Audit** the producers with high rating but fewer than 10 reviews. The notebook excluded them from the ranking because the rating is signal-volatile, but several are worth a tasting before dismissing.
 
 ## What this analysis does *not* tell you
