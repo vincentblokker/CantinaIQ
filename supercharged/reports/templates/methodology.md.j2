@@ -1,0 +1,76 @@
+# Methodology
+
+> *This document is part editorial, part generated. Numbers in this section
+> are produced by the pipeline run noted in the footer; the narrative is
+> hand-written.*
+
+## 1. Research question
+
+How can Slurpini use Dutch Vivino consumer data to prioritise Italian wine
+producers and regions for collaboration, based on consumer preference, market
+confidence, price positioning, and value for money?
+
+## 2. Dataset
+
+We ingest `data/raw/Vivino-export.xlsx`
+({{ run.stages.ingestion.post_rows | thousands }} rows across
+{{ run.stages.ingestion.custom.sheets_read | length }} sheets) and treat it as a
+consumer-preference signal rather than a measure of objective quality. The
+dataset is filtered to Italian wines and de-duplicated before any modelling.
+
+## 3. Cleaning cascade
+
+After parsing, encoding fixes, dedupe and the country filter, we retain
+{{ run.stages.cleaning.post_rows | thousands }} Italian wines — a
+{{ ((run.stages.ingestion.post_rows - run.stages.cleaning.post_rows) / run.stages.ingestion.post_rows * 100) | round(1) }}%
+reduction. The dominant drop reason is *{{ run.stages.cleaning.drops.keys() | list | first if run.stages.cleaning.drops else "(none)" }}*.
+
+## 4. Validation
+
+A Pandera contract enforces `rating ∈ [0, 5]`, `rating_count ≥ 1`, `price > 0`,
+and non-empty `country` / `region` after cleaning. Schema failures are written
+to `data/runs/<id>/validation-failures.parquet` and the pipeline exits
+non-zero — there is no silent contract drift.
+
+## 5. Bayesian weighted rating
+
+We do not use the raw average rating. A wine with a 4.8 rating on 12 reviews
+should not outrank a wine with a 4.4 rating on 5,000 reviews. The pipeline
+applies a Bayesian shrinkage:
+
+$$
+WR = \frac{n}{n + m} \cdot r + \frac{m}{n + m} \cdot \bar{r}
+$$
+
+Where $r$ is the Vivino rating, $n$ the rating count, $m$ a shrinkage
+threshold, and $\bar{r}$ the global mean across the cleaned Italian dataset.
+
+For this run, $m =$ **{{ run.stages.scoring.custom.m_used }}**
+(strategy: `{{ run.stages.scoring.custom.m_strategy }}`) and $\bar{r} =$
+**{{ run.stages.scoring.custom.global_mean_rating | round(2) }}**.
+
+## 6. Scoring weights
+
+The composite Slurpini Partner Intelligence Score weights five normalised
+components. The weights themselves are a business assumption; they are
+versioned in `config/scoring/weights/*.yaml` and reproducible by config hash.
+
+## 7. Segmentation
+
+Wines, producers, and regions are classified into market segments using
+configurable rules in `config/segments/default.yaml`. Producers receive a
+recommendation in {Target, Monitor, Premium Brand Builder, Value Opportunity,
+Avoid for Now} based on segment + composite score.
+
+## 8. Reproducibility
+
+Every output Parquet carries `run_config_hash`. The config that produced this
+report is snapshotted at
+`{{ run.stages.scoring.config_snapshot_ref }}`. Re-running with
+`cantinaiq run all --config-snapshot {{ run.stages.scoring.config_hash }}`
+reproduces the same outputs byte-for-byte (modulo timestamp metadata in
+run-logs).
+
+---
+
+*{{ metadata_footer }}*

@@ -1,0 +1,9 @@
+problem: |
+  Slurpini must commit annual buying budget to a small set of Italian
+  producers before Vinitaly, with rating evidence that is <em>thinly
+  distributed, vintage-mixed and platform-biased</em> — every wrong
+  commitment costs a year of shelf and a quarter of margin.
+limitations:
+  - "<b>Selection bias.</b> Producers without a Vivino footprint are invisible to the pipeline; small natural-wine producers are systematically under-counted."
+  - "<b>Vintage compression.</b> Ratings are mean-pooled across in-scope vintages, which under-weights producers with strong recent runs."
+  - "<b>Single-platform anchoring.</b> Review distributions are drawn from one consumer platform — palate bias is Anglophone."

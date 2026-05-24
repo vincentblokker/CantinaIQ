@@ -62,6 +62,26 @@ def run_cleaning(cfg: PipelineConfig, run_id: str) -> Path:
             if removed:
                 drops[f"missing_{col}"] = drops.get(f"missing_{col}", 0) + removed
 
+        # 3b. Drop rows that won't satisfy the validation contract (rating in [0,5],
+        #     rating_count >= 1, price > 0). Validation remains as backstop —
+        #     anything that slips through here will fail loud.
+        before = df.height
+        df = df.filter(
+            pl.col("rating").is_not_null()
+            & (pl.col("rating") >= 0)
+            & (pl.col("rating") <= 5)
+        )
+        if (removed := before - df.height) > 0:
+            drops["invalid_rating"] = removed
+        before = df.height
+        df = df.filter(pl.col("rating_count").is_not_null() & (pl.col("rating_count") >= 1))
+        if (removed := before - df.height) > 0:
+            drops["invalid_rating_count"] = removed
+        before = df.height
+        df = df.filter(pl.col("price").is_not_null() & (pl.col("price") > 0))
+        if (removed := before - df.height) > 0:
+            drops["invalid_price"] = removed
+
         # 4. Country titlecase + strip.
         df = df.with_columns(pl.col("country").str.strip_chars().str.to_titlecase())
 

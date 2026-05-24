@@ -17,6 +17,11 @@ from cantinaiq.enrichment.producer.pass2_llm import (
     LLMClient,
     Pass2Resolver,
 )
+from cantinaiq.enrichment.producer.validate import (
+    coverage_warnings,
+    distribution_overlap_warning,
+    multi_producer_per_wine_warning,
+)
 from cantinaiq.pipeline import register_stage
 from cantinaiq.runlog import RunLog
 
@@ -173,6 +178,17 @@ def run_enrichment(
             .to_dicts()
         )
 
+        # 6. Post-hoc validation warnings (spec §5.3) — never failures.
+        warnings_payload = {
+            "coverage": coverage_warnings(
+                df,
+                target_overall=cfg.enrichment.coverage_target_overall,
+                target_per_region=cfg.enrichment.coverage_target_per_region,
+            ),
+            "distribution": distribution_overlap_warning(df, cfg.enrichment.known_top50_path),
+            "multi_producer": multi_producer_per_wine_warning(df),
+        }
+
         df.write_parquet(out)
         log.post_rows = df.height
         log.custom = {
@@ -184,6 +200,7 @@ def run_enrichment(
             "pass2_invoked_count": len(candidates_for_p2),
             "llm_new_calls": llm_new_calls,
             "llm_skipped": llm_skipped,
+            "warnings": warnings_payload,
             "output_path": str(out),
         }
     return out

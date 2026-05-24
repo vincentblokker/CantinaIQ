@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
@@ -29,11 +30,14 @@ def render_report(
     templates_dir: Path,
     out_path: Path,
     figures_dir: Path | None = None,
+    extra_context: dict[str, Any] | None = None,
 ) -> Path:
     env = _env(templates_dir)
     template = env.get_template(template_name)
     ctx = build_context(bundle)
     ctx["figures_dir"] = str(figures_dir) if figures_dir else ""
+    if extra_context:
+        ctx.update(extra_context)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(template.render(**ctx))
     return out_path

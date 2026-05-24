@@ -129,6 +129,26 @@ def run_all(
 
 
 @app.command()
+def audit(config_hash: str) -> None:
+    """Show the config snapshot and matching runs for a config hash."""
+    snap = Path("config/snapshots") / f"{config_hash}.yaml"
+    if not snap.exists():
+        console.print(f"[red]No snapshot found for hash {config_hash}[/red]")
+        raise typer.Exit(code=1)
+    console.print(f"[bold]Snapshot:[/bold] {snap}")
+    runs_dir = Path("data/runs")
+    if runs_dir.exists():
+        matching = [
+            p.name
+            for p in runs_dir.iterdir()
+            if p.is_dir() and p.name.endswith(f"__{config_hash}")
+        ]
+        console.print(f"[bold]Matching runs:[/bold] {len(matching)}")
+        for r in sorted(matching):
+            console.print(f"  - {r}")
+
+
+@app.command()
 def status() -> None:
     """Print the most recent run summary."""
     from cantinaiq.runlog import load_latest_run_id, load_run_bundle
