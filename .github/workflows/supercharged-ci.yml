@@ -1,0 +1,30 @@
+name: supercharged-ci
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "supercharged/**"
+      - ".github/workflows/supercharged-ci.yml"
+  pull_request:
+    paths:
+      - "supercharged/**"
+      - ".github/workflows/supercharged-ci.yml"
+
+defaults:
+  run:
+    working-directory: supercharged
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy src/
+      - run: uv run pytest --cov=src/cantinaiq --cov-report=term --cov-fail-under=85

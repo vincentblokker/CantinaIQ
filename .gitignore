@@ -23,3 +23,10 @@ supercharged/reports/generated/
 
 *.parquet
 *.duckdb
+
+# Python tooling caches (apply to both tracks)
+.coverage
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
