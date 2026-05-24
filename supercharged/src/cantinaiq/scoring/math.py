@@ -5,9 +5,7 @@ from __future__ import annotations
 import math
 
 
-def bayesian_weighted_rating(
-    rating: float, rating_count: int, m: int, global_mean: float
-) -> float:
+def bayesian_weighted_rating(rating: float, rating_count: int, m: int, global_mean: float) -> float:
     """Shrink an observed rating toward `global_mean` in proportion to how few
     reviews back it. Convex combination of (rating, global_mean) with weight
     `n / (n + m)` on the observed rating."""

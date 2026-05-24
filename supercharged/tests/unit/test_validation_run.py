@@ -75,9 +75,7 @@ def test_validation_fails_loud_for_bad_rating(cfg: PipelineConfig) -> None:
     _write_input(cfg, [_valid_row(), _valid_row(rating=5.4)])
     with pytest.raises((pa.errors.SchemaError, pa.errors.SchemaErrors)):
         run_validation(cfg, run_id="2026-05-16T00-00__val02")
-    failures = (
-        Path(cfg.paths.runs_dir) / "2026-05-16T00-00__val02" / "validation-failures.parquet"
-    )
+    failures = Path(cfg.paths.runs_dir) / "2026-05-16T00-00__val02" / "validation-failures.parquet"
     assert failures.exists()
 
 

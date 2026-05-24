@@ -1,0 +1,35 @@
+# Data Quality Report
+
+**Run:** `{{ run.run_id }}`
+**Pipeline duration:** {{ (run.finished_at - run.started_at).total_seconds() | int }}s
+
+## Drop cascade
+
+| Stage | Pre | Post | Removed | % | Top reason |
+|---|---:|---:|---:|---:|---|
+{% for row in drop_cascade %}
+| {{ row.stage }} | {{ row.pre_rows | thousands }} | {{ row.post_rows | thousands }} | {{ row.removed | thousands }} | {{ row.pct | pct }} | {{ row.top_reason }} ({{ row.top_reason_count | thousands }}) |
+{% endfor %}
+
+## Stage details
+
+{% for stage_name, stage in run.stages.items() %}
+### {{ stage_name }}
+
+- **Pre rows:** {{ stage.pre_rows | thousands }}
+- **Post rows:** {{ stage.post_rows | thousands }}
+{% if stage.drops %}
+- **Drops:**
+{% for reason, count in stage.drops.items() %}
+  - {{ reason }}: {{ count | thousands }}
+{% endfor %}
+{% endif %}
+{% if stage.error %}
+- **Error:** `{{ stage.error.type }}` — {{ stage.error.message }}
+{% endif %}
+
+{% endfor %}
+
+---
+
+*{{ metadata_footer }}*

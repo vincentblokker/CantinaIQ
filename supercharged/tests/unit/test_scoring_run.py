@@ -112,8 +112,6 @@ def test_scoring_auto_median_when_m_none(cfg: PipelineConfig) -> None:
     run_scoring(cfg2, run_id)
     import json
 
-    log = json.loads(
-        (Path(cfg2.paths.runs_dir) / run_id / "stage-scoring.json").read_text()
-    )
+    log = json.loads((Path(cfg2.paths.runs_dir) / run_id / "stage-scoring.json").read_text())
     assert log["custom"]["m_strategy"] == "auto-median"
     assert log["custom"]["m_used"] >= 1
