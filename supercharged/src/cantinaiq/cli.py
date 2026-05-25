@@ -26,6 +26,7 @@ from cantinaiq.config.models import PipelineConfig
 from cantinaiq.crawler.cli import crawler_app
 from cantinaiq.evaluation.cli import evaluate_app
 from cantinaiq.sustainability.cli import sustainability_app
+from cantinaiq.vivino_live.cli import enrich_app
 from cantinaiq.pipeline import STAGES, resolve_stage_subset
 from cantinaiq.reporting import report_app
 
@@ -36,6 +37,7 @@ app.add_typer(report_app, name="report")
 app.add_typer(crawler_app, name="crawler")
 app.add_typer(evaluate_app, name="evaluate")
 app.add_typer(sustainability_app, name="sustainability")
+app.add_typer(enrich_app, name="enrich-live")
 console = Console()
 
 CONFIG_DIR = str((Path(__file__).resolve().parents[2] / "config").resolve())
