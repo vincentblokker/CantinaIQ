@@ -25,6 +25,23 @@ After parsing, encoding fixes, dedupe and the country filter, we retain
 {{ ((run.stages.ingestion.post_rows - run.stages.cleaning.post_rows) / run.stages.ingestion.post_rows * 100) | round(1) }}%
 reduction. The dominant drop reason is *{{ run.stages.cleaning.drops.keys() | list | first if run.stages.cleaning.drops else "(none)" }}*.
 
+## 3a. Row-count delta vs. /bare track
+
+The companion `/bare` track retains **5,786** Italian wines after deduplication;
+this track retains **{{ run.stages.cleaning.post_rows | thousands }}** after the
+additional cleaning and validation stages. The delta is intentional, not a bug:
+
+- `/bare` keeps every row that passes minimal schema constraints, accepting
+  more noise in exchange for breadth (it is a one-notebook EDA pass).
+- This track applies stricter dedupe (cross-sheet on `(name, rating, price)`
+  *plus* a fuzzy name pass), excludes wines with `rating_count` below the
+  configured confidence floor, and rejects regions that fail the canonical
+  match against `data/reference/macro_regions.csv`. Every retained row has a
+  canonical region label and a non-null producer.
+
+This track trades breadth for confidence — the resulting shortlist is shorter
+but each row is defensible end-to-end.
+
 ## 4. Validation
 
 A Pandera contract enforces `rating ∈ [0, 5]`, `rating_count ≥ 1`, `price > 0`,

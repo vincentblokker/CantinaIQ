@@ -1,0 +1,57 @@
+cleaning:
+  dedup_keys:
+  - wine_name_normalised
+  - producer_hint
+  - vintage
+  italian_country_token: Italy
+enrichment:
+  aliases_path: data/reference/producer_aliases.csv
+  coverage_target_overall: 0.8
+  coverage_target_per_region: 0.7
+  known_top50_path: data/reference/known_producers_top50.csv
+  llm:
+    batch_size: 50
+    cache_path: data/reference/llm_cache.parquet
+    max_retries: 3
+    model: claude-haiku-4-5-20251001
+    temperature: 0.0
+  macro_regions_path: data/reference/macro_regions.csv
+paths:
+  exports_dir: data/exports
+  interim_dir: data/interim
+  processed_dir: data/processed
+  raw_dir: data/raw
+  reference_dir: data/reference
+  runs_dir: data/runs
+  snapshots_dir: config/snapshots
+  source_excel: data/raw/Vivino-export.xlsx
+scoring:
+  bayesian_m: 200
+  composite_formula_version: v1
+  min_reviews_floor: 0
+  weights:
+    market_confidence: 0.2
+    portfolio_opportunity: 0.1
+    premium_fit: 0.15
+    value_for_money: 0.2
+    weighted_rating: 0.35
+segments:
+  confidence:
+    emerging_max: 250
+    low_max: 50
+    reliable_max: 1000
+  market:
+    hidden_gem_min_rating: 4.2
+    low_confidence_review_max: 50
+    overpriced_max_rating: 4.0
+    overpriced_min_price: 75.0
+    premium_icon_min_price: 75.0
+    premium_icon_min_rating: 4.3
+  prices:
+    accessible_premium_max: 30.0
+    entry_max: 15.0
+    premium_max: 75.0
+  recommendations:
+    premium_brand_builder_min_composite: 0.3
+    target_min_composite: 0.3
+    value_opportunity_min_composite: 0.3

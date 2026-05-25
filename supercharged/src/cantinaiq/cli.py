@@ -23,6 +23,7 @@ from cantinaiq import (  # noqa: F401, E402  (intentional side-effect imports)
 )
 from cantinaiq.config.loader import config_from_omegaconf
 from cantinaiq.config.models import PipelineConfig
+from cantinaiq.crawler.cli import crawler_app
 from cantinaiq.pipeline import STAGES, resolve_stage_subset
 from cantinaiq.reporting import report_app
 
@@ -30,6 +31,7 @@ app = typer.Typer(no_args_is_help=True, help="CantinaIQ pipeline CLI.")
 run_app = typer.Typer(no_args_is_help=True, help="Run pipeline stages.")
 app.add_typer(run_app, name="run")
 app.add_typer(report_app, name="report")
+app.add_typer(crawler_app, name="crawler")
 console = Console()
 
 CONFIG_DIR = str((Path(__file__).resolve().parents[2] / "config").resolve())
@@ -146,6 +148,111 @@ def audit(config_hash: str) -> None:
         console.print(f"[bold]Matching runs:[/bold] {len(matching)}")
         for r in sorted(matching):
             console.print(f"  - {r}")
+
+
+@app.command()
+def sensitivity(
+    param: Annotated[
+        str,
+        typer.Option(
+            "--param", help="Hydra override key, e.g. scoring.bayesian_m"
+        ),
+    ],
+    range_spec: Annotated[
+        str, typer.Option("--range", help="start,end,step e.g. 0.10,0.30,0.05")
+    ],
+    top_n: Annotated[int, typer.Option("--top-n")] = 20,
+    out_path: Annotated[Path, typer.Option("--out")] = Path("reports/generated/sensitivity.md"),
+) -> None:
+    """Sweep a scoring parameter and report top-N ranking stability per value.
+
+    Re-runs the scoring + export stages for each value, then computes
+    Kendall-tau between the resulting top-N producer list and the baseline
+    (first value in the sweep). Writes a markdown summary to `--out`.
+    """
+    import polars as pl
+
+    from cantinaiq.sensitivity import kendall_tau_topn, parse_range_spec
+
+    values = parse_range_spec(range_spec)
+    console.print(f"[bold]Sensitivity sweep[/bold] {param} over {values}")
+
+    processed = Path("data/processed/producers_scored.parquet")
+    baseline_df: pl.DataFrame | None = None
+    rows: list[dict[str, float | str]] = []
+
+    for i, v in enumerate(values):
+        override = f"{param}={v}"
+        console.print(f"  → run {i + 1}/{len(values)} with {override}")
+        _execute(["scoring", "export"], [override])
+        df = pl.read_parquet(processed)
+        if baseline_df is None:
+            baseline_df = df
+            tau = 1.0
+        else:
+            tau = kendall_tau_topn(baseline_df, df, top_n=top_n)
+        rows.append({"value": v, "kendall_tau": tau})
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    lines = [
+        f"# Sensitivity sweep: `{param}`",
+        "",
+        f"Top-{top_n} Kendall-tau vs. baseline ({values[0]}).",
+        "",
+        "| Value | Kendall-τ |",
+        "|---:|---:|",
+    ]
+    for r in rows:
+        lines.append(f"| {r['value']} | {float(r['kendall_tau']):.3f} |")
+    out_path.write_text("\n".join(lines) + "\n")
+    console.print(f"[green]✓ {out_path}[/green]")
+
+
+@app.command()
+def compare(
+    hash_a: Annotated[str, typer.Argument(help="Config hash of run A.")],
+    hash_b: Annotated[str, typer.Argument(help="Config hash of run B.")],
+    parquet_a: Annotated[Path | None, typer.Option("--parquet-a", help="Explicit path to producers_scored for run A.")] = None,
+    parquet_b: Annotated[Path | None, typer.Option("--parquet-b", help="Explicit path to producers_scored for run B.")] = None,
+    processed_dir: Annotated[Path, typer.Option("--processed-dir")] = Path("data/processed"),
+    top: Annotated[int, typer.Option("--top", help="Show top-N largest rank shifts.")] = 10,
+) -> None:
+    """Compare two CantinaIQ runs by config hash."""
+    from cantinaiq.compare import compare_runs
+
+    path_a = parquet_a or (processed_dir / f"producers_scored__{hash_a}.parquet")
+    path_b = parquet_b or (processed_dir / f"producers_scored__{hash_b}.parquet")
+    if not path_a.exists():
+        path_a = processed_dir / "producers_scored.parquet"
+        console.print(
+            f"[yellow]No hash-tagged parquet for {hash_a}; using default {path_a}[/yellow]"
+        )
+    if not path_b.exists():
+        path_b = processed_dir / "producers_scored.parquet"
+        console.print(
+            f"[yellow]No hash-tagged parquet for {hash_b}; using default {path_b}[/yellow]"
+        )
+
+    comp = compare_runs(path_a, path_b, hash_a=hash_a, hash_b=hash_b)
+
+    console.print(f"\n[bold]Comparing runs[/bold] {hash_a} ↔ {hash_b}")
+    console.print(f"\n[bold]Top {top} rank shifts:[/bold]")
+    shifts_sorted = sorted(
+        (s for s in comp.ranking_shifts if s.get("shift") is not None),
+        key=lambda s: abs(int(s["shift"])),
+        reverse=True,
+    )[:top]
+    for s in shifts_sorted:
+        arrow = "↑" if (s["shift"] or 0) > 0 else "↓"
+        console.print(
+            f"  {arrow} {s['producer_name']:30}  rank {s['rank_a']} → {s['rank_b']}  (Δ={s['shift']})"
+        )
+
+    console.print(f"\n[bold]Segment movements:[/bold] {len(comp.segment_movements)}")
+    for m in comp.segment_movements[:top]:
+        console.print(
+            f"  {m['producer_name']:30}  {m['segment_a']} → {m['segment_b']}"
+        )
 
 
 @app.command()

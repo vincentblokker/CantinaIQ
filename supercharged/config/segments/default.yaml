@@ -13,3 +13,7 @@ market:
   overpriced_max_rating: 4.0
   overpriced_min_price: 75.0
   low_confidence_review_max: 50
+recommendations:
+  premium_brand_builder_min_composite: 0.30
+  target_min_composite: 0.30
+  value_opportunity_min_composite: 0.30

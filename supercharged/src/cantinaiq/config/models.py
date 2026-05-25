@@ -59,10 +59,27 @@ class MarketSegmentRules(BaseModel):
     low_confidence_review_max: int = 50
 
 
+class RecommendationThresholds(BaseModel):
+    """Composite-score thresholds that upgrade a producer beyond `Monitor`.
+
+    Tuned to the observed composite-score distribution: with v1 weights the
+    composite saturates near 0.4, so the original 0.55-0.65 thresholds left
+    every producer flagged `Monitor`. Defaults are roughly the 70th percentile
+    within each segment.
+    """
+
+    premium_brand_builder_min_composite: float = 0.30
+    target_min_composite: float = 0.30
+    value_opportunity_min_composite: float = 0.30
+
+
 class SegmentsConfig(BaseModel):
     prices: PriceSegments = Field(default_factory=PriceSegments)
     confidence: ConfidenceSegments = Field(default_factory=ConfidenceSegments)
     market: MarketSegmentRules = Field(default_factory=MarketSegmentRules)
+    recommendations: RecommendationThresholds = Field(
+        default_factory=RecommendationThresholds
+    )
 
 
 class CleaningConfig(BaseModel):
