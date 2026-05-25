@@ -151,6 +151,53 @@ def audit(config_hash: str) -> None:
 
 
 @app.command()
+def compare(
+    hash_a: Annotated[str, typer.Argument(help="Config hash of run A.")],
+    hash_b: Annotated[str, typer.Argument(help="Config hash of run B.")],
+    parquet_a: Annotated[Path | None, typer.Option("--parquet-a", help="Explicit path to producers_scored for run A.")] = None,
+    parquet_b: Annotated[Path | None, typer.Option("--parquet-b", help="Explicit path to producers_scored for run B.")] = None,
+    processed_dir: Annotated[Path, typer.Option("--processed-dir")] = Path("data/processed"),
+    top: Annotated[int, typer.Option("--top", help="Show top-N largest rank shifts.")] = 10,
+) -> None:
+    """Compare two CantinaIQ runs by config hash."""
+    from cantinaiq.compare import compare_runs
+
+    path_a = parquet_a or (processed_dir / f"producers_scored__{hash_a}.parquet")
+    path_b = parquet_b or (processed_dir / f"producers_scored__{hash_b}.parquet")
+    if not path_a.exists():
+        path_a = processed_dir / "producers_scored.parquet"
+        console.print(
+            f"[yellow]No hash-tagged parquet for {hash_a}; using default {path_a}[/yellow]"
+        )
+    if not path_b.exists():
+        path_b = processed_dir / "producers_scored.parquet"
+        console.print(
+            f"[yellow]No hash-tagged parquet for {hash_b}; using default {path_b}[/yellow]"
+        )
+
+    comp = compare_runs(path_a, path_b, hash_a=hash_a, hash_b=hash_b)
+
+    console.print(f"\n[bold]Comparing runs[/bold] {hash_a} ↔ {hash_b}")
+    console.print(f"\n[bold]Top {top} rank shifts:[/bold]")
+    shifts_sorted = sorted(
+        (s for s in comp.ranking_shifts if s.get("shift") is not None),
+        key=lambda s: abs(int(s["shift"])),
+        reverse=True,
+    )[:top]
+    for s in shifts_sorted:
+        arrow = "↑" if (s["shift"] or 0) > 0 else "↓"
+        console.print(
+            f"  {arrow} {s['producer_name']:30}  rank {s['rank_a']} → {s['rank_b']}  (Δ={s['shift']})"
+        )
+
+    console.print(f"\n[bold]Segment movements:[/bold] {len(comp.segment_movements)}")
+    for m in comp.segment_movements[:top]:
+        console.print(
+            f"  {m['producer_name']:30}  {m['segment_a']} → {m['segment_b']}"
+        )
+
+
+@app.command()
 def status() -> None:
     """Print the most recent run summary."""
     from cantinaiq.runlog import load_latest_run_id, load_run_bundle
