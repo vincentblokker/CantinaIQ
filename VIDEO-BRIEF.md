@@ -23,37 +23,27 @@ from the ADA submission email.
 
 ---
 
-## 2. Soul Character — one-time setup
+## 2. Soul Character — already trained
 
-The avatar bookend shots need a personalised Soul model trained on
-Vincent's face. This is a one-time investment that also unlocks reuse for
-future ADA submissions or content.
+A Soul Character named **`vblokker`** is already trained and ready in
+the Higgsfield account. No new training run needed.
 
-### 2.1 Photo requirements
+| Field | Value |
+|---|---|
+| Soul name | `vblokker` |
+| Soul ID | `dc0e1fc7-6d66-4c70-beee-eff4d84ccd97` |
+| Type | `soul_2` |
+| Status | `ready` |
+| Compatible models | `text2image_soul_v2`, `soul_cinema_studio` |
 
-Higgsfield Soul training needs **8–15 photos** of Vincent's face for best
-fidelity. Use the existing portrait at
-[`brief-ai-handoff/images/06-author.jpg`](brief-ai-handoff/images/06-author.jpg)
-as the primary anchor, plus:
+Throughout this document, references to `$SOUL_ID` resolve to that UUID.
 
-- 3–5 additional headshots at slightly different angles (¾, profile, front)
-- 2–3 mid-shots showing shoulders and upper torso
-- Consistent lighting; avoid harsh shadows
-- Plain backgrounds preferred
-- No glasses on some / glasses on some — pick the look you want for the
-  video and weight that variant heavier
+The remaining 685 credits in the Plus-plan workspace are sufficient for
+the full video production several times over (each Soul Cinema clip
+costs roughly 30–60 credits depending on duration; Seedance 2.0 b-roll
+clips ~10–20 credits each).
 
-### 2.2 Training command
-
-Invoke the `higgsfield-soul-id` skill in this directory. It will guide
-photo upload, kick off training, and return a `reference_id` (the
-"Soul ID") that downstream `higgsfield-generate` calls consume.
-
-Approximate training time: 10–20 minutes. The Soul ID is reusable
-indefinitely. Save it somewhere safe — the rest of this document
-references it as `$SOUL_ID`.
-
-### 2.3 Honesty about avatars
+### 2.1 Honesty about avatars
 
 Soul-generated avatars at 1080p talking-head scale still have tells:
 slightly off blink rates, mouth-shape mismatch on certain phonemes,
@@ -109,7 +99,7 @@ clay red. No logos, no readable text.
 Higgsfield invocation:
 ```bash
 higgsfield generate create soul_cinema_studio \
-  --soul-id $SOUL_ID \
+  --soul-id dc0e1fc7-6d66-4c70-beee-eff4d84ccd97 \
   --prompt "<paste above>" \
   --aspect_ratio 16:9 \
   --duration 9 \
@@ -176,7 +166,7 @@ out-of-focus background. No logos, no readable text.
 
 ```bash
 higgsfield generate create soul_cinema_studio \
-  --soul-id $SOUL_ID \
+  --soul-id dc0e1fc7-6d66-4c70-beee-eff4d84ccd97 \
   --prompt "<paste above>" \
   --aspect_ratio 16:9 \
   --duration 14 \
@@ -366,7 +356,7 @@ After upload, add the URL to:
 
 Tick as you go.
 
-- [ ] Soul Character trained, `$SOUL_ID` saved somewhere
+- [x] Soul Character `vblokker` trained — Soul ID `dc0e1fc7-6d66-4c70-beee-eff4d84ccd97`
 - [ ] Higgsfield shot 1 generated, looks acceptable
 - [ ] Higgsfield shot 2 generated (still + video)
 - [ ] Higgsfield shot 6 generated (still + video)
