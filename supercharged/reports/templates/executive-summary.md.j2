@@ -1,0 +1,40 @@
+# Executive Summary
+
+*Slurpini Partner Intelligence — board-level recommendation. Half-A4, addressed to a non-technical buying-committee reader. All numbers derive from pipeline run `{{ run_id }}` (config hash `{{ config_hash }}`).*
+
+---
+
+## What we did
+
+Cleaned, validated, and scored {{ totals.wines | int }} unique Italian wines from the Dutch Vivino dataset, covering {{ totals.regions | int }} regions and {{ totals.producers | int }} producers (after pass-2 disambiguation). Producers and regions are ranked by a 5-factor composite Slurpini Partner Intelligence Score that combines a Bayesian-shrunk weighted rating, market confidence, value-for-money, premium fit, and portfolio opportunity. Scoring weights are versioned per config snapshot.
+
+## What the data says
+
+**Regions to prioritise** (top of the weighted-rating ranking):
+
+{% for r in top_regions %}
+- **{{ r.region }}** — weighted rating {{ "%.2f"|format(r.weighted_rating) }} across {{ r.wines }} wines at €{{ r.avg_price|round(0)|int }} avg.
+{% endfor %}
+
+**Producers to prioritise** (top of the composite-score ranking):
+
+{% for p in top_producers %}
+- **{{ p.producer_name }}** ({{ p.macro_region }}) — *{{ p.recommendation }}*. {{ p.reason }}
+{% endfor %}
+
+## Concretely, what we recommend
+
+1. **Hold** the prestige tier: {{ hold | join(", ") }}. The data confirms what Slurpini already does; these are defensible anchors.
+2. **Expand** in: {{ expand | join(", ") }}. These sit in the value-opportunity zone — above-median weighted rating at well-below-median average price — and are under-represented in most Dutch wine retail.
+3. **Audit** {{ audit | join("; ") }}. Excluded from the ranking on confidence grounds, but worth a tasting before dismissing.
+
+## What this does not tell you
+
+- **Vivino is not the Dutch wine market.** Anglophone, younger skew; natural and biodynamic producers under-counted.
+- **Sustainability is absent from the dataset.** Slurpini's USP must be cross-checked against producer certifications before commitment.
+- **Vintage compression.** Multi-vintage wines are averaged; producers with strong recent runs are under-weighted.
+- **Producer extraction is heuristic-with-LLM-assist.** Pass-1 alias whitelist covers the top-50; pass-2 LLM disambiguation is logged per row.
+
+---
+
+*Reproducibility: re-run with `cantinaiq run all --config-snapshot {{ config_hash }}` and `cantinaiq report build`. Methodology details in `methodology.md`; data quality in `data-quality.md`.*

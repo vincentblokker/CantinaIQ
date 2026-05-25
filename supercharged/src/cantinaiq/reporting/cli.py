@@ -19,6 +19,7 @@ TEMPLATES_BY_NAME: dict[str, str] = {
     "data-quality": "data-quality.md.j2",
     "methodology": "methodology.md.j2",
     "findings-one-pager": "findings-one-pager.html.j2",
+    "executive-summary": "executive-summary.md.j2",
 }
 
 
@@ -61,6 +62,71 @@ def _findings_extra_context(processed_dir: Path, copy_path: Path) -> dict[str, A
     )
 
 
+def _executive_summary_extra_context(
+    processed_dir: Path, run_id: str, config_hash: str
+) -> dict[str, Any]:
+    from cantinaiq.reporting.reasons import build_reason
+
+    producers = pl.read_parquet(processed_dir / "producers_scored.parquet")
+    regions = pl.read_parquet(processed_dir / "regions_scored.parquet")
+    wines = pl.read_parquet(processed_dir / "wines_scored.parquet")
+
+    # Schema sanity: regions has wines_in_dataset, not wines.
+    if "wines_in_dataset" in regions.columns and "wines" not in regions.columns:
+        regions = regions.rename({"wines_in_dataset": "wines"})
+    top_regions = regions.sort("weighted_rating", descending=True).head(5).select(
+        ["region", "weighted_rating", "avg_price", "wines"]
+    ).to_dicts()
+
+    top5 = producers.sort("composite_score", descending=True).head(5).to_dicts()
+    top_producers = [
+        {
+            "producer_name": p["producer_name"],
+            "macro_region": p.get("macro_region", "—"),
+            "recommendation": p.get("recommendation", "Monitor"),
+            "weighted_rating": p["weighted_rating"],
+            "avg_price": p["avg_price"],
+            "reason": build_reason(
+                producer_name=p["producer_name"],
+                market_segment=p.get("market_segment", "Commercial Value"),
+                weighted_rating=p["weighted_rating"],
+                avg_price=p["avg_price"],
+                total_reviews=p.get("total_reviews", 0),
+                composite_score=p["composite_score"],
+                value_score=p.get("value_score", 0.0),
+            ),
+        }
+        for p in top5
+    ]
+
+    hold = [p["producer_name"] for p in top5 if p.get("market_segment") == "Premium Icon"][:5]
+    if not hold:
+        hold = [p["producer_name"] for p in top5[:3]]
+
+    region_median_price = float(regions["avg_price"].median() or 100.0)  # type: ignore[arg-type]
+    expand_candidates = regions.sort("value_score", descending=True).head(20).to_dicts() if "value_score" in regions.columns else regions.sort("weighted_rating", descending=True).head(20).to_dicts()
+    expand = [r["region"] for r in expand_candidates if r.get("avg_price", 0) < region_median_price][:3]
+    if not expand:
+        expand = [r["region"] for r in expand_candidates[:3]]
+
+    audit = ["producers with weighted rating ≥ 4.3 but excluded from the ranking on review-count grounds"]
+
+    return {
+        "run_id": run_id,
+        "config_hash": config_hash,
+        "totals": {
+            "wines": wines.height,
+            "producers": producers.height,
+            "regions": regions.height,
+        },
+        "top_regions": top_regions,
+        "top_producers": top_producers,
+        "hold": hold,
+        "expand": expand,
+        "audit": audit,
+    }
+
+
 @report_app.command("build")
 def build(
     run: Annotated[str | None, typer.Option("--run")] = None,
@@ -84,6 +150,12 @@ def build(
         extra: dict[str, Any] | None = None
         if name == "findings-one-pager":
             extra = _findings_extra_context(processed_dir, findings_copy)
+        elif name == "executive-summary":
+            # RunBundle has no `config_hash` attr — derive from run_id suffix (`...__<hash>`).
+            hash_from_run = bundle.run_id.split("__")[-1] if "__" in bundle.run_id else "unknown"
+            extra = _executive_summary_extra_context(
+                processed_dir, run_id=bundle.run_id, config_hash=hash_from_run
+            )
         render_report(
             template_name=tpl,
             bundle=bundle,
