@@ -30,3 +30,6 @@ supercharged/reports/generated/
 .mypy_cache/
 .ruff_cache/
 htmlcov/
+
+# Deploy artefacts — rebuild with deploy/package.sh whenever needed.
+cantinaiq-dashboard.tar.gz

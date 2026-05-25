@@ -1,0 +1,29 @@
+# Caddyfile snippet for the CantinaIQ dashboard.
+# Append to your existing Caddyfile or place in /etc/caddy/conf.d/cantinaiq
+# (whichever pattern your install uses). Reload with `caddy reload`.
+
+cantinaiq.example.nl {
+    root * /var/www/cantinaiq
+
+    encode gzip zstd
+
+    # SPA fallback — React Router routes like /regions, /producers, /matrix.
+    try_files {path} /index.html
+
+    file_server
+
+    # Long cache for hashed assets, short for JSON.
+    @assets path /assets/*
+    header @assets Cache-Control "public, max-age=31536000, immutable"
+
+    @json path *.json
+    header @json Cache-Control "public, max-age=3600"
+
+    # Security hygiene
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options SAMEORIGIN
+        Referrer-Policy strict-origin-when-cross-origin
+        # Caddy adds Strict-Transport-Security automatically when TLS is on.
+    }
+}
