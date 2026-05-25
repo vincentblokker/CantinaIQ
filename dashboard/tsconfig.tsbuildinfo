@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/components/metriccard.tsx","./src/components/recommendationpill.tsx","./src/lib/data.ts","./src/pages/matrix.tsx","./src/pages/overview.tsx","./src/pages/producers.tsx","./src/pages/regions.tsx","./vite.config.ts"],"version":"5.9.3"}
