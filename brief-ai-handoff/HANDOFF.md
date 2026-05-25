@@ -39,8 +39,8 @@ brief-ai-handoff/
 │   ├── 04-the-choice.prompt.md
 │   ├── 05-closing.jpg
 │   ├── 05-closing.prompt.md
-│   ├── 06-author-placeholder.jpg
-│   └── 06-author-placeholder.prompt.md
+│   ├── 06-author.jpg
+│   └── 06-author.prompt.md
 ├── reference/
 │   ├── Azure-AI-in-Practice.pdf       ← Vincent's original ADA template; the visual reference
 │   └── azure-template-pages/p-01.png … p-12.png   ← page-by-page screenshots
@@ -84,13 +84,8 @@ Iterate the prompt. Better prompts get better images. Hard constraints (must rem
 
 Image-specific notes are in each `*.prompt.md` sidecar.
 
-### 3.3 Fix the author photo
-The current `06-author-placeholder.jpg` is a placeholder — it reuses an editorial still life from elsewhere in the project because Vincent has not provided a real portrait. Replace with one of:
-
-- a real photograph of the author (preferred), styled like Vincent's existing Azure brief author page (b&w, environmental, looking middle-distance);
-- a generated stylised editorial still life that explicitly does NOT try to be a face (e.g. a desk, a manuscript, a hand writing — but **never** a fake person).
-
-Never generate a fake face and present it as Vincent.
+### 3.3 The author photo
+The author slot now uses a real B&W environmental portrait supplied by Vincent (`images/06-author.jpg`, also `source/author.jpg`). See [`images/06-author.prompt.md`](images/06-author.prompt.md) for treatment notes if a fresher portrait needs to be swapped in. Do **not** replace with an AI-generated face under any circumstance.
 
 ### 3.4 Verify the numbers
 Every statistic in the body text refers to a real run of the CantinaIQ pipeline. The receiving AI should not invent new numbers. If a number needs updating, update from the source-of-truth files (these live in the parent CantinaIQ repo at `supercharged/reports/generated/`).
@@ -139,7 +134,7 @@ When you finish:
 - [ ] The voice matches [VOICE.md](VOICE.md) — particularly: no promotional phrasing, no hedge words, no padding.
 - [ ] All cited numbers are either unchanged or updated in lock-step with the parent repo's report files.
 - [ ] Images either preserve the existing palette/aesthetic or are regenerated from updated prompts that still honour the §3.2 hard constraints.
-- [ ] The author photo is replaced with a real portrait OR a non-face editorial still life — not a fake face.
+- [ ] The author photo remains the real Vincent portrait — not replaced with anything AI-generated.
 
 ---
 
