@@ -285,6 +285,58 @@ def bootstrap(
 
 
 @app.command()
+def anomaly(
+    contamination: Annotated[
+        float, typer.Option("--contamination", help="Expected fraction of anomalies.")
+    ] = 0.05,
+    seed: Annotated[int, typer.Option("--seed")] = 42,
+    wines_path: Annotated[Path, typer.Option("--wines")] = Path(
+        "data/processed/wines_scored.parquet"
+    ),
+    out_path: Annotated[Path, typer.Option("--out")] = Path(
+        "reports/generated/anomalies.md"
+    ),
+) -> None:
+    """Flag suspicious review patterns via Isolation Forest."""
+    import polars as pl
+
+    from cantinaiq.anomaly import flag_review_anomalies
+
+    df = pl.read_parquet(wines_path)
+    # Normalise wine-name column for downstream display.
+    if "name" not in df.columns and "wine_name" in df.columns:
+        df = df.rename({"wine_name": "name"})
+    out = flag_review_anomalies(df, contamination=contamination, seed=seed)
+    cols = ["name", "region", "rating", "rating_count", "price", "anomaly_score"]
+    anomalies = (
+        out.filter(pl.col("is_anomaly"))
+        .sort("anomaly_score")
+        .head(30)
+        .select([c for c in cols if c in out.columns])
+    )
+    lines = [
+        f"# Review anomalies (contamination={contamination}, seed={seed})",
+        "",
+        f"Flagged {out.filter(pl.col('is_anomaly')).height:,} of {out.height:,} wines.",
+        "Lower anomaly_score = more anomalous.",
+        "",
+        "| Wine | Region | Rating | Reviews | Price (€) | Score |",
+        "|---|---|---:|---:|---:|---:|",
+    ]
+    for row in anomalies.iter_rows(named=True):
+        name = str(row.get("name") or "")[:60]
+        region = str(row.get("region") or "")[:30]
+        lines.append(
+            f"| {name} | {region} | "
+            f"{row['rating']:.2f} | {row['rating_count']:,} | "
+            f"{float(row.get('price') or 0):.2f} | {row['anomaly_score']:.3f} |"
+        )
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text("\n".join(lines) + "\n")
+    console.print(f"[green]✓ {out_path}[/green]")
+
+
+@app.command()
 def sensitivity(
     param: Annotated[
         str,
