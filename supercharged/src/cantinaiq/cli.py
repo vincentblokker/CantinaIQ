@@ -153,6 +153,48 @@ def audit(config_hash: str) -> None:
 
 
 @app.command()
+def bootstrap(
+    n: Annotated[int, typer.Option("--n", help="Number of bootstrap resamples.")] = 1000,
+    top: Annotated[int, typer.Option("--top", help="Top-N producers to track.")] = 20,
+    seed: Annotated[int, typer.Option("--seed")] = 42,
+    wines_path: Annotated[Path, typer.Option("--wines")] = Path(
+        "data/processed/wines_scored.parquet"
+    ),
+    out_path: Annotated[Path, typer.Option("--out")] = Path(
+        "reports/generated/bootstrap-ci.md"
+    ),
+) -> None:
+    """Bootstrap producer-ranking confidence intervals."""
+    import polars as pl
+
+    from cantinaiq.bootstrap import bootstrap_producer_rank_ci
+
+    wines = pl.read_parquet(wines_path).select(
+        ["producer_name", "weighted_rating", "rating_count", "price"]
+    )
+    cis = bootstrap_producer_rank_ci(wines, n_bootstraps=n, top_n=top, seed=seed)
+
+    lines = [
+        f"# Bootstrap rank CIs (n={n}, top-{top}, seed={seed})",
+        "",
+        f"Based on `{wines_path}` ({wines.height:,} rows). "
+        f"Producers that fall outside the top-{top} in a resample receive rank {top + 1}.",
+        "",
+        "| Producer | p05 | p50 | p95 | mean | appearances/n |",
+        "|---|---:|---:|---:|---:|---:|",
+    ]
+    for c in cis:
+        lines.append(
+            f"| {c['producer_name']} | "
+            f"{c['rank_p05']} | {c['rank_p50']} | {c['rank_p95']} | "
+            f"{c['rank_mean']:.1f} | {c['appearances']}/{c['n_bootstraps']} |"
+        )
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text("\n".join(lines) + "\n")
+    console.print(f"[green]✓ {out_path}[/green]")
+
+
+@app.command()
 def sensitivity(
     param: Annotated[
         str,
