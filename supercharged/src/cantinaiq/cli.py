@@ -153,6 +153,41 @@ def audit(config_hash: str) -> None:
 
 
 @app.command()
+def cluster(
+    n_clusters: Annotated[int, typer.Option("--k", help="Number of K-Means clusters.")] = 5,
+    producers_path: Annotated[Path, typer.Option("--producers")] = Path(
+        "data/processed/producers_scored.parquet"
+    ),
+    out_path: Annotated[Path, typer.Option("--out")] = Path(
+        "data/processed/producers_scored_clustered.parquet"
+    ),
+) -> None:
+    """Append a K-Means `cluster_id` column to producers_scored."""
+    import polars as pl
+
+    from cantinaiq.clustering import fit_kmeans_clusters
+
+    df = pl.read_parquet(producers_path)
+    out = fit_kmeans_clusters(df, n_clusters=n_clusters)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out.write_parquet(out_path)
+
+    summary = (
+        out.group_by("cluster_id")
+        .agg(
+            pl.len().alias("n_producers"),
+            pl.col("weighted_rating").mean().round(2).alias("mean_rating"),
+            pl.col("avg_price").mean().round(0).alias("mean_price"),
+            pl.col("total_reviews").mean().round(0).alias("mean_reviews"),
+        )
+        .sort("cluster_id")
+    )
+    console.print(f"[bold]K-Means clusters (k={n_clusters}):[/bold]")
+    console.print(summary)
+    console.print(f"[green]✓ {out_path}[/green]")
+
+
+@app.command()
 def bootstrap(
     n: Annotated[int, typer.Option("--n", help="Number of bootstrap resamples.")] = 1000,
     top: Annotated[int, typer.Option("--top", help="Top-N producers to track.")] = 20,
