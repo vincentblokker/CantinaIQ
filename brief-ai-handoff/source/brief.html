@@ -35,8 +35,9 @@
     .page {
       page-break-after: always;
       position: relative;
-      min-height: 263mm;
-      padding-bottom: 12mm;
+      /* A4 height 297mm − 20mm top − 18mm bottom = 259mm printable */
+      min-height: 259mm;
+      padding-bottom: 14mm;
     }
     .page:last-child { page-break-after: auto; }
 
@@ -54,7 +55,7 @@
     }
     .f-row {
       position: absolute;
-      bottom: 0;
+      bottom: 2mm;  /* sits just above the printable bottom for visual balance */
       left: 0;
       right: 0;
       display: flex;
