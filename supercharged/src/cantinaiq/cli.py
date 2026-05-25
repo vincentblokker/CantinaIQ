@@ -153,6 +153,61 @@ def audit(config_hash: str) -> None:
 
 
 @app.command()
+def bias(
+    wines_path: Annotated[Path, typer.Option("--wines")] = Path(
+        "data/processed/italian_wines_enriched.parquet"
+    ),
+    baseline_path: Annotated[Path, typer.Option("--baseline")] = Path(
+        "data/reference/italian_trade_imports_nl.csv"
+    ),
+    out_path: Annotated[Path, typer.Option("--out")] = Path(
+        "reports/generated/bias-report.md"
+    ),
+) -> None:
+    """Compare Vivino regional distribution to Italian Trade Agency NL imports."""
+    from cantinaiq.bias import compute_bias_report
+
+    report = compute_bias_report(wines_path, baseline_path)
+    rows_sorted = sorted(report.rows, key=lambda r: r["over_under"], reverse=True)
+
+    lines = [
+        "# Vivino Regional Bias Report",
+        "",
+        f"Total Italian wines in Vivino dataset: **{report.total_wines:,}**.",
+        "",
+        "Baseline = `data/reference/italian_trade_imports_nl.csv` "
+        "(derived from ICE Amsterdam Italian wine import statistics).",
+        "",
+        "| Macro region | Vivino n | Vivino % | Baseline % | Over/Under |",
+        "|---|---:|---:|---:|---:|",
+    ]
+    for r in rows_sorted:
+        marker = (
+            "▲" if r["over_under"] >= 1.3
+            else ("▼" if r["over_under"] <= 0.7 else "·")
+        )
+        lines.append(
+            f"| {marker} {r['macro_region']} | "
+            f"{r['vivino_wines']:,} | "
+            f"{r['vivino_share_pct']:.1f}% | "
+            f"{r['baseline_share_pct']:.1f}% | "
+            f"×{r['over_under']:.2f} |"
+        )
+    lines.extend(
+        [
+            "",
+            "**Interpretation:** values above ×1.3 mean Vivino over-represents that region "
+            "vs. real NL import volumes; values below ×0.7 mean Vivino under-represents it. "
+            "Vivino bias does not invalidate the analysis but should be cited in any "
+            "external-facing recommendation.",
+        ]
+    )
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text("\n".join(lines) + "\n")
+    console.print(f"[green]✓ {out_path}[/green]")
+
+
+@app.command()
 def cluster(
     n_clusters: Annotated[int, typer.Option("--k", help="Number of K-Means clusters.")] = 5,
     producers_path: Annotated[Path, typer.Option("--producers")] = Path(
