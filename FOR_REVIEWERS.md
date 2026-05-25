@@ -1,5 +1,7 @@
 # For reviewers — how to read this submission
 
+<img src="assets/detail.png" alt="" width="320" align="right" style="margin-left: 1em;" />
+
 *Vincent Blokker · ADA Applied AI Bootcamp Final Assignment · the Slurpini wine case.*
 
 This repo contains **two parallel deliverables** for the same business problem. The split is intentional: it lets you check two boxes — compliance with the brief, *and* a separate demonstration of what's possible beyond it.

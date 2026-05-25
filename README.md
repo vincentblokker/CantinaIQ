@@ -1,5 +1,7 @@
 # CantinaIQ
 
+![CantinaIQ — Slurpini Partner Intelligence Engine](assets/hero.png)
+
 **Slurpini Partner Intelligence Engine** — final assignment for the ADA Applied AI Bootcamp.
 
 > *Which Italian wine producers should Slurpini prioritise for partnership, with what confidence, at what price band, with what defensible methodology?*
