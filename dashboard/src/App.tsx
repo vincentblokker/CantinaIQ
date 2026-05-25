@@ -7,6 +7,7 @@ import Matrix from "./pages/Matrix";
 import Bias from "./pages/Bias";
 import Stability from "./pages/Stability";
 import Methodology from "./pages/Methodology";
+import ForEvaluators from "./pages/ForEvaluators";
 
 const navLink = ({ isActive }: { isActive: boolean }) =>
   `transition-colors ${isActive ? "text-tuscan font-semibold" : "text-ink-2 hover:text-tuscan"}`;
@@ -29,6 +30,7 @@ export default function App() {
             <NavLink to="/bias" className={navLink}>Bias</NavLink>
             <NavLink to="/stability" className={navLink}>Stability</NavLink>
             <NavLink to="/methodology" className={navLink}>Methodology</NavLink>
+            <NavLink to="/for-evaluators" className={navLink}>For Evaluators</NavLink>
           </nav>
         </div>
       </header>
@@ -42,6 +44,7 @@ export default function App() {
           <Route path="/bias" element={<Bias />} />
           <Route path="/stability" element={<Stability />} />
           <Route path="/methodology" element={<Methodology />} />
+          <Route path="/for-evaluators" element={<ForEvaluators />} />
         </Routes>
       </main>
     </div>

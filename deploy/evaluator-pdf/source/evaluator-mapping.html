@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>CantinaIQ Evaluator Mapping</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red: #B83A1F;
+      --red-soft: rgba(184, 58, 31, 0.10);
+      --ink: #1A1815;
+      --ink-2: #5A4F44;
+      --rule: #DDD8D2;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      font-size: 9pt;
+      line-height: 1.45;
+      color: var(--ink);
+      background: white;
+      -webkit-font-smoothing: antialiased;
+    }
+    @page {
+      size: A4 portrait;
+      margin: 14mm 14mm 0 14mm;
+    }
+    .page {
+      position: relative;
+      height: 273mm;
+      padding-bottom: 18mm;
+      overflow: hidden;
+      page-break-after: auto;
+    }
+
+    /* ── header ───────────────────────────────────────────── */
+    .h-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 7.5pt;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink);
+      font-weight: 500;
+      margin-bottom: 8mm;
+    }
+    .h-row .h-sub { color: var(--ink-2); font-weight: 500; }
+    .h-row .h-sep { color: var(--rule); }
+    .page-num {
+      background: var(--red);
+      color: white;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      width: 6.5mm;
+      height: 6.5mm;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      font-size: 8.5pt;
+    }
+
+    .section-tag {
+      color: var(--red);
+      font-size: 8pt;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 3mm;
+    }
+    .section-title {
+      font-size: 32pt;
+      line-height: 0.92;
+      letter-spacing: -0.025em;
+      font-weight: 900;
+      color: var(--ink);
+      margin: 0 0 3mm 0;
+    }
+    .section-title .dot { color: var(--red); }
+    .section-sub {
+      color: var(--ink-2);
+      font-size: 9pt;
+      max-width: 170mm;
+      margin-bottom: 6mm;
+      line-height: 1.4;
+    }
+
+    h2 {
+      font-size: 11pt;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 4mm 0 2mm 0;
+      letter-spacing: -0.005em;
+    }
+
+    table.rubric {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8pt;
+      margin: 2mm 0;
+    }
+    table.rubric thead th {
+      text-align: left;
+      font-size: 7pt;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--ink);
+      padding: 1.6mm 2.5mm;
+      border-bottom: 1px solid var(--ink);
+    }
+    table.rubric td {
+      padding: 1.4mm 2.5mm;
+      vertical-align: top;
+      border-bottom: 1px solid var(--rule);
+      line-height: 1.3;
+    }
+    table.rubric td:first-child {
+      color: var(--red);
+      font-weight: 600;
+      width: 32%;
+    }
+    table.rubric td:nth-child(2) {
+      color: var(--ink-2);
+      width: 28%;
+      font-size: 7.5pt;
+    }
+    table.rubric td:nth-child(3) {
+      color: var(--ink);
+      font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+      font-size: 7pt;
+    }
+
+    table.fiveminute {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.5pt;
+      margin: 2mm 0 3mm 0;
+    }
+    table.fiveminute thead th {
+      text-align: left;
+      font-size: 7pt;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--ink);
+      padding: 1.6mm 2.5mm;
+      border-bottom: 1px solid var(--ink);
+    }
+    table.fiveminute td {
+      padding: 1.6mm 2.5mm;
+      border-bottom: 1px solid var(--rule);
+    }
+    table.fiveminute td:first-child {
+      color: var(--red);
+      font-weight: 600;
+      width: 40%;
+    }
+    table.fiveminute td:nth-child(2) {
+      font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+      font-size: 7.5pt;
+    }
+
+    code, .mono {
+      font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+      font-size: 0.92em;
+      background: var(--red-soft);
+      padding: 0.5px 3px;
+      border-radius: 2px;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 7mm;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 7pt;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--red);
+      font-weight: 500;
+    }
+    .footer .page-num-foot {
+      color: var(--red);
+      font-weight: 600;
+    }
+
+    .links-block {
+      display: flex;
+      gap: 4mm;
+      margin: 3mm 0 1mm 0;
+      font-size: 8.5pt;
+    }
+    .links-block .url {
+      color: var(--ink-2);
+      font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+      font-size: 7.5pt;
+    }
+    .links-block .label {
+      color: var(--red);
+      font-weight: 600;
+      font-size: 7.5pt;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-right: 2mm;
+    }
+  </style>
+</head>
+<body>
+
+<section class="page">
+  <div class="h-row">
+    <div><span>Evaluator Guide</span><span class="h-sep"> / </span><span class="h-sub">Rubric to Evidence Mapping</span></div>
+    <span class="page-num">01</span>
+  </div>
+
+  <div class="section-tag">CantinaIQ — Slurpini Partner Intelligence</div>
+  <h1 class="section-title">Map the rubric<br/>to the evidence<span class="dot">.</span></h1>
+  <div class="section-sub">
+    A one-page index. Each criterion points to a section in the strategy brief PDF
+    and to a file in the repo. Use this to confirm coverage without reading 19 pages.
+  </div>
+
+  <h2>If you only have five minutes — the three ADA deliverables</h2>
+  <table class="fiveminute">
+    <thead><tr><th>Brief requirement</th><th>Lives in</th></tr></thead>
+    <tbody>
+      <tr><td>(i) Crawler extension</td><td>bare/crawler-extension.py</td></tr>
+      <tr><td>(ii) EDA + analysis</td><td>bare/notebooks/slurpini-analysis.ipynb</td></tr>
+      <tr><td>(iii) Written recommendation</td><td>bare/recommendation.md</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Rubric mapping</h2>
+  <table class="rubric">
+    <thead>
+      <tr>
+        <th>Criterion</th>
+        <th>Strategy Brief PDF</th>
+        <th>Repo / Dashboard</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Business framing of the problem</td><td>§03 From the Field · p5</td><td>supercharged/PRD.md</td></tr>
+      <tr><td>Crawler extension as deliverable</td><td>§07 Beyond the Brief · p14</td><td>bare/crawler-extension.py</td></tr>
+      <tr><td>Exploratory data analysis</td><td>§02 Vivino in Context · p3-4</td><td>bare/notebooks/slurpini-analysis.ipynb · /matrix</td></tr>
+      <tr><td>Data cleaning + validation</td><td>§06 The Methodology · p13</td><td>supercharged/reports/generated/data-quality.md</td></tr>
+      <tr><td>Scoring methodology, transparent</td><td>§06 The Methodology · p12</td><td>supercharged/reports/generated/methodology.md · /methodology</td></tr>
+      <tr><td>Written recommendation, decision-ready</td><td>§05 The Recommendation · p10-11</td><td>bare/recommendation.md · /recommendation</td></tr>
+      <tr><td>Top-5 producers + regions ranking</td><td>§05 The Recommendation · p11</td><td>/producers · /regions</td></tr>
+      <tr><td>Confidence intervals on the ranking</td><td>§02 · p4 · §07 · p15</td><td>supercharged/reports/generated/bootstrap-ci.md · /stability</td></tr>
+      <tr><td>External validity / bias quantification</td><td>§02 · p4 · §07</td><td>supercharged/reports/generated/bias-report.md · /bias</td></tr>
+      <tr><td>Reproducibility (config-hash, audit)</td><td>§06 · p13</td><td>supercharged/ · make demo</td></tr>
+      <tr><td>Sensitivity to parameters</td><td>§07 · p15</td><td>supercharged/reports/generated/sensitivity.md</td></tr>
+      <tr><td>Anomaly detection</td><td>§07 · p15</td><td>supercharged/reports/generated/anomalies.md</td></tr>
+      <tr><td>Tests + schema contracts</td><td>§07 · p16</td><td>supercharged/tests/ · make test</td></tr>
+      <tr><td>Dashboard / live data product</td><td>§07 · p16</td><td>cantinaiq.clubventure.nl</td></tr>
+      <tr><td>Responsible-AI reflection</td><td>§08 Closing Observation · p17-18</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <div class="links-block">
+    <div><span class="label">Repo</span><span class="url">github.com/vincentblokker/CantinaIQ</span></div>
+    <div><span class="label">Live</span><span class="url">cantinaiq.clubventure.nl</span></div>
+    <div><span class="label">Run</span><span class="url">make setup && make demo</span></div>
+  </div>
+
+  <div class="footer">
+    <div>CantinaIQ in Practice / Evaluator Guide</div>
+    <span class="page-num-foot">01</span>
+  </div>
+</section>
+
+</body>
+</html>
