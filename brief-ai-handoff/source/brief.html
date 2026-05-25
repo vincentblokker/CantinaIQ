@@ -28,16 +28,18 @@
 
     @page {
       size: A4 portrait;
-      margin: 20mm 24mm 18mm 24mm;
+      margin: 20mm 24mm 0 24mm;
     }
     @page :first { margin: 0; }
 
     .page {
       page-break-after: always;
+      page-break-inside: avoid;
       position: relative;
-      /* A4 height 297mm − 20mm top − 18mm bottom = 259mm printable */
-      min-height: 259mm;
-      padding-bottom: 14mm;
+      /* A4 height 297mm − 20mm top = 277mm printable */
+      height: 277mm;
+      padding-bottom: 22mm;
+      overflow: hidden;
     }
     .page:last-child { page-break-after: auto; }
 
@@ -53,21 +55,26 @@
       font-weight: 500;
       margin-bottom: 14mm;
     }
-    /* Top-right page number — red filled badge with white text */
+    .h-row .h-left { display: flex; align-items: center; gap: 2mm; }
+    .h-row .h-sep { color: var(--rule); }
+    .h-row .h-sub { color: var(--ink-2); font-weight: 500; }
+    /* Top-right page number — red filled square badge with white text */
     .h-row .page-num {
       background: var(--red);
       color: white;
       font-weight: 700;
-      letter-spacing: 0.05em;
-      padding: 1.6mm 2.4mm;
-      min-width: 8mm;
-      text-align: center;
+      letter-spacing: 0.02em;
+      width: 7mm;
+      height: 7mm;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       line-height: 1;
       font-size: 9pt;
     }
     .f-row {
       position: absolute;
-      bottom: 2mm;
+      bottom: 10mm;
       left: 0;
       right: 0;
       display: flex;
@@ -191,7 +198,7 @@
     }
     .section-title .dot { color: var(--red); }
     .section-sub {
-      color: var(--ink);
+      color: var(--red);
       font-size: 9pt;
       letter-spacing: 0.22em;
       text-transform: uppercase;
@@ -293,11 +300,11 @@
       text-transform: uppercase;
       font-weight: 600;
       color: var(--ink);
-      padding: 3mm 3.5mm;
+      padding: 2mm 3.5mm;
       border-bottom: 1px solid var(--ink);
     }
     .cmp-table td {
-      padding: 3mm 3.5mm;
+      padding: 2mm 3.5mm;
       vertical-align: top;
       border-bottom: 1px solid var(--rule);
     }
@@ -399,16 +406,16 @@
 
     /* ── contents list ────────────────────────────────────── */
     .toc {
-      margin-top: 5mm;
+      margin-top: 3mm;
     }
     .toc-row {
       display: grid;
       grid-template-columns: 16mm 1fr 16mm;
       align-items: center;
       gap: 6mm;
-      padding: 4mm 0;
+      padding: 2.4mm 0;
       border-top: 1px solid var(--rule);
-      font-size: 11pt;
+      font-size: 10pt;
     }
     .toc-row:last-child { border-bottom: 1px solid var(--rule); }
     /* TOC numbers as red filled badges */
@@ -483,19 +490,15 @@
 
 <!-- ============================================================ PAGE 2 — INTRODUCTION ============================================================ -->
 <section class="page">
-  <div class="h-row"><div>Introduction</div><span class="page-num">02</span></div>
+  <div class="h-row"><div class="h-left"><span>Introduction</span><span class="h-sep">/</span><span class="h-sub">Table of Contents</span></div><span class="page-num">02</span></div>
   <div class="section-tag">A brief on CantinaIQ in practice</div>
   <h2 class="section-title">Introduction<span class="dot">.</span></h2>
 
   <div class="blockquote">
-    The Slurpini case asks three things: extend the Vivino crawler, perform exploratory analysis, deliver an evidence-based recommendation. That is the brief. This document evaluates what changes when those three deliverables are answered as a reproducible data product instead of a one-off analysis.
+    The Slurpini case asks three things: extend the Vivino crawler, perform exploratory analysis, deliver an evidence-based recommendation. This document evaluates what changes when those three deliverables are answered as a reproducible data product instead of a one-off analysis.
   </div>
 
-  <p>I answered the brief twice. The first track, <strong>/bare</strong>, is the assignment in roughly 150 lines of code: one pandas notebook, a first-word producer heuristic, a half-page recommendation. It runs in thirty seconds and meets the brief honestly, including listing its own limitations.</p>
-
-  <p>The second track, <strong>/supercharged</strong>, treats the same business question as a data product: Polars and DuckDB processing, Pandera schema contracts, a five-factor Bayesian composite score, OpenRouter-driven LLM disambiguation, property-based tests, config-hashed run logs, a Vite dashboard, and external-validity work against Italian Trade Agency NL imports.</p>
-
-  <p>This document evaluates when the heavier architecture earns its place against the next-best alternative — usually a notebook. The course brief asks for one. The interesting professional question is which one, and why.</p>
+  <p>I answered the brief twice. <strong>/bare</strong> is the assignment in ~150 lines: one pandas notebook, a first-word producer heuristic, a half-page recommendation. <strong>/supercharged</strong> treats the same question as a data product: Polars and DuckDB, Pandera contracts, a five-factor Bayesian composite, LLM disambiguation, property-based tests, config-hashed run logs, a Vite dashboard, and external-validity work against Italian Trade Agency NL imports. The professional question is which one earns its place, and why.</p>
 
   <h3>Contents</h3>
   <div class="toc">
@@ -503,8 +506,11 @@
     <div class="toc-row"><div class="n">02</div><div>Vivino in Context</div><div class="p">03</div></div>
     <div class="toc-row"><div class="n">03</div><div>From the Field: the Slurpini Case</div><div class="p">05</div></div>
     <div class="toc-row"><div class="n">04</div><div>The Choice: When the Heavyweight Earns Its Place</div><div class="p">08</div></div>
-    <div class="toc-row"><div class="n">05</div><div>Closing Observation</div><div class="p">10</div></div>
-    <div class="toc-row"><div class="n">06</div><div>About the Author</div><div class="p">11</div></div>
+    <div class="toc-row"><div class="n">05</div><div>The Recommendation</div><div class="p">10</div></div>
+    <div class="toc-row"><div class="n">06</div><div>The Methodology</div><div class="p">12</div></div>
+    <div class="toc-row"><div class="n">07</div><div>Beyond the Brief</div><div class="p">14</div></div>
+    <div class="toc-row"><div class="n">08</div><div>Closing Observation</div><div class="p">17</div></div>
+    <div class="toc-row"><div class="n">09</div><div>About the Author</div><div class="p">19</div></div>
   </div>
 
   <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">02</span></div>
@@ -512,10 +518,9 @@
 
 <!-- ============================================================ PAGE 3 — VIVINO IN CONTEXT (opener) ============================================================ -->
 <section class="page">
-  <div class="h-row"><div>Vivino in Context</div><span class="page-num">03</span></div>
-  <div class="section-tag">Section 02</div>
+  <div class="h-row"><div class="h-left"><span>Vivino in Context</span><span class="h-sep">/</span><span class="h-sub">What the Dataset Is and How it Skews</span></div><span class="page-num">03</span></div>
   <h2 class="section-title">Vivino<br/>in Context<span class="dot">.</span></h2>
-  <div class="section-sub">What the dataset is and how it skews</div>
+  <div class="section-sub">Section 02 — What the Dataset Is and How it Skews</div>
 
   <p>Vivino is presented as a global consumer wine signal. In practice, it is a collection of ratings with demographic and regional bias, a long tail of low-confidence rows, and a producer field that does not exist as such. Producer identity has to be inferred from wine names.</p>
 
@@ -530,18 +535,16 @@
 
 <!-- ============================================================ PAGE 4 — VIVINO IN CONTEXT (image + bias) ============================================================ -->
 <section class="page">
-  <div class="h-row"><div>Vivino in Context</div><span class="page-num">04</span></div>
+  <div class="h-row"><div class="h-left"><span>Vivino in Context</span><span class="h-sep">/</span><span class="h-sub">Bias and Stability</span></div><span class="page-num">04</span></div>
 
   <img src="section-02.jpg" alt="" class="section-img full" />
 
   <h3>The bias question, quantified</h3>
-  <p>The most important external-validity check in the supercharged track is the bias report. It compares the regional distribution of the cleaned Italian Vivino dataset against the regional shares of Italian wine imports into the Netherlands, drawn from ICE Amsterdam annual reports.</p>
+  <p>The supercharged track compares the regional distribution of the cleaned Italian Vivino dataset against ICE Amsterdam import data for the Netherlands. The result is uncomfortable. Toscana is over-represented by a factor of 1.22. Puglia is under-represented by 0.61. Abruzzo sits at 0.52, Campania at 0.55. These are not errors. They are the shape of Vivino's user base bleeding through into the dataset Slurpini would use to decide travel priorities.</p>
 
-  <p>The result is honest and uncomfortable. Toscana is over-represented by a factor of 1.22. Puglia is under-represented by 0.61. Abruzzo sits at 0.52, Campania at 0.55. These are not errors — they are the shape of Vivino's user base bleeding through into the dataset Slurpini would use to decide travel priorities.</p>
+  <p>The Vivino signal is most reliable in regions Slurpini already knows well, which is the opposite of where it most needs help. Any recommendation involving Puglia or Abruzzo should be marked <em>under-sampled</em>, not low-priority. The bare track buries this in four bullets. The supercharged track generates a bias-report on every run.</p>
 
-  <p>The Vivino signal is most reliable in regions Slurpini already knows well, which is the opposite of where it most needs help. Any recommendation involving Puglia or Abruzzo should be marked <em>under-sampled</em>, not low-priority. The bare track lists this in four bullets at the end of the recommendation. The supercharged track produces a generated bias-report table regenerated on every run. The point is not to fix the bias; the point is to measure it.</p>
-
-  <p>Stability checks complement the bias picture. A bootstrap of one thousand resamples puts Tenuta Masseto in the top-ten in <strong>195 out of 200</strong> runs; Dal Forno Romano in 185; Biondi-Santi in 160. Two producers — Terre di San Vincenzo and Valdicava — have extreme p95 ranks (412 and 228), meaning they made the top-ten by accident with too few reviews. That detail does not exist in the bare track.</p>
+  <p>Stability checks complement the bias picture. A bootstrap of a thousand resamples puts Tenuta Masseto in the top-ten in <strong>195 out of 200</strong> runs; Dal Forno Romano in 185; Biondi-Santi in 160. Terre di San Vincenzo and Valdicava show extreme p95 ranks (412 and 228), meaning they made the top-ten by accident with too few reviews. The bare track lists them at face value.</p>
 
   <div class="stats">
     <div><div class="stat-num">2,986</div><div class="stat-lbl">Italian wines<br/>after cleaning</div></div>
@@ -554,10 +557,9 @@
 
 <!-- ============================================================ PAGE 5 — FROM THE FIELD (opener) ============================================================ -->
 <section class="page">
-  <div class="h-row"><div>From the Field</div><span class="page-num">05</span></div>
-  <div class="section-tag">Section 03</div>
+  <div class="h-row"><div class="h-left"><span>From the Field</span><span class="h-sep">/</span><span class="h-sub">Use Case: Slurpini Partner Intelligence</span></div><span class="page-num">05</span></div>
   <h2 class="section-title">From<br/>the Field<span class="dot">.</span></h2>
-  <div class="section-sub">Use case: Slurpini partner intelligence</div>
+  <div class="section-sub">Section 03 — Use Case: Slurpini Partner Intelligence</div>
 
   <p>Slurpini is a Dutch importer of high-quality Italian wines with an explicit sustainability focus. The company receives more collaboration requests from Italian producers than it can investigate. Each on-site visit costs travel, time and managerial attention. The brief is to add a structured, data-driven layer to that prioritisation problem.</p>
 
@@ -573,7 +575,7 @@
 
 <!-- ============================================================ PAGE 7 — FROM THE FIELD continued (image + two routes + table) ============================================================ -->
 <section class="page">
-  <div class="h-row"><div>From the Field</div><span class="page-num">06</span></div>
+  <div class="h-row"><div class="h-left"><span>From the Field</span><span class="h-sep">/</span><span class="h-sub">The Two Routes</span></div><span class="page-num">06</span></div>
 
   <img src="section-03.jpg" alt="" class="section-img full" />
 
@@ -588,7 +590,7 @@
 
 <!-- ============================================================ PAGE 8 — Comparison + why both ============================================================ -->
 <section class="page">
-  <div class="h-row"><div>From the Field</div><span class="page-num">07</span></div>
+  <div class="h-row"><div class="h-left"><span>From the Field</span><span class="h-sep">/</span><span class="h-sub">Comparison and Why Both</span></div><span class="page-num">07</span></div>
 
   <h3>Comparison</h3>
   <table class="cmp-table">
@@ -606,11 +608,7 @@
   </table>
 
   <h3>Why both, not one</h3>
-  <p>The bare track is the assignment compliance document; the supercharged track is the professional document. The first-word producer heuristic in the bare track is deliberately wrong — and the supercharged track exists to demonstrate exactly why. In the supercharged track, every number traces to a config-hash-stamped run log, and the bias is measured and printed at the top of the report.</p>
-
-  <div class="blockquote">
-    The delta between the two tracks is the argument. Removing either one removes the argument.
-  </div>
+  <p>The bare track is the assignment compliance document. The supercharged track is the professional document. The first-word producer heuristic is deliberately wrong; the supercharged track exists to show why. The delta between the two tracks is the argument. Removing either one removes it.</p>
 
   <div class="stats">
     <div><div class="stat-num">14</div><div class="stat-lbl">CLI subcommands<br/>in the pipeline</div></div>
@@ -623,10 +621,9 @@
 
 <!-- ============================================================ PAGE 9 — THE CHOICE (opener + when right) ============================================================ -->
 <section class="page">
-  <div class="h-row"><div>The Choice</div><span class="page-num">08</span></div>
-  <div class="section-tag">Section 04</div>
+  <div class="h-row"><div class="h-left"><span>The Choice</span><span class="h-sep">/</span><span class="h-sub">When the Heavyweight Earns Its Place</span></div><span class="page-num">08</span></div>
   <h2 class="section-title">The Choice<span class="dot">.</span></h2>
-  <div class="section-sub">When the heavyweight earns its place and when it does not</div>
+  <div class="section-sub">Section 04 — When the Heavyweight Earns Its Place</div>
 
 
   <h3>When the heavyweight is the right choice</h3>
@@ -654,7 +651,7 @@
 
 <!-- ============================================================ PAGE 9 — THE CHOICE continued ============================================================ -->
 <section class="page">
-  <div class="h-row"><div>The Choice</div><span class="page-num">09</span></div>
+  <div class="h-row"><div class="h-left"><span>The Choice</span><span class="h-sep">/</span><span class="h-sub">The Deeper Question</span></div><span class="page-num">09</span></div>
 
   <h3>When the heavyweight is the wrong choice</h3>
   <div class="num-block">
@@ -676,21 +673,223 @@
   </div>
 
   <h3>The deeper question</h3>
-  <p>The supercharged track was built because the same business question looks materially different when treated as a problem that will be solved more than once. The bias question becomes load-bearing. Bootstrap CIs become the difference between confidence and false confidence. The right tool for the brief-as-stated is the bare track; the right tool for the brief-as-it-would-be-asked-in-industry is the supercharged track. The professional skill is recognising which question is actually being asked.</p>
+  <p>The supercharged track was built because the same business question looks materially different when treated as a problem that will be solved more than once. The bias question becomes load-bearing. Bootstrap CIs become the difference between confidence and false confidence. The brief-as-stated wants the bare track. The brief-as-it-would-be-asked-in-industry wants the supercharged track. The professional skill is recognising which question is being asked.</p>
 
   <div class="pull">The better question is not <em>"is more rigour better?"</em> The better question is whether the additional rigour produces a different decision.</div>
 
-  <p>For Slurpini, the additional rigour produces different decisions. The bare track lists "Tenuta" and "Marchesi" as top producer fragments — uninterpretable for a buying committee. The supercharged track lists "Tenuta San Guido" and "Marchesi Antinori" — directly actionable. The bare track recommends "Expand in Puglia" without flagging that Vivino under-represents Puglia. The supercharged track flags the ×0.61 factor next to the recommendation, which changes how the committee interprets it. Those are not stylistic improvements. They are decisions changing.</p>
+  <p>For Slurpini, it does. The bare track lists "Tenuta" and "Marchesi" as top producer fragments. Uninterpretable. The supercharged track lists "Tenuta San Guido" and "Marchesi Antinori". Directly actionable. The bare track recommends "Expand in Puglia" without flagging Vivino's ×0.61 under-representation. The supercharged track flags that factor next to the recommendation. Those are not stylistic improvements. They are decisions changing.</p>
 
   <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">09</span></div>
 </section>
 
-<!-- ============================================================ PAGE 11 — CLOSING OBSERVATION ============================================================ -->
+<!-- ============================================================ PAGE 10 — THE RECOMMENDATION (opener) ============================================================ -->
 <section class="page">
-  <div class="h-row"><div>Closing Observation</div><span class="page-num">10</span></div>
-  <div class="section-tag">Section 05</div>
+  <div class="h-row"><div class="h-left"><span>The Recommendation</span><span class="h-sep">/</span><span class="h-sub">What the Data Tells Slurpini to Do</span></div><span class="page-num">10</span></div>
+  <h2 class="section-title" style="font-size: 44pt; line-height: 0.95;">The<br/>Recommendation<span class="dot">.</span></h2>
+  <div class="section-sub">Section 05 — What the Data Tells Slurpini to Do</div>
+
+  <p>Section 04 argued that the heavier engineering changes the decision. This section states the decision. It is the answer to ADA's third deliverable — written so a buying committee can act on it without re-opening the code. Numbers derive from the supercharged run at config hash <code>b7f16c72</code>; the bare track agrees directionally.</p>
+
+  <div class="blockquote">
+    Three-part recommendation: <strong>Hold</strong> the prestige tier, <strong>Expand</strong> in the value-opportunity zone, <strong>Audit</strong> the high-rating borderline. Each qualified by Vivino bias and bootstrap stability.
+  </div>
+
+  <h3>Hold — the defensible anchor</h3>
+  <p><strong>Tenuta Masseto</strong> sits at the top of the prestige tier (weighted rating 4.30 on 4,641 reviews at €1,567 average). Bootstrap stability puts it in the top-ten in 195 of 200 resamples. The recommendation is to maintain. <em>Tenuta San Guido</em> and <em>Marchesi Antinori</em> share the same band with similar stability.</p>
+
+  <h3>Expand — the value-opportunity zone</h3>
+  <p>Above-median weighted rating at well-below-median price. Pipeline-recommended regions: <strong>Roma</strong>, <strong>Torgiano</strong>, <strong>Ischia</strong>. <strong>Puglia</strong> (Primitivo di Manduria) and <strong>Abruzzo</strong> carry the strongest bare-track signal, but both sit at ×0.61 and ×0.52 in the bias report and need an under-sampled tag in any travel decision.</p>
+
+  <h3>Audit — the borderline producers</h3>
+  <p>Producers with weighted rating ≥ 4.3 that sit just outside the ranking on review-count grounds. <strong>Terre di San Vincenzo</strong> and <strong>Valdicava</strong> show p95 bootstrap ranks of 412 and 228 — top-ten by accident with too few reviews. Worth a tasting before either dismissing or recommending. The bare track would not surface that distinction.</p>
+
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">10</span></div>
+</section>
+
+<!-- ============================================================ PAGE 11 — THE RECOMMENDATION (top-5 tables) ============================================================ -->
+<section class="page">
+  <div class="h-row"><div class="h-left"><span>The Recommendation</span><span class="h-sep">/</span><span class="h-sub">Top-Five Producers and Regions</span></div><span class="page-num">11</span></div>
+
+  <h3>Top-five producers by composite score</h3>
+  <p>The Slurpini Partner Intelligence Score is a five-factor weighted composite (see §06). Each producer is classified into a market segment and assigned an action. The top of the ranking:</p>
+
+  <table class="cmp-table">
+    <thead><tr><th>Producer (region)</th><th>Segment / action</th><th>Signal</th></tr></thead>
+    <tbody>
+      <tr><td>Roscato (Provincia di Pavia)</td><td>Commercial Value / Value Opportunity</td><td>WR 4.19 · 16,514 reviews · €22 · composite 0.38</td></tr>
+      <tr><td>Tenuta Masseto (Toscane)</td><td>Premium Icon / Premium Brand Builder</td><td>WR 4.30 · 4,641 reviews · €1,567 · top-10 in 195/200</td></tr>
+      <tr><td>Villa Degli (Veneto)</td><td>Hidden Gem / Target</td><td>WR 4.27 · 13,009 reviews · €20</td></tr>
+      <tr><td>Risata (Moscato d'Asti)</td><td>Commercial Value / Value Opportunity</td><td>WR 4.17 · 6,224 reviews · €16 · composite 0.35</td></tr>
+      <tr><td>Ca' del Doge (Veneto)</td><td>Commercial Value / Value Opportunity</td><td>WR 4.05 · 1,064 reviews · €6 · composite 0.34</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Top-five regions by weighted rating</h3>
+  <p>Macro-region labels are canonical against <code>data/reference/macro_regions.csv</code>. Price columns are unweighted averages.</p>
+
+  <table class="cmp-table">
+    <thead><tr><th>Region</th><th>Weighted rating</th><th>Wines / avg price</th></tr></thead>
+    <tbody>
+      <tr><td>Bolgheri Sassicaia</td><td>4.50</td><td>22 wines · €672 avg</td></tr>
+      <tr><td>Bolgheri Superiore</td><td>4.34</td><td>39 wines · €280 avg</td></tr>
+      <tr><td>Colli della Toscana Centrale</td><td>4.30</td><td>5 wines · €281 avg</td></tr>
+      <tr><td>Passito di Pantelleria</td><td>4.29</td><td>7 wines · €146 avg</td></tr>
+      <tr><td>Abruzzo</td><td>4.29</td><td>7 wines · €46 avg</td></tr>
+    </tbody>
+  </table>
+
+  <p>Abruzzo at €46 average is the load-bearing detail — high quality at a price point that fits the value-opportunity recommendation, in a region the bias report flags as ×0.52 under-represented. The bare track surfaces the same directional findings without the segment classification, bootstrap stability or bias correction.</p>
+
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">11</span></div>
+</section>
+
+<!-- ============================================================ PAGE 12 — THE METHODOLOGY (opener) ============================================================ -->
+<section class="page">
+  <div class="h-row"><div class="h-left"><span>The Methodology</span><span class="h-sep">/</span><span class="h-sub">How the Score Is Constructed</span></div><span class="page-num">12</span></div>
+  <h2 class="section-title" style="font-size: 48pt; line-height: 0.95;">The<br/>Methodology<span class="dot">.</span></h2>
+  <div class="section-sub">Section 06 — How the Score Is Constructed</div>
+
+  <p>The recommendation in §05 rests on a composite score whose components are visible, weighted, and reproducible. The score is not the value of the document. The transparency of the score is.</p>
+
+  <h3>The Bayesian-shrunk weighted rating</h3>
+  <p>A wine with a 4.8 rating on 12 reviews must not outrank a wine with a 4.4 rating on 5,000 reviews. Both tracks apply the same shrinkage:</p>
+
+  <div class="blockquote" style="font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 12pt;">
+    WR  =  ( n / (n + m) ) · r  +  ( m / (n + m) ) · μ
+  </div>
+
+  <p>For the logged run <code>m = 948</code> (strategy <code>auto-median</code>) and <code>μ = 4.0</code>. The supercharged track lets <code>m</code> vary and measures how the top-twenty responds — see §07.</p>
+
+  <h3>The five-factor composite</h3>
+  <p>The Slurpini Partner Intelligence Score is a weighted average of five normalised components. Weights are business assumptions, versioned per config snapshot:</p>
+
+  <table class="cmp-table">
+    <thead><tr><th>Component</th><th>What it captures</th><th>Weight</th></tr></thead>
+    <tbody>
+      <tr><td>Weighted Rating Score</td><td>Bayesian-shrunk consumer preference</td><td>35%</td></tr>
+      <tr><td>Market Confidence Score</td><td>Rewards reliable consumer signal (review volume)</td><td>20%</td></tr>
+      <tr><td>Value for Money Score</td><td>Quality at realistic price</td><td>20%</td></tr>
+      <tr><td>Premium Fit Score</td><td>Alignment with Slurpini's premium positioning</td><td>15%</td></tr>
+      <tr><td>Portfolio Opportunity Score</td><td>Strategic gap-filling versus current import mix</td><td>10%</td></tr>
+    </tbody>
+  </table>
+
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">12</span></div>
+</section>
+
+<!-- ============================================================ PAGE 13 — METHODOLOGY (cleaning + taxonomy + repro) ============================================================ -->
+<section class="page">
+  <div class="h-row"><div class="h-left"><span>The Methodology</span><span class="h-sep">/</span><span class="h-sub">Cleaning, Segments, Reproducibility</span></div><span class="page-num">13</span></div>
+
+  <h3>The cleaning cascade</h3>
+  <p>The dataset arrives as a 409,777-row, 16-sheet Excel file with mojibake on diacritics (<code>Itali√´</code> → <code>Italië</code>), tuple-encoded country fields, and cross-sheet duplication. The cascade from raw to scored:</p>
+
+  <table class="cmp-table">
+    <thead><tr><th>Stage</th><th>Rows out</th><th>Removed (top reason)</th></tr></thead>
+    <tbody>
+      <tr><td>Ingestion</td><td>409,777</td><td>—</td></tr>
+      <tr><td>Cleaning</td><td>2,986</td><td>406,791 (non_italian: 332,376; duplicate: 74,396)</td></tr>
+      <tr><td>Validation</td><td>2,986</td><td>0 — Pandera contracts pass</td></tr>
+      <tr><td>Enrichment / Scoring / Export</td><td>2,986</td><td>0 — columns added, no rows dropped</td></tr>
+    </tbody>
+  </table>
+
+  <p>The bare track retains 5,786 rows after a looser dedupe. The supercharged track applies a fuzzy-name pass and a confidence-floor on <code>rating_count</code>, trading breadth for confidence.</p>
+
+  <h3>Segments and recommendations</h3>
+  <div class="twocol">
+    <div>
+      <h4>Market segments</h4>
+      <p><strong>Hidden Gem</strong> · <strong>Premium Icon</strong> · <strong>Commercial Value</strong> · <strong>Overpriced Risk</strong> · <strong>Low Confidence Niche</strong>. Encoded as cut-offs on rating × price × review-count.</p>
+    </div>
+    <div>
+      <h4>Actions</h4>
+      <p><strong>Target</strong> · <strong>Premium Brand Builder</strong> · <strong>Value Opportunity</strong> · <strong>Monitor</strong> · <strong>Avoid for Now</strong>. Derived from segment + composite score.</p>
+    </div>
+  </div>
+
+  <h3>Reproducibility</h3>
+  <p>Every output parquet carries a <code>run_config_hash</code>. Re-running <code>cantinaiq run all --config-snapshot b7f16c72</code> reproduces the same bytes, modulo timestamp metadata.</p>
+
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">13</span></div>
+</section>
+
+<!-- ============================================================ PAGE 14 — BEYOND THE BRIEF (opener) ============================================================ -->
+<section class="page">
+  <div class="h-row"><div class="h-left"><span>Beyond the Brief</span><span class="h-sep">/</span><span class="h-sub">What the Pipeline Adds That ADA Did Not Ask For</span></div><span class="page-num">14</span></div>
+  <h2 class="section-title">Beyond<br/>the Brief<span class="dot">.</span></h2>
+  <div class="section-sub">Section 07 — What the Pipeline Adds That ADA Did Not Ask For</div>
+
+  <p>ADA's brief asks for three things: a crawler extension, exploratory analysis, an evidence-based recommendation. The bare track answers them directly. This section catalogues the work in the supercharged track that goes past the brief, with the test in mind that Section 04 articulated: <em>does the additional rigour produce a different decision?</em></p>
+
+  <p>The items below are not bullets on a CV. They are the apparatus that turns a recommendation into something a buying committee can challenge. Where the answer is "no, this rigour does not change the decision", the item is honest about that. Where it does change the decision, the change is explicit.</p>
+
+  <h3>The crawler extension, properly framed</h3>
+  <p>The brief asks for the Vivino crawler to be extended with additional data points. The bare track's <code>crawler-extension.py</code> does this in a deliberately scoped way: a vintage-regex pass extracts the four-digit year from every wine name, a first-word heuristic extracts a producer hint, and a stubbed <code>fetch_vivino_extras()</code> documents the network-scraping fields that a production extension would add (alcohol percentage, grape varieties, food pairings, sustainability claims). The stub is not laziness; Vivino's terms of service prohibit unauthorised scraping at volume, and the assignment's focus is analysis, not adversarial scraping. The function signature and return shape are sufficient to show how the existing pipeline would be extended in a working agreement with Vivino.</p>
+
+  <p>The supercharged track replaces "first-word" with a two-pass producer disambiguator: a hand-curated alias whitelist for the top fifty Italian producers, then an OpenRouter-backed LLM pass for the remainder, cached so the same dataset never costs twice. The gold-set evaluation in §02 — 88% exact recall, 96% contains — measures the difference.</p>
+
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">14</span></div>
+</section>
+
+<!-- ============================================================ PAGE 15 — BEYOND (anomalies + sensitivity + clustering) ============================================================ -->
+<section class="page">
+  <div class="h-row"><div class="h-left"><span>Beyond the Brief</span><span class="h-sep">/</span><span class="h-sub">Anomalies, Sensitivity, Clustering</span></div><span class="page-num">15</span></div>
+
+  <h3>Anomaly detection on review patterns</h3>
+  <p>An Isolation Forest at <code>contamination = 0.03</code> over the <code>(rating, log₁₀(rating_count))</code> feature space flags <strong>90 of 2,986</strong> wines as pattern-divergent. Typical hits: ratings above 4.8 on fewer than twenty reviews (over-confident niches); ratings below 3.2 on tens of thousands of reviews (controversial mass-market wines); price-against-rating outliers — a wine at €467 with a 3.10 rating, for example.</p>
+
+  <p>The flag is informational. Flagged wines are not removed from the pipeline. The point is to give the reviewer a list of <em>"these are the rows that did not behave like the rest"</em> rather than to silently filter them. <em>Antinori Tignanello</em> vintages and <em>Masseto Toscana 2018</em> appear in the flagged list — not because they are wrong, but because their rating-versus-review-count signature is unusual. The reviewer decides what to do with that.</p>
+
+  <h3>Sensitivity to scoring parameters</h3>
+  <p>The shrinkage parameter <code>m</code> in the Bayesian weighted rating shapes how aggressively the score regresses small-n wines towards the global mean. A buying committee asking <em>"does the answer change if you turn that knob?"</em> deserves an answer. The sweep:</p>
+
+  <table class="cmp-table">
+    <thead><tr><th>bayesian_m</th><th style="text-transform: none; letter-spacing: 0; font-size: 10pt;">Kendall-τ vs. baseline (m = 200)</th><th>Reading</th></tr></thead>
+    <tbody>
+      <tr><td>200 (baseline)</td><td>1.000</td><td>Reference ranking</td></tr>
+      <tr><td>500</td><td>0.882</td><td>Strong agreement; minor re-orderings</td></tr>
+      <tr><td>800</td><td>0.765</td><td>Material re-ordering; small-n producers drop</td></tr>
+    </tbody>
+  </table>
+
+  <p>Reading: the top-twenty is stable under moderate parameter drift. The recommendation does not depend on a hair-thin choice of <code>m</code>. Larger <code>m</code> values pull the low-review producers further toward the mean, which is the direction a sceptical reviewer would want anyway.</p>
+
+  <h3>K-Means clustering on the producer feature space</h3>
+  <p>The rule-based segments in §06 encode business intent. A K-Means clustering on the standardised <code>(weighted_rating, value_score, total_reviews, avg_price)</code> space encodes empirical similarity. Where the cluster label and rule label disagree, the producer is the row to discuss with the buying committee.</p>
+
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">15</span></div>
+</section>
+
+<!-- ============================================================ PAGE 16 — BEYOND (sustainability + tests + dashboard) ============================================================ -->
+<section class="page">
+  <div class="h-row"><div class="h-left"><span>Beyond the Brief</span><span class="h-sep">/</span><span class="h-sub">Sustainability, Tests, Dashboard</span></div><span class="page-num">16</span></div>
+
+  <h3>Sustainability lookup against external registries</h3>
+  <p>Sustainability is Slurpini's stated USP and is absent from the Vivino dataset. <code>cantinaiq sustainability</code> fills the gap by querying the FederBio and Demeter certification registries via Firecrawl. Of the five producers checked in the logged run, three are Demeter-certified: <strong>Querciabella</strong>, <strong>Avignonesi</strong>, and <strong>Antinori</strong>. The certification status feeds back into the score as the Premium Fit Score's biodynamic-bonus component. Producers without a certification hit are not penalised — Slurpini may know about uncertified-but-sustainable practice that no public registry captures — but the visible status is recorded.</p>
+
+  <div class="stats">
+    <div><div class="stat-num">5</div><div class="stat-lbl">Producers checked<br/>(by --only list)</div></div>
+    <div><div class="stat-num">3</div><div class="stat-lbl">Demeter-certified<br/>hits returned</div></div>
+    <div><div class="stat-num">0</div><div class="stat-lbl">Producers penalised<br/>for missing entries</div></div>
+  </div>
+
+  <h3>The test suite</h3>
+  <p>The supercharged pipeline carries <strong>137 tests</strong>: unit, integration, property-based (Hypothesis fuzzes the Bayesian scoring math, the segment classification, and the recommendation lookup), schema (Pandera enforces contracts at every stage boundary), and Jinja-template smoke tests that verify the generated reports do not silently drop fields. Coverage gate is set at 85%. The point is not "tests are good"; the point is that any change to the scoring math has to either preserve the tested invariants or admit it is changing them.</p>
+
+  <h3>The dashboard</h3>
+  <p>A Vite + React + Tailwind + Recharts SPA over the same JSON exports. Four pages: <strong>Overview</strong> with KPIs and top-five producers; <strong>Regions</strong> with a sortable table; <strong>Producers</strong> with segment-filterable list; and the <strong>Opportunity Matrix</strong> — log-price on X, weighted rating on Y, bubble size proportional to review count, colour by market segment, all 762 producers in a single scatter. Top-right is Premium Icon, top-left is Hidden Gem, bottom-right is Overpriced Risk.</p>
+
+  <div class="pull" style="border-bottom: none;">The supercharged track does not claim to have solved the problem. It claims to have made the limitations <em>measurable</em>.</div>
+
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">16</span></div>
+</section>
+
+<!-- ============================================================ PAGE 17 — CLOSING OBSERVATION ============================================================ -->
+<section class="page">
+  <div class="h-row"><div class="h-left"><span>Closing Observation</span><span class="h-sep">/</span><span class="h-sub">Methodology Choices Are Governance Choices</span></div><span class="page-num">17</span></div>
   <h2 class="section-title">Closing<br/>Observation<span class="dot">.</span></h2>
-  <div class="section-sub">Methodology choices are governance choices</div>
+  <div class="section-sub">Section 08 — Methodology Choices Are Governance Choices</div>
 
   <img src="section-05.jpg" alt="" class="section-img" />
 
@@ -702,18 +901,25 @@
 
   <p>The Toeslagenaffaire showed what happens when algorithmic systems are treated as neutral facts rather than fallible tools. The Vivino case is far lower stakes, but the same shape of error is available. A buying committee that reads "Primitivo di Manduria is a value play" without seeing the ×0.61 under-representation factor is the same shape of decision-maker as one who reads "this applicant is high-risk" without seeing the model's confusion matrix on relevant subgroups.</p>
 
-  <div class="pull">Methodology choices are governance choices<span style="color: var(--red);">.</span></div>
-
-  <p>Both tracks answer the brief. They answer different versions of it. The right professional move is not always to build the heavier system; it is to articulate which question is actually being asked and to build the system that answers that question — no more, no less.</p>
-
-  <h2 class="section-title" style="font-size: 28pt; margin-top: 6mm;">But the analysis should still have to earn its trust<span class="dot">.</span></h2>
-
-  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">10</span></div>
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">17</span></div>
 </section>
 
-<!-- ============================================================ PAGE 12 — ABOUT THE AUTHOR ============================================================ -->
+<!-- ============================================================ PAGE 18 — CLOSING CONTINUED ============================================================ -->
 <section class="page">
-  <div class="h-row"><div>About the Author</div><span class="page-num">11</span></div>
+  <div class="h-row"><div class="h-left"><span>Closing Observation</span><span class="h-sep">/</span><span class="h-sub">The Closing Argument</span></div><span class="page-num">18</span></div>
+
+  <div class="pull">Methodology choices are governance choices<span style="color: var(--red);">.</span></div>
+
+  <p>Both tracks answer the brief. They answer different versions of it. The right professional move is not always to build the heavier system; it is to articulate which question is being asked and to build the system that answers that question. No more, no less.</p>
+
+  <h2 class="section-title" style="font-size: 36pt; margin-top: 20mm;">But the analysis<br/>should still have to<br/>earn its trust<span class="dot">.</span></h2>
+
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">18</span></div>
+</section>
+
+<!-- ============================================================ PAGE 19 — ABOUT THE AUTHOR ============================================================ -->
+<section class="page">
+  <div class="h-row"><div class="h-left"><span>About the Author</span><span class="h-sep">/</span><span class="h-sub">Written in Commission of ADA</span></div><span class="page-num">19</span></div>
   <div class="section-tag">Written as part of the Final Assignment</div>
   <h2 class="section-title">About<br/>the Author<span class="dot">.</span></h2>
   <div class="author-accent"></div>
@@ -735,7 +941,7 @@
     </div>
   </div>
 
-  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">11</span></div>
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">19</span></div>
 </section>
 
 </body>

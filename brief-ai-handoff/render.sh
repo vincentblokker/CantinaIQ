@@ -32,8 +32,8 @@ echo "→ rendering with: $CHROME"
 if command -v pdfinfo >/dev/null 2>&1; then
   pages=$(pdfinfo "$OUT" | awk '/^Pages:/ {print $2}')
   echo "✓ wrote $OUT (${pages} pages)"
-  if [[ "$pages" != "12" ]]; then
-    echo "⚠ page count is ${pages}, not 12. Tighten copy or check CSS knobs." >&2
+  if [[ "$pages" != "19" ]]; then
+    echo "⚠ page count is ${pages}, not 19. Tighten copy or check CSS knobs." >&2
     exit 2
   fi
 else
