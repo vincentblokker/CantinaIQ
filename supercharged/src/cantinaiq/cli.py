@@ -24,6 +24,7 @@ from cantinaiq import (  # noqa: F401, E402  (intentional side-effect imports)
 from cantinaiq.config.loader import config_from_omegaconf
 from cantinaiq.config.models import PipelineConfig
 from cantinaiq.crawler.cli import crawler_app
+from cantinaiq.evaluation.cli import evaluate_app
 from cantinaiq.pipeline import STAGES, resolve_stage_subset
 from cantinaiq.reporting import report_app
 
@@ -32,6 +33,7 @@ run_app = typer.Typer(no_args_is_help=True, help="Run pipeline stages.")
 app.add_typer(run_app, name="run")
 app.add_typer(report_app, name="report")
 app.add_typer(crawler_app, name="crawler")
+app.add_typer(evaluate_app, name="evaluate")
 console = Console()
 
 CONFIG_DIR = str((Path(__file__).resolve().parents[2] / "config").resolve())
@@ -148,6 +150,138 @@ def audit(config_hash: str) -> None:
         console.print(f"[bold]Matching runs:[/bold] {len(matching)}")
         for r in sorted(matching):
             console.print(f"  - {r}")
+
+
+@app.command()
+def bias(
+    wines_path: Annotated[Path, typer.Option("--wines")] = Path(
+        "data/processed/italian_wines_enriched.parquet"
+    ),
+    baseline_path: Annotated[Path, typer.Option("--baseline")] = Path(
+        "data/reference/italian_trade_imports_nl.csv"
+    ),
+    out_path: Annotated[Path, typer.Option("--out")] = Path(
+        "reports/generated/bias-report.md"
+    ),
+) -> None:
+    """Compare Vivino regional distribution to Italian Trade Agency NL imports."""
+    from cantinaiq.bias import compute_bias_report
+
+    report = compute_bias_report(wines_path, baseline_path)
+    rows_sorted = sorted(report.rows, key=lambda r: r["over_under"], reverse=True)
+
+    lines = [
+        "# Vivino Regional Bias Report",
+        "",
+        f"Total Italian wines in Vivino dataset: **{report.total_wines:,}**.",
+        "",
+        "Baseline = `data/reference/italian_trade_imports_nl.csv` "
+        "(derived from ICE Amsterdam Italian wine import statistics).",
+        "",
+        "| Macro region | Vivino n | Vivino % | Baseline % | Over/Under |",
+        "|---|---:|---:|---:|---:|",
+    ]
+    for r in rows_sorted:
+        marker = (
+            "▲" if r["over_under"] >= 1.3
+            else ("▼" if r["over_under"] <= 0.7 else "·")
+        )
+        lines.append(
+            f"| {marker} {r['macro_region']} | "
+            f"{r['vivino_wines']:,} | "
+            f"{r['vivino_share_pct']:.1f}% | "
+            f"{r['baseline_share_pct']:.1f}% | "
+            f"×{r['over_under']:.2f} |"
+        )
+    lines.extend(
+        [
+            "",
+            "**Interpretation:** values above ×1.3 mean Vivino over-represents that region "
+            "vs. real NL import volumes; values below ×0.7 mean Vivino under-represents it. "
+            "Vivino bias does not invalidate the analysis but should be cited in any "
+            "external-facing recommendation.",
+        ]
+    )
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text("\n".join(lines) + "\n")
+    console.print(f"[green]✓ {out_path}[/green]")
+
+
+@app.command()
+def cluster(
+    n_clusters: Annotated[int, typer.Option("--k", help="Number of K-Means clusters.")] = 5,
+    producers_path: Annotated[Path, typer.Option("--producers")] = Path(
+        "data/processed/producers_scored.parquet"
+    ),
+    out_path: Annotated[Path, typer.Option("--out")] = Path(
+        "data/processed/producers_scored_clustered.parquet"
+    ),
+) -> None:
+    """Append a K-Means `cluster_id` column to producers_scored."""
+    import polars as pl
+
+    from cantinaiq.clustering import fit_kmeans_clusters
+
+    df = pl.read_parquet(producers_path)
+    out = fit_kmeans_clusters(df, n_clusters=n_clusters)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out.write_parquet(out_path)
+
+    summary = (
+        out.group_by("cluster_id")
+        .agg(
+            pl.len().alias("n_producers"),
+            pl.col("weighted_rating").mean().round(2).alias("mean_rating"),
+            pl.col("avg_price").mean().round(0).alias("mean_price"),
+            pl.col("total_reviews").mean().round(0).alias("mean_reviews"),
+        )
+        .sort("cluster_id")
+    )
+    console.print(f"[bold]K-Means clusters (k={n_clusters}):[/bold]")
+    console.print(summary)
+    console.print(f"[green]✓ {out_path}[/green]")
+
+
+@app.command()
+def bootstrap(
+    n: Annotated[int, typer.Option("--n", help="Number of bootstrap resamples.")] = 1000,
+    top: Annotated[int, typer.Option("--top", help="Top-N producers to track.")] = 20,
+    seed: Annotated[int, typer.Option("--seed")] = 42,
+    wines_path: Annotated[Path, typer.Option("--wines")] = Path(
+        "data/processed/wines_scored.parquet"
+    ),
+    out_path: Annotated[Path, typer.Option("--out")] = Path(
+        "reports/generated/bootstrap-ci.md"
+    ),
+) -> None:
+    """Bootstrap producer-ranking confidence intervals."""
+    import polars as pl
+
+    from cantinaiq.bootstrap import bootstrap_producer_rank_ci
+
+    wines = pl.read_parquet(wines_path).select(
+        ["producer_name", "weighted_rating", "rating_count", "price"]
+    )
+    cis = bootstrap_producer_rank_ci(wines, n_bootstraps=n, top_n=top, seed=seed)
+
+    lines = [
+        f"# Bootstrap rank CIs (n={n}, top-{top}, seed={seed})",
+        "",
+        f"Based on `{wines_path}` ({wines.height:,} rows). "
+        f"Producers that fall outside the top-{top} in a resample receive rank {top + 1}.",
+        "",
+        "| Producer | p05 | p50 | p95 | mean | appearances/n |",
+        "|---|---:|---:|---:|---:|---:|",
+    ]
+    for c in cis:
+        lines.append(
+            f"| {c['producer_name']} | "
+            f"{c['rank_p05']} | {c['rank_p50']} | {c['rank_p95']} | "
+            f"{c['rank_mean']:.1f} | {c['appearances']}/{c['n_bootstraps']} |"
+        )
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text("\n".join(lines) + "\n")
+    console.print(f"[green]✓ {out_path}[/green]")
 
 
 @app.command()

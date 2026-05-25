@@ -30,6 +30,19 @@
 
 {% endfor %}
 
+## Producer-extraction recall
+
+See `reports/generated/producer-extraction-eval.json` (refreshed by
+`cantinaiq evaluate producer-extraction`). Headline recall numbers from
+the latest run should be referenced in the methodology — this file is
+the per-stage drop ledger.
+
+## Cross-references
+
+- `reports/generated/bias-report.md` — Vivino vs. ICE NL import baseline (run via `cantinaiq bias`).
+- `reports/generated/bootstrap-ci.md` — bootstrap rank CIs on top producers (run via `cantinaiq bootstrap`).
+- `reports/generated/sensitivity.md` — sensitivity sweep on scoring params (run via `cantinaiq sensitivity`).
+
 ---
 
 *{{ metadata_footer }}*
