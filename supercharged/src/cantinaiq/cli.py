@@ -25,6 +25,8 @@ from cantinaiq.config.loader import config_from_omegaconf
 from cantinaiq.config.models import PipelineConfig
 from cantinaiq.crawler.cli import crawler_app
 from cantinaiq.evaluation.cli import evaluate_app
+from cantinaiq.sustainability.cli import sustainability_app
+from cantinaiq.vivino_live.cli import enrich_app
 from cantinaiq.pipeline import STAGES, resolve_stage_subset
 from cantinaiq.reporting import report_app
 
@@ -34,6 +36,8 @@ app.add_typer(run_app, name="run")
 app.add_typer(report_app, name="report")
 app.add_typer(crawler_app, name="crawler")
 app.add_typer(evaluate_app, name="evaluate")
+app.add_typer(sustainability_app, name="sustainability")
+app.add_typer(enrich_app, name="enrich-live")
 console = Console()
 
 CONFIG_DIR = str((Path(__file__).resolve().parents[2] / "config").resolve())
@@ -278,6 +282,58 @@ def bootstrap(
             f"| {c['producer_name']} | "
             f"{c['rank_p05']} | {c['rank_p50']} | {c['rank_p95']} | "
             f"{c['rank_mean']:.1f} | {c['appearances']}/{c['n_bootstraps']} |"
+        )
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text("\n".join(lines) + "\n")
+    console.print(f"[green]✓ {out_path}[/green]")
+
+
+@app.command()
+def anomaly(
+    contamination: Annotated[
+        float, typer.Option("--contamination", help="Expected fraction of anomalies.")
+    ] = 0.05,
+    seed: Annotated[int, typer.Option("--seed")] = 42,
+    wines_path: Annotated[Path, typer.Option("--wines")] = Path(
+        "data/processed/wines_scored.parquet"
+    ),
+    out_path: Annotated[Path, typer.Option("--out")] = Path(
+        "reports/generated/anomalies.md"
+    ),
+) -> None:
+    """Flag suspicious review patterns via Isolation Forest."""
+    import polars as pl
+
+    from cantinaiq.anomaly import flag_review_anomalies
+
+    df = pl.read_parquet(wines_path)
+    # Normalise wine-name column for downstream display.
+    if "name" not in df.columns and "wine_name" in df.columns:
+        df = df.rename({"wine_name": "name"})
+    out = flag_review_anomalies(df, contamination=contamination, seed=seed)
+    cols = ["name", "region", "rating", "rating_count", "price", "anomaly_score"]
+    anomalies = (
+        out.filter(pl.col("is_anomaly"))
+        .sort("anomaly_score")
+        .head(30)
+        .select([c for c in cols if c in out.columns])
+    )
+    lines = [
+        f"# Review anomalies (contamination={contamination}, seed={seed})",
+        "",
+        f"Flagged {out.filter(pl.col('is_anomaly')).height:,} of {out.height:,} wines.",
+        "Lower anomaly_score = more anomalous.",
+        "",
+        "| Wine | Region | Rating | Reviews | Price (€) | Score |",
+        "|---|---|---:|---:|---:|---:|",
+    ]
+    for row in anomalies.iter_rows(named=True):
+        name = str(row.get("name") or "")[:60]
+        region = str(row.get("region") or "")[:30]
+        lines.append(
+            f"| {name} | {region} | "
+            f"{row['rating']:.2f} | {row['rating_count']:,} | "
+            f"{float(row.get('price') or 0):.2f} | {row['anomaly_score']:.3f} |"
         )
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text("\n".join(lines) + "\n")

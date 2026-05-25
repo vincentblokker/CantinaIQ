@@ -55,6 +55,19 @@ canonical list of the top 50 Italian wine producers):
 Run `cantinaiq evaluate producer-extraction` to refresh
 `reports/generated/producer-extraction-eval.json` from the latest pipeline output.
 
+## 3c. Anomaly detection on review patterns
+
+`cantinaiq anomaly --contamination 0.03` fits an Isolation Forest over the
+`(rating, log10(rating_count))` feature space and flags rows whose pattern
+diverges from the bulk of the dataset. Typical hits:
+
+- ratings ≥ 4.8 with fewer than 20 reviews (over-confident niches),
+- ratings ≤ 3.2 with very high review counts (controversial mass-market wines),
+- price-vs-rating outliers (a wine at €467 with a 3.10 rating, for example).
+
+The flag is *informational* — flagged wines are not removed from the pipeline.
+The full top-30 ranking is in `reports/generated/anomalies.md`.
+
 ## 4. Validation
 
 A Pandera contract enforces `rating ∈ [0, 5]`, `rating_count ≥ 1`, `price > 0`,

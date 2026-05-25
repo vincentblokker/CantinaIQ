@@ -85,6 +85,14 @@ def enrich_with_firecrawl(wine_name: str, url: str) -> dict[str, Any]:  # noqa: 
     if not api_key or _FirecrawlApp is None:
         return {}
     app = _FirecrawlApp(api_key=api_key)
-    resp = app.scrape_url(url, formats=["markdown"])
-    md = getattr(resp, "markdown", None) or (resp.get("markdown") if isinstance(resp, dict) else "") or ""
+    # firecrawl-py 3.x uses `scrape()`; 2.x used `scrape_url()`.
+    if hasattr(app, "scrape"):
+        resp = app.scrape(url, formats=["markdown"])
+    else:
+        resp = app.scrape_url(url, formats=["markdown"])
+    md = (
+        getattr(resp, "markdown", None)
+        or (resp.get("markdown") if isinstance(resp, dict) else "")
+        or ""
+    )
     return _parse_markdown(md)
