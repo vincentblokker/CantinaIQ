@@ -151,6 +151,64 @@ def audit(config_hash: str) -> None:
 
 
 @app.command()
+def sensitivity(
+    param: Annotated[
+        str,
+        typer.Option(
+            "--param", help="Hydra override key, e.g. scoring.bayesian_m"
+        ),
+    ],
+    range_spec: Annotated[
+        str, typer.Option("--range", help="start,end,step e.g. 0.10,0.30,0.05")
+    ],
+    top_n: Annotated[int, typer.Option("--top-n")] = 20,
+    out_path: Annotated[Path, typer.Option("--out")] = Path("reports/generated/sensitivity.md"),
+) -> None:
+    """Sweep a scoring parameter and report top-N ranking stability per value.
+
+    Re-runs the scoring + export stages for each value, then computes
+    Kendall-tau between the resulting top-N producer list and the baseline
+    (first value in the sweep). Writes a markdown summary to `--out`.
+    """
+    import polars as pl
+
+    from cantinaiq.sensitivity import kendall_tau_topn, parse_range_spec
+
+    values = parse_range_spec(range_spec)
+    console.print(f"[bold]Sensitivity sweep[/bold] {param} over {values}")
+
+    processed = Path("data/processed/producers_scored.parquet")
+    baseline_df: pl.DataFrame | None = None
+    rows: list[dict[str, float | str]] = []
+
+    for i, v in enumerate(values):
+        override = f"{param}={v}"
+        console.print(f"  → run {i + 1}/{len(values)} with {override}")
+        _execute(["scoring", "export"], [override])
+        df = pl.read_parquet(processed)
+        if baseline_df is None:
+            baseline_df = df
+            tau = 1.0
+        else:
+            tau = kendall_tau_topn(baseline_df, df, top_n=top_n)
+        rows.append({"value": v, "kendall_tau": tau})
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    lines = [
+        f"# Sensitivity sweep: `{param}`",
+        "",
+        f"Top-{top_n} Kendall-tau vs. baseline ({values[0]}).",
+        "",
+        "| Value | Kendall-τ |",
+        "|---:|---:|",
+    ]
+    for r in rows:
+        lines.append(f"| {r['value']} | {float(r['kendall_tau']):.3f} |")
+    out_path.write_text("\n".join(lines) + "\n")
+    console.print(f"[green]✓ {out_path}[/green]")
+
+
+@app.command()
 def compare(
     hash_a: Annotated[str, typer.Argument(help="Config hash of run A.")],
     hash_b: Annotated[str, typer.Argument(help="Config hash of run B.")],
