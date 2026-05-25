@@ -24,6 +24,7 @@ from cantinaiq import (  # noqa: F401, E402  (intentional side-effect imports)
 from cantinaiq.config.loader import config_from_omegaconf
 from cantinaiq.config.models import PipelineConfig
 from cantinaiq.crawler.cli import crawler_app
+from cantinaiq.evaluation.cli import evaluate_app
 from cantinaiq.pipeline import STAGES, resolve_stage_subset
 from cantinaiq.reporting import report_app
 
@@ -32,6 +33,7 @@ run_app = typer.Typer(no_args_is_help=True, help="Run pipeline stages.")
 app.add_typer(run_app, name="run")
 app.add_typer(report_app, name="report")
 app.add_typer(crawler_app, name="crawler")
+app.add_typer(evaluate_app, name="evaluate")
 console = Console()
 
 CONFIG_DIR = str((Path(__file__).resolve().parents[2] / "config").resolve())
