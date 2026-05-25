@@ -28,12 +28,13 @@ def _market_segment(row: dict[str, Any], seg: SegmentsConfig) -> str:
     return "Commercial Value"
 
 
-def _recommend(market_segment: str, composite: float) -> str:
-    if market_segment == "Premium Icon" and composite >= 0.65:
+def _recommend(market_segment: str, composite: float, seg: SegmentsConfig) -> str:
+    t = seg.recommendations
+    if market_segment == "Premium Icon" and composite >= t.premium_brand_builder_min_composite:
         return "Premium Brand Builder"
-    if market_segment == "Hidden Gem" and composite >= 0.60:
+    if market_segment == "Hidden Gem" and composite >= t.target_min_composite:
         return "Target"
-    if market_segment == "Commercial Value" and composite >= 0.55:
+    if market_segment == "Commercial Value" and composite >= t.value_opportunity_min_composite:
         return "Value Opportunity"
     if market_segment == "Overpriced Risk":
         return "Avoid for Now"
@@ -162,10 +163,13 @@ def run_scoring(cfg: PipelineConfig, run_id: str) -> dict[str, Path]:
             .with_columns((pl.col("_num") / pl.col("_den")).alias("weighted_rating"))
             .drop(["_num", "_den"])
         )
+        seg_cfg = cfg.segments
         prods = prods.with_columns(
             pl.struct(["market_segment", "composite_score"])
             .map_elements(
-                lambda s: _recommend(s["market_segment"], s["composite_score"]),
+                lambda s, _seg=seg_cfg: _recommend(
+                    s["market_segment"], s["composite_score"], _seg
+                ),
                 return_dtype=pl.String,
             )
             .alias("recommendation")
