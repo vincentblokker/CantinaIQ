@@ -55,24 +55,36 @@ def _confidence_segment(count: int, seg: SegmentsConfig) -> str:
 
 
 def _try_default_llm_client(cfg: PipelineConfig) -> LLMClient | None:
-    """Construct an AnthropicLLMClient unless disabled or unavailable.
+    """Construct an LLM client unless disabled or unavailable.
 
-    Returns None instead of raising when:
-      - CANTINAIQ_DISABLE_LLM=1 is set (explicit opt-out), or
-      - ANTHROPIC_API_KEY is missing (test/CI environments).
+    Selection order:
+      1. OPENROUTER_API_KEY set → OpenRouterLLMClient (preferred — cheaper, model-agnostic)
+      2. ANTHROPIC_API_KEY set → AnthropicLLMClient
+      3. neither → None (pass-2 skipped, pass-1 results survive)
 
-    The runner falls back to pass-1 results in either case — no implicit
-    API spend, no test-environment surprises.
+    Returns None instead of raising when CANTINAIQ_DISABLE_LLM=1 is set
+    (explicit opt-out) or no provider is available.
     """
     if os.environ.get("CANTINAIQ_DISABLE_LLM") == "1":
         return None
-    try:
-        return AnthropicLLMClient(
-            model=cfg.enrichment.llm.model,
-            temperature=cfg.enrichment.llm.temperature,
-        )
-    except RuntimeError:
-        return None
+    if os.environ.get("OPENROUTER_API_KEY"):
+        try:
+            from cantinaiq.enrichment.producer.openrouter_client import OpenRouterLLMClient
+            return OpenRouterLLMClient(
+                model=cfg.enrichment.llm.model,
+                temperature=cfg.enrichment.llm.temperature,
+            )
+        except (RuntimeError, ImportError):
+            return None
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        try:
+            return AnthropicLLMClient(
+                model=cfg.enrichment.llm.model,
+                temperature=cfg.enrichment.llm.temperature,
+            )
+        except RuntimeError:
+            return None
+    return None
 
 
 @register_stage("enrichment")
