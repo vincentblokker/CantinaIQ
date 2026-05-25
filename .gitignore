@@ -33,3 +33,9 @@ htmlcov/
 
 # Deploy artefacts — rebuild with deploy/package.sh whenever needed.
 cantinaiq-dashboard.tar.gz
+
+# PDF render previews — temporary visual checks, not source of truth.
+deploy/*/preview/
+
+# Local briefings + scratchpad notes that aren't project artefacts.
+BRIEFING-*.md
