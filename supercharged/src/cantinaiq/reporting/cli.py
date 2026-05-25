@@ -28,15 +28,32 @@ def _output_filename(name: str) -> str:
 
 
 def _findings_extra_context(processed_dir: Path, copy_path: Path) -> dict[str, Any]:
+    from cantinaiq.reporting.reasons import build_reason
+
     producers = pl.read_parquet(processed_dir / "producers_scored.parquet")
     wines = pl.read_parquet(processed_dir / "wines_scored.parquet")
     copy = yaml.safe_load(copy_path.read_text()) if copy_path.exists() else {}
+
+    top5 = producers.sort("composite_score", descending=True).head(5).to_dicts()
+    reasons = {
+        p["producer_name"]: build_reason(
+            producer_name=p["producer_name"],
+            market_segment=p["market_segment"],
+            weighted_rating=p["weighted_rating"],
+            avg_price=p["avg_price"],
+            total_reviews=p["total_reviews"],
+            composite_score=p["composite_score"],
+            value_score=p.get("value_score", 0.0),
+        )
+        for p in top5
+    }
+
     return build_findings_context(
         producers_scored=producers,
         wines_scored=wines,
         price_split=float(producers["avg_price"].median() or 60.0),  # type: ignore[arg-type]
         rating_split=float(producers["weighted_rating"].median() or 4.0),  # type: ignore[arg-type]
-        reasons={},  # editorial reasons are optional; template renders empty when missing
+        reasons=reasons,
         findings_copy={
             "problem": copy.get("problem", ""),
             "limitations": copy.get("limitations", []),
