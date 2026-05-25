@@ -1,532 +1,196 @@
-# Slurpini Partner Intelligence Engine
+# /supercharged — Slurpini Partner Intelligence Engine
 
-A professional data-driven decision-support prototype for helping Slurpini prioritise Italian wine producers, regions and product opportunities for the Dutch market.
+A reproducible data product that turns a raw Vivino export into a ranked,
+defensible shortlist of Italian wine producers for Slurpini.
 
-This project turns a raw Vivino export into a cleaned, validated and enriched dataset. It then applies transparent scoring logic, segmentation and visualisation to support evidence-based partner selection.
+This is the *above-and-beyond* track of the [CantinaIQ submission](../README.md).
+The *minimum-viable* track lives in [`/bare`](../bare/). The [root
+README](../README.md) and [FOR_REVIEWERS.md](../FOR_REVIEWERS.md) explain why
+both exist.
 
-The goal is not to replace human wine expertise. The goal is to reduce selection risk, improve producer prioritisation and support smarter business decisions before Slurpini invests time and budget in on-site visits.
+The full product spec is [`PRD.md`](PRD.md) (1 000+ lines). This file is the
+developer-facing entrypoint.
 
 ---
 
 ## Quickstart
 
 ```bash
+# from the repo root
+make setup
+make demo
+```
+
+Or directly:
+
+```bash
 cd supercharged
-uv sync                                       # install pinned deps
-CANTINAIQ_DISABLE_LLM=1 uv run cantinaiq run all   # ~5s on the full dataset
-uv run cantinaiq report build                 # render reports
-uv run cantinaiq status                       # latest run summary
-uv run cantinaiq audit <config-hash>          # snapshot + matching runs
-```
-
-Outputs:
-- `data/processed/*.parquet` — wines / producers / regions scored
-- `data/exports/*.json` — JSON contracts for downstream (sub-projects C, D)
-- `reports/generated/{data-quality.md, methodology.md, findings-one-pager.html}`
-- `data/runs/<run-id>/` — full run-log per stage + atomic checksums
-
-For the LLM-disambiguation pass on ambiguous producers (spec §5.2), set `ANTHROPIC_API_KEY` and drop the `CANTINAIQ_DISABLE_LLM` env var. Without it, pass-1 (alias whitelist + honorific prefix + first-token fallback) handles the bulk; ambiguous rows are flagged in the run-log under `enrichment.custom.warnings.coverage`.
-
----
-
-## 1. Project Context
-
-Slurpini is an importer of high-quality Italian wines with a strong focus on sustainability. The company receives collaboration requests from many Italian wine producers and needs a more structured way to decide which producers, regions or wine types deserve attention.
-
-The provided dataset contains Vivino wine data rated by consumers in the Netherlands. This makes it useful as a market signal, but not as a ready-made decision tool.
-
-This project transforms that raw dataset into a partner intelligence model.
-
----
-
-## 2. Core Research Question
-
-How can Slurpini use Dutch Vivino consumer data to prioritise Italian wine producers and regions for future collaboration, based on consumer preference, market confidence, price positioning and value for money?
-
----
-
-## 3. What This Project Does
-
-The project follows a structured data product approach:
-
-```text
-Raw Vivino export
-  ↓
-Data ingestion
-  ↓
-Cleaning and normalisation
-  ↓
-Data quality validation
-  ↓
-Business-oriented enrichment
-  ↓
-Scoring model
-  ↓
-Segmentation
-  ↓
-Dashboard-ready exports
-  ↓
-Executive recommendation
-```
-
-The output is not just a list of highly rated wines. It is a repeatable framework for identifying commercially relevant wine opportunities.
-
----
-
-## 4. Key Features
-
-- Cleans and normalises the raw Vivino dataset.
-- Filters the dataset to Italian wines relevant to Slurpini.
-- Detects and handles duplicate records.
-- Converts ratings, review counts and prices into usable numeric values.
-- Adds business-oriented enrichment fields.
-- Applies a Bayesian-style weighted rating to avoid overvaluing low-review wines.
-- Calculates value-for-money indicators.
-- Segments wines, producers and regions into strategic opportunity categories.
-- Exports dashboard-ready datasets.
-- Provides clear recommendations for producer and region prioritisation.
-
----
-
-## 5. Recommended Tech Stack
-
-This project intentionally avoids a basic one-off notebook approach. The preferred setup is a lightweight but professional analytics pipeline.
-
-| Layer | Tooling | Purpose |
-|---|---|---|
-| Data processing | Polars | Fast dataframe processing |
-| Analytical storage | DuckDB | Lightweight local analytical database |
-| Data format | Parquet | Clean and efficient dataset storage |
-| Validation | Pandera or Great Expectations | Data quality checks |
-| Segmentation | scikit-learn | Optional clustering and opportunity grouping |
-| Dashboard | Next.js | Professional decision-support interface |
-| UI | Tailwind CSS + shadcn/ui | Clean product-grade interface |
-| Charts | Recharts or Tremor | Visualisation layer |
-
-A simpler version can also be built with pandas and notebooks, but the preferred version should feel like a real analytics product.
-
----
-
-## 6. Repository Structure
-
-Recommended structure:
-
-```text
-slurpini-partner-intelligence/
-  README.md
-  PRD.md
-
-  data/
-    raw/
-      Vivino-export.xlsx
-    interim/
-    processed/
-    exports/
-
-  notebooks/
-    01_data_understanding.ipynb
-    02_data_cleaning.ipynb
-    03_scoring_model.ipynb
-
-  src/
-    ingestion/
-    cleaning/
-    validation/
-    enrichment/
-    scoring/
-    export/
-
-  dashboard/
-    app/
-    components/
-    data/
-
-  reports/
-    executive-summary.md
-    final-report.md
-
-  docs/
-    methodology.md
-    limitations.md
-```
-
----
-
-## 7. Data Sources
-
-### Main Dataset
-
-```text
-Vivino-export.xlsx
-```
-
-The dataset contains wine records collected from Vivino. It includes wines rated by consumers in the Netherlands.
-
-Expected fields:
-
-- Wine name
-- Country
-- Region
-- Rating
-- Rating count
-- Price
-
-### Crawler Reference
-
-```text
-Pyton-script.docx
-```
-
-The provided Python crawler is used as a reference for how the data was originally collected. The main focus of this assignment is data cleaning, analysis, modelling and recommendation, not large-scale scraping.
-
----
-
-## 8. Data Quality Issues
-
-The raw data is not ready for direct analysis.
-
-Known issues include:
-
-- Inconsistent country formatting.
-- Tuple-like string values.
-- Encoding issues.
-- Duplicate wine records.
-- Mixed country data across sheets.
-- Missing or invalid prices.
-- Missing or invalid ratings.
-- High ratings with very low review counts.
-- Region names that mix macro-regions, appellations and local areas.
-
-These issues are handled before scoring and recommendation.
-
----
-
-## 9. Data Cleaning Requirements
-
-The pipeline should:
-
-- Load and combine the relevant Excel sheets.
-- Standardise column names.
-- Clean country and region fields.
-- Convert rating, rating count and price to numeric values.
-- Remove invalid rows.
-- Remove or aggregate duplicate records.
-- Filter the dataset to Italian wines.
-- Export a clean dataset for further analysis.
-
-Main output:
-
-```text
-data/processed/italian_wines_cleaned.parquet
-```
-
----
-
-## 10. Data Enrichment
-
-The raw Vivino data is enriched with business-relevant features.
-
-Recommended enriched fields:
-
-| Field | Description | Example |
-|---|---|---|
-| `producer_name` | Extracted producer or winery name | Antinori |
-| `macro_region` | Normalised broader Italian region | Tuscany |
-| `price_segment` | Commercial price band | Premium |
-| `confidence_segment` | Review-volume reliability label | Strong Market Signal |
-| `market_segment` | Strategic opportunity category | Hidden Gem |
-| `inferred_grape_or_style` | Optional grape or wine style inference | Sangiovese |
-| `enrichment_confidence` | Confidence level for inferred fields | High |
-
-The enrichment layer must remain transparent. Inferred fields should not pretend to be certain when the source data does not support that certainty.
-
----
-
-## 11. Scoring Model
-
-The central scoring model is the **Slurpini Partner Intelligence Score**.
-
-It combines several business-relevant signals:
-
-| Component | Purpose | Suggested Weight |
-|---|---:|---:|
-| Weighted Rating Score | Corrects rating using review volume | 35% |
-| Market Confidence Score | Rewards reliable consumer signal | 20% |
-| Value for Money Score | Identifies high quality at realistic price | 20% |
-| Premium Fit Score | Supports Slurpini's premium positioning | 15% |
-| Portfolio Opportunity Score | Highlights strategic opportunity | 10% |
-
----
-
-## 12. Weighted Rating
-
-A raw average rating can be misleading. A wine with a 4.8 rating and 12 reviews should not automatically outrank a wine with a 4.4 rating and 5,000 reviews.
-
-The model should use a Bayesian-style weighted rating:
-
-```text
-Weighted Rating =
-(rating_count / (rating_count + m)) * rating
-+ (m / (rating_count + m)) * global_average_rating
-```
-
-Where:
-
-- `rating` is the Vivino average rating.
-- `rating_count` is the number of reviews.
-- `m` is the minimum review threshold.
-- `global_average_rating` is the average rating across the cleaned Italian dataset.
-
-This creates a more reliable quality signal.
-
----
-
-## 13. Value for Money
-
-The model should also calculate a value-for-money score.
-
-Suggested formula:
-
-```text
-Value Score = Weighted Rating / log(price + 1)
-```
-
-This helps identify wines or regions that deliver strong consumer ratings without extreme pricing.
-
----
-
-## 14. Strategic Segments
-
-The system should classify wines, producers or regions into clear business segments.
-
-Suggested segments:
-
-| Segment | Meaning |
-|---|---|
-| Premium Icons | High rating, high confidence, high price |
-| Hidden Gems | High rating, good confidence, moderate price |
-| Commercial Value | Solid rating, strong value, scalable price |
-| Low Confidence Niche | Interesting signal, but too few reviews |
-| Overpriced Risk | High price without matching consumer signal |
-
-These segments make the recommendation easier to understand for non-technical stakeholders.
-
----
-
-## 15. Dashboard Concept
-
-The preferred presentation layer is a Next.js decision-support dashboard.
-
-Suggested pages:
-
-### Executive Overview
-
-Shows the key business summary:
-
-- Number of Italian wines analysed.
-- Number of regions analysed.
-- Average rating.
-- Average price.
-- Top recommended regions.
-- Top producer opportunities.
-- Key recommendation.
-
-### Region Intelligence
-
-Compares Italian regions by:
-
-- Weighted rating.
-- Review volume.
-- Average price.
-- Value score.
-- Market segment.
-
-### Producer Shortlist
-
-Ranks producer opportunities by:
-
-- Producer name.
-- Region.
-- Average weighted rating.
-- Review volume.
-- Average price.
-- Segment.
-- Recommendation status.
-
-### Opportunity Matrix
-
-A visual quadrant:
-
-```text
-Y-axis: Weighted Rating
-X-axis: Price
-Bubble size: Rating Count
-```
-
-Quadrants:
-
-- Hidden Gems
-- Premium Icons
-- Budget Risk
-- Overpriced Risk
-
-### Methodology
-
-Explains:
-
-- Data source.
-- Cleaning steps.
-- Validation rules.
-- Scoring logic.
-- Assumptions.
-- Limitations.
-
----
-
-## 16. Example Commands
-
-These commands are placeholders and should be adjusted once the implementation is created.
-
-### Install dependencies
-
-```bash
 uv sync
+uv run cantinaiq run all          # full pipeline (~5 s on 410 k rows)
+uv run cantinaiq report build     # render markdown + HTML reports
+uv run cantinaiq status           # latest run summary
+uv run pytest                     # 137 tests
 ```
 
-or:
+For the LLM-disambiguation pass on ambiguous producers, set `OPENROUTER_API_KEY`
+in your environment. Without it the pipeline falls back to pass-1 (alias
+whitelist + first-token heuristic).
 
-```bash
-pip install -r requirements.txt
+For sustainability + live-Vivino enrichment, set `FIRECRAWL_API_KEY`.
+
+---
+
+## What this answers
+
+> *Which Italian wine producers should Slurpini prioritise for collaboration,
+> based on Dutch consumer preference, market confidence, price positioning,
+> and value for money?*
+
+The output is not a list of highly rated wines. It is a repeatable framework
+that produces a ranked shortlist where every claim traces back to a
+config-hashed run log.
+
+---
+
+## Pipeline
+
+```text
+Vivino-export.xlsx (409 777 rows × 16 sheets)
+    │
+    ▼ ingestion   ──► 01_raw.parquet
+    ▼ cleaning    ──► 02_cleaned.parquet  (2 986 rows after Italian filter + dedupe)
+    ▼ validation  ──► 03_validated.parquet  (Pandera contracts)
+    ▼ enrichment  ──► italian_wines_enriched.parquet  (producer + macro_region + segments)
+    ▼ scoring     ──► {wines, producers, regions}_scored.parquet  (5-factor composite)
+    ▼ export      ──► data/exports/*.json  (consumed by /dashboard)
 ```
 
-### Run the data pipeline
+Every stage is a pure function of `(input parquet, config) → (output parquet,
+run-log JSON)`. No hidden state.
 
-```bash
-python -m src.ingestion.load_data
-python -m src.cleaning.clean_data
-python -m src.validation.validate_data
-python -m src.enrichment.enrich_data
-python -m src.scoring.score_wines
-python -m src.export.export_dashboard_data
-```
+---
 
-### Start the dashboard
+## CLI
 
-```bash
-cd dashboard
-npm install
-npm run dev
+```text
+cantinaiq run all                              # full pipeline
+cantinaiq run <stage>                          # run a single stage
+cantinaiq run all --from enrichment            # resume from a stage
+cantinaiq report build                         # render all reports
+cantinaiq report build --only methodology      # render one
+cantinaiq audit <config-hash>                  # show snapshot + matching runs
+cantinaiq status                               # latest run summary
+
+# Tier 1 — analysis on top of a run
+cantinaiq compare <hash-a> <hash-b>            # rank shifts + segment movements
+cantinaiq sensitivity --param X --range a,b,s  # Kendall-τ over a parameter
+
+# Tier 2 — methodological rigour
+cantinaiq evaluate producer-extraction         # recall vs known top-50
+cantinaiq bias                                 # Vivino vs ICE NL import baseline
+cantinaiq cluster --k 5                        # KMeans over the producer feature space
+cantinaiq bootstrap --n 1000 --top 20          # producer-ranking confidence intervals
+
+# Tier 3 — differentiator extensions
+cantinaiq anomaly --contamination 0.03         # Isolation Forest on review patterns
+cantinaiq sustainability check --top 50        # FederBio + Demeter cert lookup
+cantinaiq enrich-live live --with-network      # live Vivino enrichment (top-50)
+cantinaiq crawler extend                       # crawler extension (deliverable (i) here too)
 ```
 
 ---
 
-## 17. Expected Outputs
+## Scoring
 
-The project should generate:
+The **Slurpini Partner Intelligence Score** is a weighted linear combination
+of five normalised [0, 1] components:
+
+| Component | Weight | Captures |
+|---|---:|---|
+| Weighted rating | 35 % | Bayesian-shrunk consumer quality signal |
+| Market confidence | 20 % | Review-volume reliability |
+| Value for money | 20 % | Quality-per-euro |
+| Premium fit | 15 % | Alignment with Slurpini's premium positioning |
+| Portfolio opportunity | 10 % | Strategic gap fill |
+
+Bayesian weighted rating:
 
 ```text
-data/processed/italian_wines_cleaned.parquet
-data/processed/italian_wines_enriched.parquet
-data/exports/region_rankings.json
-data/exports/producer_rankings.json
-data/exports/wine_shortlist.json
-data/exports/dashboard_summary.json
+WR = (n / (n + m)) · r + (m / (n + m)) · r̄
 ```
 
-Reports:
+`n` = reviews per row, `m` = shrinkage threshold (configurable; default
+auto-median), `r̄` = global Italian-dataset mean rating.
 
-```text
-reports/executive-summary.md
-reports/final-report.md
-docs/methodology.md
-docs/limitations.md
-```
+Producers are classified into market segments (Hidden Gem · Premium Icon ·
+Commercial Value · Overpriced Risk · Low Confidence Niche) and given a
+recommendation (Premium Brand Builder · Target · Value Opportunity · Monitor
+· Avoid for Now) based on segment + composite score. Thresholds live in
+`config/segments/default.yaml`.
 
 ---
 
-## 18. Recommendation Logic
+## Tests
 
-The final recommendation should not simply select the wines with the highest average rating.
+```bash
+uv run pytest                # 137 tests
+uv run pytest -m slow        # excluded by default; long bootstrap/sensitivity tests
+uv run pytest -m llm         # LLM cache-hit tests (require pre-built cache)
+```
 
-The recommendation should consider:
+Coverage: unit · integration · property-based (Hypothesis on scoring math) ·
+Pandera schema · Jinja template smoke.
 
-- Consumer preference.
-- Rating reliability.
-- Review volume.
-- Price positioning.
-- Value for money.
-- Producer-level opportunity.
-- Regional strategy.
-- Fit with Slurpini's premium positioning.
+---
 
-The model should produce recommendation statuses such as:
+## Reports
 
-| Status | Meaning |
+Generated artefacts live in `reports/generated/`:
+
+| File | Content |
 |---|---|
-| Target | Strong candidate for producer outreach |
-| Monitor | Interesting but not strong enough yet |
-| Premium Brand Builder | Strong for reputation and positioning |
-| Value Opportunity | Good commercial/value potential |
-| Avoid for Now | Weak signal or poor value |
+| [executive-summary.md](reports/generated/executive-summary.md) | Board-level Slurpini recommendation. |
+| [methodology.md](reports/generated/methodology.md) | 13-section explanation: Bayesian shrinkage, gold-set recall, anomaly detection, clustering, Vivino bias, reproducibility. |
+| [data-quality.md](reports/generated/data-quality.md) | Drop-cascade ledger per stage. |
+| [findings-one-pager.html](reports/generated/findings-one-pager.html) | Print-ready A4 executive one-pager. |
+| [bias-report.md](reports/generated/bias-report.md) | Vivino vs ICE Amsterdam regional import shares. |
+| [bootstrap-ci.md](reports/generated/bootstrap-ci.md) | Producer-ranking 5/50/95-th percentile CIs. |
+| [sensitivity.md](reports/generated/sensitivity.md) | Top-20 stability vs scoring parameter sweep. |
+| [anomalies.md](reports/generated/anomalies.md) | Isolation Forest hits. |
+| [producer-extraction-eval.json](reports/generated/producer-extraction-eval.json) | Recall vs known top-50: 88 % exact / 96 % contains. |
+| [sustainability.md](reports/generated/sustainability.md) | FederBio + Demeter cert lookup results. |
+
+Numbers in templated reports come from the run-log — they **cannot** drift
+from the code.
 
 ---
 
-## 19. Limitations
+## Reproducibility
 
-This project uses Vivino data as a consumer preference signal. It does not measure objective wine quality.
+Every output Parquet carries `run_config_hash`. Snapshots live in
+`config/snapshots/`. To reproduce a run:
 
-Important limitations:
-
-- Vivino users are not fully representative of all Dutch consumers.
-- Ratings may be influenced by brand awareness and price expectations.
-- Price data may not reflect procurement cost or wholesale margins.
-- Sustainability data is not reliably available in the provided dataset.
-- Producer extraction from wine names may require manual validation.
-- Scoring weights are business assumptions and should be adjustable.
-
-The model should support human decision-making, not replace expert judgement.
+```bash
+uv run cantinaiq run all --config-snapshot <hash>
+uv run cantinaiq audit <hash>
+```
 
 ---
 
-## 20. Future Enhancements
+## Tech stack
 
-Possible next steps:
-
-- Add updated or live Vivino data.
-- Add verified sustainability certification data.
-- Add grape variety enrichment from trusted sources.
-- Add procurement cost and margin data.
-- Add restaurant or hospitality sales data.
-- Add importer availability data.
-- Add AI-generated producer summaries.
-- Add CRM export for outreach planning.
-- Add manual review workflow for shortlisted producers.
+Polars · DuckDB · Pandera · Hydra · Pydantic · Typer · Jinja2 · scikit-learn ·
+scipy · OpenAI SDK (OpenRouter) · Firecrawl · diskcache · pytest + Hypothesis ·
+uv · ruff · mypy.
 
 ---
 
-## 21. Final Deliverables
+## Plans
 
-For the final assignment, the project should include:
+Implementation history lives in `docs/superpowers/plans/`. Each plan was
+written before its code, reviewed, then executed task-by-task.
 
-- PRD.
-- README.
-- Cleaned dataset.
-- Enriched dataset.
-- Scoring model.
-- Visual analysis.
-- Dashboard prototype or dashboard-ready exports.
-- Executive summary.
-- Final report.
-- Methodology and limitations.
-
----
-
-## 22. Positioning
-
-This project does not treat the Vivino export as a static spreadsheet.
-
-It treats the dataset as the starting point for a repeatable partner intelligence system that helps Slurpini reduce selection risk and prioritise Italian producer outreach more efficiently.
-
-The result is not just an analysis.
-
-It is a lightweight decision-support engine.
+1. [2026-05-25 Tier 0 + Tier 1 improvements](docs/superpowers/plans/2026-05-25-cantinaiq-tier0-tier1-improvements.md) — OpenRouter, generative reasons, executive summary, Firecrawl crawler, methodology delta, compare CLI, sensitivity CLI.
+2. [2026-05-25 Tier 2 rigour](docs/superpowers/plans/2026-05-25-cantinaiq-tier2-rigor.md) — gold-set evaluation, bootstrap CIs, KMeans clustering, Vivino bias quantification.
+3. [2026-05-25 Tier 3 extensions](docs/superpowers/plans/2026-05-25-cantinaiq-tier3-extensions.md) — anomaly detection, sustainability lookup, live Vivino enrichment, dashboard.
+4. [2026-05-15 original spec](docs/superpowers/specs/2026-05-15-cantinaiq-data-pipeline-design.md) — the master design doc.
