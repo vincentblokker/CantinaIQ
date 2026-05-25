@@ -1,56 +1,144 @@
 # CantinaIQ
 
-Two deliverables for the ADA Applied AI Bootcamp Final Assignment — the **Slurpini wine case**.
+**Slurpini Partner Intelligence Engine** — final assignment for the ADA Applied AI Bootcamp.
 
-```
+> *Which Italian wine producers should Slurpini prioritise for partnership, with what confidence, at what price band, with what defensible methodology?*
+
+[![tests](https://img.shields.io/badge/tests-137%20passing-brightgreen)](supercharged/tests) [![python](https://img.shields.io/badge/python-3.13-blue)](supercharged/pyproject.toml) [![dashboard](https://img.shields.io/badge/dashboard-Vite%20%2B%20React-purple)](dashboard)
+
+The brief was answered **twice** on purpose. The delta between the two tracks *is* the argument.
+
+```text
 /bare           ← the assignment as briefed: one notebook, pandas, EDA, recommendation
-/supercharged   ← a Partner Intelligence Engine: Polars + DuckDB pipeline,
-                  Bayesian-shrunk composite scoring, Pandera contracts,
-                  Hypothesis property tests, instrumented run-logging,
-                  Jinja2-templated methodology + findings one-pager,
-                  Next.js dashboard (planned in /supercharged/docs)
+/supercharged   ← a reproducible data product: Polars + DuckDB + Pandera contracts +
+                  Bayesian scoring + property tests + run logs + Jinja templates +
+                  Firecrawl + Isolation Forest + Bootstrap CIs + Vivino bias analysis
+/dashboard      ← Vite + React + Tailwind + Recharts SPA over the JSON exports
 ```
 
-The brief was answered twice on purpose. The delta between the two is the argument.
+**Start here:** [FOR_REVIEWERS.md](FOR_REVIEWERS.md) — how to read this submission depending on whether you have 5 minutes, 30 minutes, or an hour.
 
-## Why two tracks
+---
 
-ADA's final assignment asks for **(i)** a Vivino crawler extension, **(ii)** EDA on the export, and **(iii)** a written recommendation for Slurpini. That's the minimum interpretation and `/bare/` delivers it in ~30 seconds of notebook run-time.
+## Quick start
 
-The same business problem — *which Italian producers should Slurpini prioritise, with what confidence, at what price band, with what defensible methodology?* — is a much larger question if treated at HBO/academic level. `/supercharged/` answers it as a reproducible data-product with explicit research question, transparent scoring assumptions, schema contracts at every stage boundary, property-based tests on the scoring math, deterministic run logs, and configurable sensitivity analysis.
+```bash
+make setup    # install Python + Node deps (one-time)
+make demo     # full pipeline + reports + dashboard build (~30 s)
+make serve-dashboard   # then open http://localhost:5175
+```
 
-Both tracks use the same input data (`data/raw/Vivino-export.xlsx`, kept in each track's own `data/raw/` so each can run standalone). Both produce a producer ranking, a regional ranking, and a written recommendation. They differ in how much of the reasoning is *visible* and *testable*.
+`make` from the repo root. No further setup needed beyond a Python 3.13 + Node 22 install.
 
-## The contrast
+---
 
-| | `bare/` | `supercharged/` |
+## What this answers
+
+ADA's brief: **(i)** extend the Vivino crawler, **(ii)** EDA on the export, **(iii)** an evidence-based recommendation for Slurpini.
+
+- `/bare` ships that minimum in ~30 seconds of notebook runtime: one notebook, pandas, a half-page recommendation. Outputs are baked in — no need to run anything to read it.
+- `/supercharged` treats the same business question as a reproducible data product. The output is not a recommendation — it's an *engine* that produces a recommendation whose every claim traces back to a config-hashed run log.
+
+Both tracks converge on the same directional findings (Bolgheri Sassicaia + Brunello at the top by weighted rating; Primitivo di Manduria + Abruzzo as value plays). They differ in **how defensibly** the recommendation is reached.
+
+---
+
+## The contrast at a glance
+
+| | `/bare` | `/supercharged` |
 |---|---|---|
-| **Lines of code** | ~150 (one notebook + one script) | ~3,000+ (planned, full spec written) |
-| **Producer extraction** | First-word heuristic ("Tenuta San Guido" → "Tenuta") | Alias whitelist + LLM disambiguation with persistent cache + post-hoc validation against known top-50 |
-| **Rating aggregation** | Bayesian shrinkage to global mean | Same, but with `m`-strategy logged + configurable + sensitivity-tested |
-| **Scoring** | Single weighted rating | 5-factor composite (rating · confidence · value · premium fit · opportunity), weights versioned per config snapshot |
-| **Data quality** | Inline `print()` of drop cascade | Instrumented `RunBundle` JSON per stage, drop-cascade rendered via Jinja2 from real run data |
-| **Validation** | `if rating > 5: drop` | Pandera schema contract, fail-loud, failures captured to `validation-failures.parquet` |
-| **Testing** | None | Pytest + Hypothesis properties on the Bayesian math, Pandera schema tests, integration tests |
-| **Reproducibility** | "Run all cells" | Deterministic CLI, every output stamped with `run_config_hash`, snapshot configs versioned, `cantinaiq audit <hash>` cross-references outputs to commits |
-| **Reporting** | One markdown file written by hand | Jinja2 templates rendered from run-log; numbers in the methodology document cannot drift from the code |
-| **Dashboard** | None | Next.js + Tailwind + shadcn/ui (designed in `/supercharged/reports/findings-one-pager.html`, planned in `/supercharged/docs/superpowers/specs/`) |
-| **Limitations discussion** | 4 bullets | Bias quantification, external-validity discussion, sensitivity sweeps on scoring weights, top-N stability analysis |
+| Lines of code | ~150 | ~3,500 |
+| Producer extraction | First-word heuristic | Alias whitelist → LLM disambiguation (OpenRouter) → gold-set evaluated (88 % exact recall, 96 % contains) |
+| Rating aggregation | Bayesian shrinkage | Same, but `m` configurable, with sensitivity sweep + Kendall-τ stability |
+| Scoring | Single weighted rating | 5-factor composite (rating · confidence · value · premium fit · opportunity) versioned per config snapshot |
+| Validation | `if rating > 5: drop` | Pandera schema contracts; failures saved to parquet |
+| Tests | None | 137 — unit, integration, property-based (Hypothesis), schema |
+| Reproducibility | "Run all cells" | Deterministic CLI; `run_config_hash` stamps; `cantinaiq audit <hash>` |
+| Bias discussion | 4 bullets | Quantified vs. Italian Trade Agency NL imports; Puglia ×0.61, Abruzzo ×0.52 under-represented |
+| Anomaly handling | — | Isolation Forest flags 90/2,986 wines (extreme rating/review ratios) |
+| Reporting | One markdown file | 8 generated artefacts — exec summary, methodology, data quality, findings one-pager (HTML), bias report, bootstrap CIs, anomalies, sustainability |
+| Sustainability lookup | — | Live FederBio + Demeter check via Firecrawl |
+| Dashboard | None | Vite + React + Tailwind + Recharts SPA — 4 pages, 762-bubble opportunity matrix |
 
-Both arrive at recommendations of comparable directional shape (Bolgheri Sassicaia / Brunello / Amarone Classico at the top by weighted rating; Primitivo di Manduria, Abruzzo and Lugana as value plays). The difference is **how defensibly** that recommendation is reached.
+---
 
-## Pick a path
+## Repo layout
 
-- **You only have 5 minutes:** read [`bare/recommendation.md`](bare/recommendation.md).
-- **You want to see the analysis:** open [`bare/notebooks/slurpini-analysis.ipynb`](bare/notebooks/slurpini-analysis.ipynb) (outputs baked in, no need to run).
-- **You want to see what HBO-level looks like:** read [`supercharged/docs/superpowers/specs/2026-05-15-cantinaiq-data-pipeline-design.md`](supercharged/docs/superpowers/specs/2026-05-15-cantinaiq-data-pipeline-design.md) and the implementation plan in [`supercharged/docs/superpowers/plans/`](supercharged/docs/superpowers/plans/).
-- **You want to see the executive one-pager mock:** open [`supercharged/reports/findings-one-pager.html`](supercharged/reports/findings-one-pager.html) in a browser.
+```text
+.
+├── README.md                  ← you are here
+├── FOR_REVIEWERS.md           ← how to read this submission (start here)
+├── Makefile                   ← `make demo`, `make test`, `make serve-dashboard`
+├── bare/                      ← brief-compliant minimum (one notebook + crawler + recommendation)
+├── supercharged/              ← the data product
+│   ├── PRD.md
+│   ├── README.md              ← stack + commands
+│   ├── src/cantinaiq/         ← pipeline (ingestion → cleaning → validation → enrichment → scoring → export) + 14 CLI subcommands
+│   ├── tests/                 ← 137 tests (unit/integration/properties/schema/reporting)
+│   ├── config/                ← Hydra YAML + per-run config snapshots
+│   ├── data/                  ← raw, interim, processed, exports, runs/<id>/, reference
+│   ├── reports/
+│   │   ├── templates/         ← Jinja templates (methodology, findings, exec summary, …)
+│   │   └── generated/         ← rendered reports (regenerated by `cantinaiq report build`)
+│   └── docs/superpowers/      ← spec + 4 implementation plans, one per development tier
+├── dashboard/                 ← Vite + React + Tailwind + Recharts SPA
+│   ├── src/{pages,components,lib}
+│   └── public/data            ← symlink → supercharged/data/exports
+└── CLAUDE.md                  ← guidance for AI coding agents working in this repo
+```
 
-## Status
+---
 
-- `bare/` — **complete and runnable.** Notebook produces outputs end-to-end; recommendation written; crawler extension demonstrated.
-- `supercharged/` — **fully specified, plan written, implementation pending.** Every stage of the planned pipeline has a TDD task list in `/supercharged/docs/superpowers/plans/`. Reference designs from Claude Design committed in `/supercharged/reports/`.
+## How the supercharged pipeline runs
+
+```text
+Vivino-export.xlsx  (409 777 rows × 16 sheets)
+    │
+    ▼ ingestion
+01_raw.parquet
+    │
+    ▼ cleaning  (encoding fixes, tuple unwrap, country filter, dedupe)
+02_cleaned.parquet                   ← 2 986 rows
+    │
+    ▼ validation  (Pandera contracts; failures → validation-failures.parquet)
+03_validated.parquet
+    │
+    ▼ enrichment  (alias whitelist → LLM disambiguation → macro-region + segments)
+italian_wines_enriched.parquet
+    │
+    ▼ scoring  (Bayesian weighted rating + 5-factor composite + segments + recommendations)
+{wines,producers,regions}_scored.parquet
+    │
+    ▼ export
+data/exports/*.json  ──► consumed by the dashboard
+data/runs/<id>/stage-*.json  ←  per-stage run log, JSON
+reports/generated/*.{md,html}  ←  rendered from templates + run-log
+```
+
+Every stage is a pure function of `(input parquet, config) → (output parquet, run-log JSON)`. No hidden state, no side-effects outside `data/`.
+
+---
+
+## Tech stack
+
+**Python pipeline:** Polars · DuckDB · Pandera · Hydra · Pydantic · Typer · Jinja2 · scikit-learn · scipy · OpenAI SDK (OpenRouter) · Firecrawl · pytest + Hypothesis · uv · ruff · mypy.
+
+**Dashboard:** Vite · React 19 · TypeScript · Tailwind 3 · Recharts · React Router.
+
+---
+
+## Reproducibility
+
+Every output Parquet carries a `run_config_hash`. The config that produced any report is snapshotted at `supercharged/config/snapshots/<hash>.yaml`. Re-running with
+
+```bash
+cd supercharged && uv run cantinaiq run all --config-snapshot <hash>
+```
+
+reproduces the same outputs byte-for-byte (modulo timestamp metadata in run logs).
+
+---
 
 ## Author
 
-Vincent Blokker · vincentblokker@gmail.com
+Vincent Blokker — [vincentblokker@gmail.com](mailto:vincentblokker@gmail.com)
