@@ -45,7 +45,7 @@
     .h-row {
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
+      align-items: center;
       font-size: 8pt;
       letter-spacing: 0.18em;
       text-transform: uppercase;
@@ -53,9 +53,21 @@
       font-weight: 500;
       margin-bottom: 14mm;
     }
+    /* Top-right page number — red filled badge with white text */
+    .h-row .page-num {
+      background: var(--red);
+      color: white;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 1.6mm 2.4mm;
+      min-width: 8mm;
+      text-align: center;
+      line-height: 1;
+      font-size: 9pt;
+    }
     .f-row {
       position: absolute;
-      bottom: 2mm;  /* sits just above the printable bottom for visual balance */
+      bottom: 2mm;
       left: 0;
       right: 0;
       display: flex;
@@ -64,8 +76,12 @@
       font-size: 8pt;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--ink);
+      color: var(--red);    /* footer brand line in red */
       font-weight: 500;
+    }
+    .f-row .page-num {
+      color: var(--red);    /* bottom page number also red */
+      font-weight: 600;
     }
 
     /* ── cover ─────────────────────────────────────────────── */
@@ -388,15 +404,26 @@
     .toc-row {
       display: grid;
       grid-template-columns: 16mm 1fr 16mm;
-      align-items: baseline;
+      align-items: center;
       gap: 6mm;
       padding: 4mm 0;
       border-top: 1px solid var(--rule);
       font-size: 11pt;
     }
     .toc-row:last-child { border-bottom: 1px solid var(--rule); }
-    .toc-row .n { color: var(--red); font-weight: 600; }
-    .toc-row .p { text-align: right; color: var(--ink); }
+    /* TOC numbers as red filled badges */
+    .toc-row .n {
+      background: var(--red);
+      color: white;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 1.4mm 2.2mm;
+      text-align: center;
+      font-size: 9pt;
+      width: 9mm;
+      box-sizing: border-box;
+    }
+    .toc-row .p { text-align: right; color: var(--red); font-weight: 600; }
 
     /* ── dot grid ────────────────────────────────────────── */
     .dot-grid {
@@ -456,7 +483,7 @@
 
 <!-- ============================================================ PAGE 2 — INTRODUCTION ============================================================ -->
 <section class="page">
-  <div class="h-row"><div>Introduction</div><div>02</div></div>
+  <div class="h-row"><div>Introduction</div><span class="page-num">02</span></div>
   <div class="section-tag">A brief on CantinaIQ in practice</div>
   <h2 class="section-title">Introduction<span class="dot">.</span></h2>
 
@@ -480,12 +507,12 @@
     <div class="toc-row"><div class="n">06</div><div>About the Author</div><div class="p">11</div></div>
   </div>
 
-  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><div>02</div></div>
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">02</span></div>
 </section>
 
 <!-- ============================================================ PAGE 3 — VIVINO IN CONTEXT (opener) ============================================================ -->
 <section class="page">
-  <div class="h-row"><div>Vivino in Context</div><div>03</div></div>
+  <div class="h-row"><div>Vivino in Context</div><span class="page-num">03</span></div>
   <div class="section-tag">Section 02</div>
   <h2 class="section-title">Vivino<br/>in Context<span class="dot">.</span></h2>
   <div class="section-sub">What the dataset is and how it skews</div>
@@ -498,12 +525,12 @@
 
   <p>For wines with thousands of reviews — Tenuta Masseto, Ornellaia, Antinori's Tignanello vintages — the Bayesian-shrunk weighted rating is a stable proxy for Dutch consumer preference. The math is uncontroversial. Where it gets interesting is producer extraction: producer names are a string-extraction problem, not a field. A pass-1 alias whitelist resolves the top fifty producers; a pass-2 LLM disambiguation pass on OpenRouter handles the remainder, cached so the same dataset never costs twice. A gold-set evaluation against <code>known_producers_top50.csv</code> measures the result: <strong>88% recall on exact match, 96% on contains</strong>.</p>
 
-  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><div>03</div></div>
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">03</span></div>
 </section>
 
 <!-- ============================================================ PAGE 4 — VIVINO IN CONTEXT (image + bias) ============================================================ -->
 <section class="page">
-  <div class="h-row"><div>Vivino in Context</div><div>04</div></div>
+  <div class="h-row"><div>Vivino in Context</div><span class="page-num">04</span></div>
 
   <img src="section-02.jpg" alt="" class="section-img full" />
 
@@ -522,12 +549,12 @@
     <div><div class="stat-num">96%</div><div class="stat-lbl">Recall on known<br/>top-50 producers</div></div>
   </div>
 
-  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><div>04</div></div>
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">04</span></div>
 </section>
 
 <!-- ============================================================ PAGE 5 — FROM THE FIELD (opener) ============================================================ -->
 <section class="page">
-  <div class="h-row"><div>From the Field</div><div>05</div></div>
+  <div class="h-row"><div>From the Field</div><span class="page-num">05</span></div>
   <div class="section-tag">Section 03</div>
   <h2 class="section-title">From<br/>the Field<span class="dot">.</span></h2>
   <div class="section-sub">Use case: Slurpini partner intelligence</div>
@@ -541,12 +568,12 @@
 
   <p>None of these steps require new research. Combining them into a reproducible, defensible pipeline that the buying committee can interrogate is the actual engineering.</p>
 
-  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><div>05</div></div>
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">05</span></div>
 </section>
 
 <!-- ============================================================ PAGE 7 — FROM THE FIELD continued (image + two routes + table) ============================================================ -->
 <section class="page">
-  <div class="h-row"><div>From the Field</div><div>06</div></div>
+  <div class="h-row"><div>From the Field</div><span class="page-num">06</span></div>
 
   <img src="section-03.jpg" alt="" class="section-img full" />
 
@@ -556,12 +583,12 @@
   <h3>The supercharged route</h3>
   <p>The supercharged track answers the same business question as a data product. Polars and DuckDB instead of pandas. Pandera schema contracts at every stage boundary. Hydra-validated Pydantic configs with config-hash snapshots. A two-pass producer disambiguator with persistent LLM cache. Property-based tests on the scoring math via Hypothesis. Jinja-templated reports whose numbers come from a run log, not from the author. A Vite + React + Recharts dashboard. Fourteen CLI subcommands for operations, comparison, sensitivity sweeps, bootstrap CIs, clustering, bias quantification, anomaly detection, and Firecrawl-driven sustainability lookup.</p>
 
-  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><div>06</div></div>
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">06</span></div>
 </section>
 
 <!-- ============================================================ PAGE 8 — Comparison + why both ============================================================ -->
 <section class="page">
-  <div class="h-row"><div>From the Field</div><div>07</div></div>
+  <div class="h-row"><div>From the Field</div><span class="page-num">07</span></div>
 
   <h3>Comparison</h3>
   <table class="cmp-table">
@@ -591,12 +618,12 @@
     <div><div class="stat-num">1</div><div class="stat-lbl">Dashboard SPA over<br/>the same exports</div></div>
   </div>
 
-  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><div>07</div></div>
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">07</span></div>
 </section>
 
 <!-- ============================================================ PAGE 9 — THE CHOICE (opener + when right) ============================================================ -->
 <section class="page">
-  <div class="h-row"><div>The Choice</div><div>08</div></div>
+  <div class="h-row"><div>The Choice</div><span class="page-num">08</span></div>
   <div class="section-tag">Section 04</div>
   <h2 class="section-title">The Choice<span class="dot">.</span></h2>
   <div class="section-sub">When the heavyweight earns its place and when it does not</div>
@@ -622,12 +649,12 @@
     </div>
   </div>
 
-  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><div>08</div></div>
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">08</span></div>
 </section>
 
 <!-- ============================================================ PAGE 9 — THE CHOICE continued ============================================================ -->
 <section class="page">
-  <div class="h-row"><div>The Choice</div><div>09</div></div>
+  <div class="h-row"><div>The Choice</div><span class="page-num">09</span></div>
 
   <h3>When the heavyweight is the wrong choice</h3>
   <div class="num-block">
@@ -655,12 +682,12 @@
 
   <p>For Slurpini, the additional rigour produces different decisions. The bare track lists "Tenuta" and "Marchesi" as top producer fragments — uninterpretable for a buying committee. The supercharged track lists "Tenuta San Guido" and "Marchesi Antinori" — directly actionable. The bare track recommends "Expand in Puglia" without flagging that Vivino under-represents Puglia. The supercharged track flags the ×0.61 factor next to the recommendation, which changes how the committee interprets it. Those are not stylistic improvements. They are decisions changing.</p>
 
-  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><div>09</div></div>
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">09</span></div>
 </section>
 
 <!-- ============================================================ PAGE 11 — CLOSING OBSERVATION ============================================================ -->
 <section class="page">
-  <div class="h-row"><div>Closing Observation</div><div>10</div></div>
+  <div class="h-row"><div>Closing Observation</div><span class="page-num">10</span></div>
   <div class="section-tag">Section 05</div>
   <h2 class="section-title">Closing<br/>Observation<span class="dot">.</span></h2>
   <div class="section-sub">Methodology choices are governance choices</div>
@@ -681,12 +708,12 @@
 
   <h2 class="section-title" style="font-size: 28pt; margin-top: 6mm;">But the analysis should still have to earn its trust<span class="dot">.</span></h2>
 
-  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><div>10</div></div>
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">10</span></div>
 </section>
 
 <!-- ============================================================ PAGE 12 — ABOUT THE AUTHOR ============================================================ -->
 <section class="page">
-  <div class="h-row"><div>About the Author</div><div>11</div></div>
+  <div class="h-row"><div>About the Author</div><span class="page-num">11</span></div>
   <div class="section-tag">Written as part of the Final Assignment</div>
   <h2 class="section-title">About<br/>the Author<span class="dot">.</span></h2>
   <div class="author-accent"></div>
@@ -708,7 +735,7 @@
     </div>
   </div>
 
-  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><div>11</div></div>
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">11</span></div>
 </section>
 
 </body>
