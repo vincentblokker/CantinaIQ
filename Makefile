@@ -12,7 +12,7 @@
 # Set OPENROUTER_API_KEY (or source .env.local) to enable real producer
 # disambiguation. Without it the pipeline uses pass-1 results only.
 
-.PHONY: setup pipeline reports dashboard demo test clean serve-dashboard help
+.PHONY: setup pipeline reports dashboard demo test clean serve-dashboard brief help
 .DEFAULT_GOAL := help
 
 PYTHON_DIR := supercharged
@@ -62,6 +62,15 @@ serve-dashboard:
 
 test:
 	cd $(PYTHON_DIR) && uv run pytest
+
+brief:
+	@echo "→ rendering CantinaIQ Strategy Brief"
+	"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+	  --headless --disable-gpu --no-pdf-header-footer --print-to-pdf-no-header \
+	  --print-to-pdf=$(PYTHON_DIR)/docs/brief/brief.pdf --virtual-time-budget=5000 \
+	  "file://$(CURDIR)/$(PYTHON_DIR)/docs/brief/brief.html"
+	cp $(PYTHON_DIR)/docs/brief/brief.pdf CantinaIQ-in-Practice.pdf
+	@echo "✓ CantinaIQ-in-Practice.pdf (4.2 MB, 12 pages)"
 
 demo: pipeline reports dashboard
 	@printf "\n\033[32m✓ Demo built.\033[0m\n"
