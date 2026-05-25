@@ -1,0 +1,23 @@
+services:
+  web:
+    image: nginx:alpine
+    restart: always
+    volumes:
+      - /opt/apps/react-cantinaiq/site:/usr/share/nginx/html:ro
+      - /opt/apps/react-cantinaiq/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks: [edge]
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=edge
+      - traefik.http.routers.ciq.rule=Host(`cantinaiq.clubventure.nl`)
+      - traefik.http.routers.ciq.entrypoints=websecure
+      - traefik.http.routers.ciq.tls.certresolver=lets
+      - traefik.http.services.ciq.loadbalancer.server.port=80
+      - traefik.http.routers.ciq-http.rule=Host(`cantinaiq.clubventure.nl`)
+      - traefik.http.routers.ciq-http.entrypoints=web
+      - traefik.http.routers.ciq-http.middlewares=ciq-redir
+      - traefik.http.middlewares.ciq-redir.redirectscheme.scheme=https
+      - traefik.http.middlewares.ciq-redir.redirectscheme.permanent=true
+networks:
+  edge:
+    external: true
