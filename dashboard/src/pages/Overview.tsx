@@ -37,6 +37,24 @@ export default function Overview() {
 
   return (
     <div className="space-y-10">
+      {/* Evaluator CTA */}
+      <Link
+        to="/for-evaluators"
+        className="block rounded-lg border border-tuscan/30 bg-tuscan/5 hover:bg-tuscan/10 transition-colors px-5 py-4 group"
+      >
+        <div className="flex items-baseline gap-4 flex-wrap">
+          <span className="text-xs uppercase tracking-widest text-tuscan font-semibold whitespace-nowrap">
+            Evaluating this submission?
+          </span>
+          <span className="text-sm text-ink flex-1">
+            Use the rubric map to confirm coverage in two minutes — each ADA criterion is linked to the brief section and the source file.
+          </span>
+          <span className="text-tuscan text-sm font-semibold whitespace-nowrap group-hover:translate-x-0.5 transition-transform">
+            Open rubric map →
+          </span>
+        </div>
+      </Link>
+
       {/* Headline */}
       <section className="border-b border-stone-200 pb-6">
         <div className="text-xs uppercase tracking-widest text-tuscan font-semibold">
