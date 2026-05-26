@@ -140,8 +140,16 @@ export const RUBRIC: RubricRow[] = [
     artefacts: [{ label: "This site", internal: true }],
   },
   {
+    criterion: "Enrichment scope discipline (shipped vs deferred)",
+    briefSection: "§08 Enrichments · p17-19",
+    artefacts: [
+      { label: "ENRICHMENT-PLAN.md", href: blob("ENRICHMENT-PLAN.md") },
+      { label: "/regions modal", internal: true },
+    ],
+  },
+  {
     criterion: "Responsible-AI reflection",
-    briefSection: "§08 Closing Observation · p17-18",
+    briefSection: "§09 Closing Observation · p20-21",
     artefacts: [{ label: "—" }],
   },
 ];

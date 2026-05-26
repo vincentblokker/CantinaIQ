@@ -509,8 +509,9 @@
     <div class="toc-row"><div class="n">05</div><div>The Recommendation</div><div class="p">10</div></div>
     <div class="toc-row"><div class="n">06</div><div>The Methodology</div><div class="p">12</div></div>
     <div class="toc-row"><div class="n">07</div><div>Beyond the Brief</div><div class="p">14</div></div>
-    <div class="toc-row"><div class="n">08</div><div>Closing Observation</div><div class="p">17</div></div>
-    <div class="toc-row"><div class="n">09</div><div>About the Author</div><div class="p">19</div></div>
+    <div class="toc-row"><div class="n">08</div><div>Enrichments Shipped and Deferred</div><div class="p">17</div></div>
+    <div class="toc-row"><div class="n">09</div><div>Closing Observation</div><div class="p">20</div></div>
+    <div class="toc-row"><div class="n">10</div><div>About the Author</div><div class="p">22</div></div>
   </div>
 
   <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">02</span></div>
@@ -885,11 +886,85 @@
   <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">16</span></div>
 </section>
 
-<!-- ============================================================ PAGE 17 — CLOSING OBSERVATION ============================================================ -->
+<!-- ============================================================ PAGE 17 — ENRICHMENTS (opener) ============================================================ -->
 <section class="page">
-  <div class="h-row"><div class="h-left"><span>Closing Observation</span><span class="h-sep">/</span><span class="h-sub">Methodology Choices Are Governance Choices</span></div><span class="page-num">17</span></div>
+  <div class="h-row"><div class="h-left"><span>Enrichments</span><span class="h-sep">/</span><span class="h-sub">Scope Discipline as Governance</span></div><span class="page-num">17</span></div>
+  <h2 class="section-title" style="font-size: 42pt; line-height: 0.95;">Enrichments<br/>Shipped and Deferred<span class="dot">.</span></h2>
+  <div class="section-sub">Section 08 — Scope Discipline as Governance</div>
+
+  <p>The dashboard surfaces per-region, per-producer and per-wine context that goes past the Vivino export. The brief framed this as a roadmap in §07. This section closes the loop: <strong>what actually got built</strong>, <strong>what was deliberately deferred</strong>, and <strong>why the line sits where it sits</strong>.</p>
+
+  <div class="blockquote">
+    The decision rule: paid services are skipped for the ADA window. Anything that needs a paid critic database, a billing-account API key, or Firecrawl credits beyond the current pipeline run is deferred with an explicit blocker note. The choice is visible in the modals — green check for shipped, grey ring for deferred, with the blocker named on each item.
+  </div>
+
+  <h3>Shipped — curated from open sources (4 items)</h3>
+
+  <p><strong>DOC/DOCG appellation count.</strong> Per macro region. Curated from MIPAAF and EU eAmbrosia registry data, point-in-time approximation as of 2023. Visible as a stat tile in every region modal; gives a production-tier signal that Vivino alone cannot — Toscana has 41 DOC + 11 DOCG, Piemonte has 41 + 19, Liguria has 8 + 0.</p>
+
+  <p><strong>Annual production volume (hl).</strong> ISTAT viticulture statistics for 2022–2023. Calibrates regional scale against Vivino's sample size: Veneto produces 11 million hl per year against Liguria's 75,000 hl. A Vivino count of 200 means different things in those two contexts.</p>
+
+  <p><strong>Vintage assessment 2018–2024.</strong> Letter grades (A+/A/A-/B+/B/C) from public-domain consensus expert ratings — Decanter, Jancis Robinson, Wine Enthusiast charts. Surfaced as a coloured 7-year strip in the region modal. The label includes the honest caveat: <em>higher grade ≠ higher individual wine quality; great producers can outperform their vintage.</em></p>
+
+  <p><strong>Climate + terroir summary.</strong> Two- to three-sentence narrative per macro region — climate dynamics, principal soil types, altitude pockets. Curated from regional consorzio publications and Italian Wine Central. The aim is buying-committee context, not encyclopedic depth.</p>
+
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">17</span></div>
+</section>
+
+<!-- ============================================================ PAGE 18 — ENRICHMENTS (deferred + phased unlock) ============================================================ -->
+<section class="page">
+  <div class="h-row"><div class="h-left"><span>Enrichments</span><span class="h-sep">/</span><span class="h-sub">Deferred Items and Unlock Order</span></div><span class="page-num">18</span></div>
+
+  <h3>Deferred — paid sources with explicit blockers (3 region · 7 producer · 5 wine)</h3>
+
+  <p>The producer and wine modals contain twelve further enrichments that are deferred entirely — each item names its source and its blocker. The region modal carries three deferred items at this writing. The full list, with the costs to unlock:</p>
+
+  <table class="cmp-table">
+    <thead><tr><th>Deferred enrichment</th><th>Source</th><th>Blocker</th></tr></thead>
+    <tbody>
+      <tr><td>Demeter + FederBio at 762-producer scale</td><td>demeter.net · federbio.it via Firecrawl</td><td>Firecrawl credits beyond current run</td></tr>
+      <tr><td>NL trade volume (€) per region</td><td>ICE Amsterdam customs reports</td><td>Bound PDF only; manual extraction</td></tr>
+      <tr><td>Travel cost from Amsterdam</td><td>Google Maps Directions API</td><td>Billing-account credit card required</td></tr>
+      <tr><td>Producer estate websites + contact info</td><td>Producer's own domains</td><td>Firecrawl at 762-producer scale</td></tr>
+      <tr><td>Critic scores per vintage</td><td>Wine Advocate · Suckling · Spectator · Decanter</td><td>All four are paywalled databases</td></tr>
+      <tr><td>Wine-level vintage variation</td><td>Vivino vintage endpoints · Suckling</td><td>Partner credentials + paywalled critics</td></tr>
+      <tr><td>Wine-level technical sheets</td><td>Producer technical PDFs</td><td>Deep per-wine scrape, Firecrawl-heavy</td></tr>
+    </tbody>
+  </table>
+
+  <div class="pull">Methodology choices are governance choices. So are <em>enrichment choices</em>.</div>
+
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">18</span></div>
+</section>
+
+<!-- ============================================================ PAGE 19 — ENRICHMENTS (phased unlock) ============================================================ -->
+<section class="page">
+  <div class="h-row"><div class="h-left"><span>Enrichments</span><span class="h-sep">/</span><span class="h-sub">If a Budget Is Allocated</span></div><span class="page-num">19</span></div>
+
+  <h3>If a budget is allocated — phased unlock</h3>
+
+  <p>An honest enrichment roadmap doubles as a budget-allocation conversation. Each phase below names the cost <em>and</em> the impact, ordered by what unlocks the most useful next conversation. The full version with phase-specific dev estimates sits in <code>ENRICHMENT-PLAN.md</code> at the repo root.</p>
+
+  <table class="cmp-table">
+    <thead><tr><th>Phase</th><th>Cost</th><th>Unlocks</th></tr></thead>
+    <tbody>
+      <tr><td>A — Firecrawl credits</td><td>~€50–100 · ~1 day</td><td>Demeter + FederBio at 762-producer scale. Ties directly to Slurpini's stated sustainability USP. Pipeline command exists for 5 producers; credits unlock the rest.</td></tr>
+      <tr><td>B — Google Maps billing</td><td>~5 hours dev</td><td>Travel cost from Amsterdam per macro region. Free tier covers one-off lookups (~20 calls). Unblocks the operational dimension of the recommendation.</td></tr>
+      <tr><td>C — Manual extraction</td><td>~5 hours data wrangling</td><td>NL trade volume (€) per region from ICE Amsterdam customs reports. No software cost. Unblocks absolute-scale calibration of the bias report.</td></tr>
+      <tr><td>D — Critic subscription</td><td>ongoing, per source</td><td>Wine Advocate or James Suckling integration. Highest dollar cost, highest defensibility against critic-aware buyers. Outside the scope of this submission.</td></tr>
+    </tbody>
+  </table>
+
+  <p>Total to fully close the producer + wine roadmaps: ~3–5 days of dev work plus the per-source paid access. Not in scope for the ADA window. The point is that the line is visible and the costs are named, not that everything is shipped.</p>
+
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">19</span></div>
+</section>
+
+<!-- ============================================================ PAGE 20 — CLOSING OBSERVATION ============================================================ -->
+<section class="page">
+  <div class="h-row"><div class="h-left"><span>Closing Observation</span><span class="h-sep">/</span><span class="h-sub">Methodology Choices Are Governance Choices</span></div><span class="page-num">20</span></div>
   <h2 class="section-title">Closing<br/>Observation<span class="dot">.</span></h2>
-  <div class="section-sub">Section 08 — Methodology Choices Are Governance Choices</div>
+  <div class="section-sub">Section 09 — Methodology Choices Are Governance Choices</div>
 
   <img src="section-05.jpg" alt="" class="section-img" />
 
@@ -901,12 +976,12 @@
 
   <p>The Toeslagenaffaire showed what happens when algorithmic systems are treated as neutral facts rather than fallible tools. The Vivino case is far lower stakes, but the same shape of error is available. A buying committee that reads "Primitivo di Manduria is a value play" without seeing the ×0.61 under-representation factor is the same shape of decision-maker as one who reads "this applicant is high-risk" without seeing the model's confusion matrix on relevant subgroups.</p>
 
-  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">17</span></div>
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">20</span></div>
 </section>
 
-<!-- ============================================================ PAGE 18 — CLOSING CONTINUED ============================================================ -->
+<!-- ============================================================ PAGE 21 — CLOSING CONTINUED ============================================================ -->
 <section class="page">
-  <div class="h-row"><div class="h-left"><span>Closing Observation</span><span class="h-sep">/</span><span class="h-sub">The Closing Argument</span></div><span class="page-num">18</span></div>
+  <div class="h-row"><div class="h-left"><span>Closing Observation</span><span class="h-sep">/</span><span class="h-sub">The Closing Argument</span></div><span class="page-num">21</span></div>
 
   <div class="pull">Methodology choices are governance choices<span style="color: var(--red);">.</span></div>
 
@@ -914,12 +989,12 @@
 
   <h2 class="section-title" style="font-size: 36pt; margin-top: 20mm;">But the analysis<br/>should still have to<br/>earn its trust<span class="dot">.</span></h2>
 
-  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">18</span></div>
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">21</span></div>
 </section>
 
-<!-- ============================================================ PAGE 19 — ABOUT THE AUTHOR ============================================================ -->
+<!-- ============================================================ PAGE 22 — ABOUT THE AUTHOR ============================================================ -->
 <section class="page">
-  <div class="h-row"><div class="h-left"><span>About the Author</span><span class="h-sep">/</span><span class="h-sub">Written in Commission of ADA</span></div><span class="page-num">19</span></div>
+  <div class="h-row"><div class="h-left"><span>About the Author</span><span class="h-sep">/</span><span class="h-sub">Written in Commission of ADA</span></div><span class="page-num">22</span></div>
   <div class="section-tag">Written as part of the Final Assignment</div>
   <h2 class="section-title">About<br/>the Author<span class="dot">.</span></h2>
   <div class="author-accent"></div>
@@ -941,7 +1016,7 @@
     </div>
   </div>
 
-  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">19</span></div>
+  <div class="f-row"><div>CantinaIQ in Practice / Strategy Brief</div><span class="page-num">22</span></div>
 </section>
 
 </body>
