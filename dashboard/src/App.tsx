@@ -9,11 +9,13 @@ import Bias from "./pages/Bias";
 import Stability from "./pages/Stability";
 import Methodology from "./pages/Methodology";
 import ForEvaluators from "./pages/ForEvaluators";
+import Wines from "./pages/Wines";
 
 const NAV_ITEMS = [
   { to: "/", label: "Overview", end: true },
   { to: "/recommendation", label: "Recommendation" },
   { to: "/matrix", label: "Matrix" },
+  { to: "/wines", label: "Wines" },
   { to: "/regions", label: "Regions" },
   { to: "/producers", label: "Producers" },
   { to: "/bias", label: "Bias" },
@@ -24,6 +26,7 @@ const NAV_ITEMS = [
 const PAGE_LABEL: Record<string, string> = {
   "/recommendation": "Recommendation",
   "/matrix": "Opportunity Matrix",
+  "/wines": "Wines",
   "/regions": "Regions",
   "/producers": "Producers",
   "/bias": "Bias",
@@ -109,6 +112,7 @@ export default function App() {
           <Route path="/bias" element={<Bias />} />
           <Route path="/stability" element={<Stability />} />
           <Route path="/methodology" element={<Methodology />} />
+          <Route path="/wines" element={<Wines />} />
           <Route path="/for-evaluators" element={<ForEvaluators />} />
         </Routes>
       </main>

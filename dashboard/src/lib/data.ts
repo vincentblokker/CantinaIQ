@@ -71,6 +71,26 @@ async function safeJson<T>(path: string, fallback: T): Promise<T> {
 export const loadProducers = () =>
   safeJson<Producer[]>("producer_rankings.json", []);
 
+export interface Wine {
+  wine_name: string;
+  region: string;
+  macro_region: string;
+  rating: number;
+  rating_count: number;
+  price: number;
+  weighted_rating: number;
+  value_score: number;
+  composite_score: number;
+  market_segment: string;
+  vintage: number | null;
+  producer_name: string;
+  inferred_grape_or_style: string;
+  price_segment: string;
+  confidence_segment: string;
+}
+
+export const loadWines = () => safeJson<Wine[]>("wine_shortlist.json", []);
+
 export async function loadRegions(): Promise<Region[]> {
   const raw = await safeJson<RawRegion[]>("region_rankings.json", []);
   return raw.map((r) => ({

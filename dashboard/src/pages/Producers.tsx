@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Producer, loadProducers } from "../lib/data";
 import RecommendationPill from "../components/RecommendationPill";
 import ProducerDetailModal from "../components/ProducerDetailModal";
@@ -6,6 +6,7 @@ import ProducerDetailModal from "../components/ProducerDetailModal";
 export default function Producers() {
   const [rows, setRows] = useState<Producer[]>([]);
   const [filter, setFilter] = useState<string>("all");
+  const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Producer | null>(null);
 
   useEffect(() => {
@@ -14,20 +15,36 @@ export default function Producers() {
     );
   }, []);
 
-  const filtered =
-    filter === "all" ? rows : rows.filter((r) => r.recommendation === filter);
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return rows.filter((r) => {
+      if (filter !== "all" && r.recommendation !== filter) return false;
+      if (q && !r.producer_name.toLowerCase().includes(q) && !r.macro_region.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [rows, filter, query]);
 
   return (
     <div>
-      <div className="flex items-baseline gap-3 mb-4 flex-wrap">
+      <div className="flex items-baseline gap-3 mb-2 flex-wrap">
         <h2 className="font-serif text-2xl text-ink">Producer shortlist</h2>
         <p className="text-xs text-ink-2 italic ml-2">
           Click <span className="inline-flex w-4 h-4 rounded-full border border-tuscan/40 text-tuscan items-center justify-center text-[10px] font-bold align-middle">i</span> for context, map, and enrichment roadmap.
         </p>
+      </div>
+
+      <div className="flex items-baseline gap-3 flex-wrap mb-4">
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search producer or macro-region…"
+          className="flex-1 min-w-[240px] max-w-md text-sm border border-stone-300 rounded px-3 py-1.5 bg-white focus:border-tuscan focus:outline-none focus:ring-1 focus:ring-tuscan/30"
+        />
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="ml-auto text-sm border border-stone-300 rounded px-2 py-1 bg-white"
+          className="text-sm border border-stone-300 rounded px-2 py-1.5 bg-white focus:border-tuscan focus:outline-none focus:ring-1 focus:ring-tuscan/30"
         >
           <option value="all">All recommendations</option>
           <option value="Premium Brand Builder">Premium Brand Builder</option>
@@ -36,7 +53,13 @@ export default function Producers() {
           <option value="Monitor">Monitor</option>
           <option value="Avoid for Now">Avoid for Now</option>
         </select>
+        <span className="ml-auto text-xs text-ink-2 tabular-nums">
+          {filtered.length === rows.length
+            ? `${rows.length} producers`
+            : `${filtered.length} of ${rows.length}`}
+        </span>
       </div>
+
       <table className="w-full text-sm border border-stone-200 rounded-lg overflow-hidden bg-white">
         <thead className="bg-stone-50 text-ink-2 text-xs uppercase tracking-wide">
           <tr>
@@ -50,7 +73,7 @@ export default function Producers() {
           </tr>
         </thead>
         <tbody className="divide-y divide-stone-100">
-          {filtered.slice(0, 100).map((p) => (
+          {filtered.map((p) => (
             <tr
               key={p.producer_name}
               className="odd:bg-white even:bg-stone-50/60 hover:bg-stone-100/80 transition-colors"
@@ -72,8 +95,16 @@ export default function Producers() {
               </td>
             </tr>
           ))}
+          {filtered.length === 0 && (
+            <tr>
+              <td colSpan={7} className="text-center text-ink-2 italic py-8">
+                No producers match the current filters.
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
+
       <ProducerDetailModal producer={selected} onClose={() => setSelected(null)} />
     </div>
   );
