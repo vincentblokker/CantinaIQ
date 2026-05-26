@@ -7,6 +7,50 @@ from the ADA submission email.
 
 ---
 
+## 0. START HERE — for a fresh chat
+
+This file is the single entry point for producing the walkthrough video.
+Everything else (PDF, dashboard, rubric, ENRICHMENT-PLAN, deploy) is
+already shipped — read [`SUBMISSION-PLAN.md`](SUBMISSION-PLAN.md) for the
+full submission status.
+
+**State of the world as of last edit:**
+
+- ✓ Strategy brief PDF — 22 pages, lives at `CantinaIQ-in-Practice.pdf`
+- ✓ Live dashboard — `https://cantinaiq.clubventure.nl/`, HTTPS, 10 routes
+- ✓ Rubric map — `/for-evaluators` + downloadable 1-page evaluator PDF
+- ✓ Repo pushed to `github.com/vincentblokker/CantinaIQ` (main)
+- ⏳ **This video — the last anchor before the ADA submission email**
+
+**Higgsfield is available via MCP, not a CLI.** The bash snippets in §4
+below are illustrative — the actual production calls go through the
+Higgsfield MCP server (server ID prefix `41d2aa5e-…`). Relevant tools:
+
+- `mcp__…__generate_video` — Soul Cinema + image-to-video generations
+- `mcp__…__generate_image` — stills for Seedance image-to-video
+- `mcp__…__balance` — check remaining credits before queueing
+- `mcp__…__show_generations` — poll for completed jobs
+- `mcp__…__show_medias` — pull URLs of finished renders
+
+The Soul Character `vblokker` is trained — Soul ID
+`dc0e1fc7-6d66-4c70-beee-eff4d84ccd97`. Don't retrain.
+
+**Workflow for the fresh chat:**
+
+1. Confirm Higgsfield credits with `mcp__…__balance` (need ~250)
+2. Generate the four Higgsfield shots (§3 storyboard, §4 prompts)
+3. Screencast the dashboard + PDF + /for-evaluators (§6)
+4. Record VO with Audacity or iPhone Voice Memos (§5)
+5. Edit in iMovie / CapCut / DaVinci (§7)
+6. Upload to Vimeo unlisted (§8)
+7. Add the Vimeo URL to `README.md`, `/for-evaluators` page, and the
+   ADA submission email draft
+
+**If Soul output looks uncanny**, fall back to iPhone front-cam — see §10.
+Same VO script, same edit timeline.
+
+---
+
 ## 1. Spec at a glance
 
 | Field | Value |
@@ -67,7 +111,7 @@ heard, and how to produce it.
 |---|---|---|---|---|---|
 | 1 | 0:00–0:09 | Vincent (Soul avatar) speaks to camera, warm light, neutral backdrop | Higgsfield Soul Cinema — prompt §4.1 | (lower-third: *Vincent Blokker · AI Professional · ADA 2026*) | *"I'm Vincent. This is CantinaIQ — Slurpini Partner Intelligence — my Final Assignment for the Amsterdam Data Academy. Two minutes to show you what's in the box."* |
 | 2 | 0:09–0:18 | Wine cellar slow push-in: bottles, glass with red wine, soft natural light, papers on table | Seedance 2.0 image-to-video — prompt §4.2 | *CANTINAIQ IN PRACTICE — Slurpini Partner Intelligence* (clay-red title card, Inter 900) | *"The case: a Dutch importer of Italian wines needs a data-driven way to prioritise on-site producer visits."* |
-| 3 | 0:18–0:38 | Screencast: open `CantinaIQ-in-Practice.pdf` cover → flip to §05 Recommendation → flip to §07 Beyond the Brief | QuickTime screen recording | (none — let PDF speak) | *"The strategy brief is nineteen pages. You don't read it linearly. The recommendation is in section five — Hold the prestige tier, Expand in the value-opportunity zone, Audit the bootstrap-borderline."* |
+| 3 | 0:18–0:38 | Screencast: open `CantinaIQ-in-Practice.pdf` cover → flip to §05 Recommendation → flip to §08 Enrichments | QuickTime screen recording | (none — let PDF speak) | *"The strategy brief is twenty-two pages. You don't read it linearly. The recommendation is in section five — Hold the prestige tier, Expand in the value-opportunity zone, Audit the bootstrap-borderline."* |
 | 4 | 0:38–1:10 | Screencast: `cantinaiq.clubventure.nl` Overview → click /matrix (zoom in on the 762 bubbles) → click /bias (linger on the bar chart) → click /stability (the bootstrap table) | QuickTime screen recording | (none) | *"The dashboard runs the same logic live. 2,986 wines, 762 producers, a five-factor composite score, bootstrap-stabilised, bias-corrected against ICE Amsterdam import statistics. The opportunity matrix shows the whole catalogue on one canvas."* |
 | 5 | 1:10–1:30 | Screencast: click "Open rubric map" CTA → scroll through `/for-evaluators` rubric table | QuickTime screen recording | (none) | *"And because evaluation matters, there's a rubric map. Every ADA criterion is linked to a brief section and a source file. Two minutes to confirm coverage."* |
 | 6 | 1:30–1:42 | Notebook open on a desk, fountain pen, soft light — slow pan | Seedance 2.0 image-to-video — prompt §4.3 | *"Methodology choices are governance choices."* (italic, slow fade) | *"Methodology choices are governance choices. The analysis still has to earn its trust."* |
@@ -205,7 +249,7 @@ No logos, no QR code in the generation — overlay the QR in post.
 >
 > *(Shot 3 — PDF)*
 >
-> "The strategy brief is nineteen pages. You don't read it linearly. The recommendation is in section five — Hold the prestige tier, Expand in the value-opportunity zone, Audit the bootstrap-borderline."
+> "The strategy brief is twenty-two pages. You don't read it linearly. The recommendation is in section five — Hold the prestige tier, Expand in the value-opportunity zone, Audit the bootstrap-borderline."
 >
 > *(Shot 4 — dashboard)*
 >

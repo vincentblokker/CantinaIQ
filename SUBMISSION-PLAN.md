@@ -9,7 +9,7 @@ spends 2 minutes (not 30) confirming the submission meets the rubric.
 ## The goal
 
 Make the submission **scannable**. ADA's docent has finite attention.
-The work is real but lives across multiple artefacts — a 19-page strategy
+The work is real but lives across multiple artefacts — a 22-page strategy
 brief, a 762-bubble dashboard, a 3,500-line pipeline, a notebook track,
 137 tests, a rubric map. Without curation, the docent either spends
 hours navigating or skims and misses substance. Either outcome under-sells
@@ -23,7 +23,7 @@ ten minutes. Everything below serves that.
 ## The four anchors
 
 ```text
-1. STRATEGY BRIEF PDF       19 pages of narrative — the argument
+1. STRATEGY BRIEF PDF       22 pages of narrative — the argument
 2. LIVE DASHBOARD           cantinaiq.clubventure.nl — the data product
 3. RUBRIC MAP               /for-evaluators — the click-through index
 4. WALKTHROUGH VIDEO        2 minutes — the orientation
@@ -40,14 +40,17 @@ don't repeat.
 
 | # | Anchor | Where it lives | Status |
 |---|---|---|---|
-| 1 | Strategy brief PDF (19 p) | [`CantinaIQ-in-Practice.pdf`](CantinaIQ-in-Practice.pdf) · [GitHub](https://github.com/vincentblokker/CantinaIQ/blob/main/CantinaIQ-in-Practice.pdf) | ✓ done |
+| 1 | Strategy brief PDF (22 p, incl. §08 Enrichments) | [`CantinaIQ-in-Practice.pdf`](CantinaIQ-in-Practice.pdf) · [GitHub](https://github.com/vincentblokker/CantinaIQ/blob/main/CantinaIQ-in-Practice.pdf) | ✓ done |
 | 2 | Live dashboard | https://cantinaiq.clubventure.nl/ | ✓ deployed on Hetzner (Traefik + nginx:alpine, ACME via Let's Encrypt) |
 | 2a | Dashboard narrative pages | `/recommendation` · `/bias` · `/stability` · `/methodology` | ✓ live |
 | 2b | Opportunity Matrix | `/matrix` (762 bubbles, log-price × weighted rating) | ✓ live |
-| 3 | Rubric map page | https://cantinaiq.clubventure.nl/for-evaluators | ✓ live |
+| 2c | Region / Producer / Wine detail modals | (i) icons across Overview, /regions, /producers, /wines | ✓ live |
+| 2d | Region enrichments — 4 shipped, 3 deferred with blockers | `/regions` modal · `dashboard/src/lib/regionMeta.ts` | ✓ live |
+| 3 | Rubric map page (16 criteria) | https://cantinaiq.clubventure.nl/for-evaluators | ✓ live |
 | 3a | Evaluator one-pager PDF | `/downloads/evaluator-mapping.pdf` (1 A4, 240 KB) | ✓ rendered |
 | 3b | Evaluator CTA on Overview | Soft tuscan banner above the fold | ✓ live |
-| 4 | Walkthrough video | Vimeo (unlisted) | ⏳ planned — see [VIDEO-BRIEF.md](VIDEO-BRIEF.md) |
+| 3c | ENRICHMENT-PLAN.md governance doc | [`ENRICHMENT-PLAN.md`](ENRICHMENT-PLAN.md) | ✓ committed |
+| 4 | Walkthrough video | Vimeo (unlisted) | ⏳ **next** — see [VIDEO-BRIEF.md](VIDEO-BRIEF.md) |
 | 5 | ADA submission email | — | ⏳ to draft after video lands |
 
 ---
@@ -102,7 +105,7 @@ Short, factual, four-anchor email. Draft format:
 >
 > Voor het beoordelen, vier ankers:
 >
-> 1. **Strategy brief PDF** — 19 pagina's, narratieve laag van het werk
+> 1. **Strategy brief PDF** — 22 pagina's, narratieve laag van het werk
 >    *(bijlage of GitHub-link)*
 > 2. **Live dashboard** — https://cantinaiq.clubventure.nl/
 >    *(start linksboven, "Open rubric map" links direct naar de rubric)*
@@ -208,10 +211,11 @@ something material changes.
 The submission is shippable when **all four anchors** are reachable and
 internally consistent:
 
-- [x] Strategy brief PDF renders, 19 pages, all numbers traceable
-- [x] Live dashboard reachable on HTTPS, all 9 routes 200, both PDF
+- [x] Strategy brief PDF renders, 22 pages, all numbers traceable
+- [x] Live dashboard reachable on HTTPS, all 10 routes 200, both PDF
       downloads serve `application/pdf`
-- [x] Rubric map page lists 15 criteria with working repo + SPA links
+- [x] Rubric map page lists 16 criteria with working repo + SPA links
+- [x] ENRICHMENT-PLAN.md committed; region modal shows 4 shipped / 3 deferred
 - [ ] Walkthrough video uploaded, link embedded in 3 places
 - [ ] ADA email drafted, anchors verified, sent
 
@@ -236,7 +240,8 @@ When all five rows above are checked, the submission goes out.
 
 ```text
 CantinaIQ/
-├── CantinaIQ-in-Practice.pdf      ← strategy brief, 19 pages (anchor 1)
+├── CantinaIQ-in-Practice.pdf      ← strategy brief, 22 pages (anchor 1)
+├── ENRICHMENT-PLAN.md              ← shipped vs deferred enrichments + Phase A-D unlock
 ├── README.md                        ← root readme with quick-start
 ├── FOR_REVIEWERS.md                 ← reviewer roadmap (5/30/60 min reads)
 ├── DEMO.md                          ← 3-min screencast script
