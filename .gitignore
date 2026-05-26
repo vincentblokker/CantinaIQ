@@ -31,6 +31,9 @@ supercharged/reports/generated/
 .ruff_cache/
 htmlcov/
 
+# TypeScript incremental build cache — local artifact, regenerates on build.
+**/tsconfig.tsbuildinfo
+
 # Deploy artefacts — rebuild with deploy/package.sh whenever needed.
 cantinaiq-dashboard.tar.gz
 
