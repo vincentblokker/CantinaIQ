@@ -73,7 +73,7 @@ export default function Overview() {
       </section>
 
       {/* KPI row */}
-      <section className="grid grid-cols-4 gap-4">
+      <section className="grid grid-cols-4 gap-4 stagger">
         <MetricCard label="Wines analysed" value={summary.totals.wines.toLocaleString()} />
         <MetricCard label="Producers" value={summary.totals.producers.toLocaleString()} />
         <MetricCard label="Regions" value={summary.totals.regions} />
@@ -93,7 +93,7 @@ export default function Overview() {
             See full detail →
           </Link>
         </p>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-4 stagger">
           <VerdictCard
             kind="Hold"
             accent="border-purple-300 bg-purple-50/40"
@@ -146,7 +146,7 @@ export default function Overview() {
         </h2>
         <ol className="divide-y divide-stone-200 rounded-lg border border-stone-200 bg-white">
           {topProducers.map((p, i) => (
-            <li key={p.producer_name} className="px-4 py-3 flex items-baseline gap-4">
+            <li key={p.producer_name} className="px-4 py-3 flex items-baseline gap-4 hover-row hover:bg-stone-50">
               <span className="text-ink-2 text-sm w-6">#{i + 1}</span>
               <span className="font-serif text-ink flex-1">{p.producer_name}</span>
               <RecommendationPill value={p.recommendation} />
@@ -164,7 +164,7 @@ export default function Overview() {
         </h2>
         <ol className="divide-y divide-stone-200 rounded-lg border border-stone-200 bg-white">
           {topRegions.map((r, i) => (
-            <li key={r.region} className="px-4 py-3 flex items-baseline gap-4">
+            <li key={r.region} className="px-4 py-3 flex items-baseline gap-4 hover-row hover:bg-stone-50">
               <span className="text-ink-2 text-sm w-6">#{i + 1}</span>
               <span className="font-serif text-ink flex-1">{r.region}</span>
               <span className="text-sm text-ink-2 tabular-nums">★ {r.weighted_rating.toFixed(2)}</span>
@@ -198,7 +198,7 @@ interface VerdictProps {
 
 function VerdictCard({ kind, accent, badge, count, headline, samples }: VerdictProps) {
   return (
-    <div className={`rounded-lg border ${accent} p-5`}>
+    <div className={`rounded-lg border ${accent} p-5 hover-lift`}>
       <div className="flex items-baseline justify-between mb-3">
         <span className={`px-2 py-0.5 text-xs rounded-full border font-semibold uppercase tracking-wider ${badge}`}>
           {kind}
@@ -225,7 +225,7 @@ interface HonestProps {
 
 function HonestCard({ accent, tag, headline, body, link }: HonestProps) {
   return (
-    <div className={`rounded-lg border ${accent} p-5`}>
+    <div className={`rounded-lg border ${accent} p-5 hover-lift`}>
       <div className="text-xs uppercase tracking-widest text-ink-2 font-semibold mb-2">
         {tag}
       </div>

@@ -34,7 +34,7 @@ export default function ForEvaluators() {
                 <th className="px-4 py-3 text-left font-semibold">Lives in</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-100">
+            <tbody className="divide-y divide-stone-100 [&_tr]:transition-colors [&_tr:hover]:bg-stone-50">
               {FIVE_MINUTE_READ.map((row) => (
                 <tr key={row.requirement}>
                   <td className="px-4 py-3 text-ink font-serif">{row.requirement}</td>
@@ -73,7 +73,7 @@ export default function ForEvaluators() {
                 <th className="px-4 py-3 text-left font-semibold">Repo / Dashboard</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-100">
+            <tbody className="divide-y divide-stone-100 [&_tr]:transition-colors [&_tr:hover]:bg-stone-50">
               {RUBRIC.map((row) => (
                 <tr key={row.criterion}>
                   <td className="px-4 py-3 text-ink font-serif align-top">{row.criterion}</td>
@@ -126,15 +126,17 @@ export default function ForEvaluators() {
         <div className="flex flex-wrap gap-3 mb-5">
           <a
             href="/downloads/CantinaIQ-in-Practice.pdf"
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-tuscan text-white text-sm font-semibold hover:bg-tuscan/90 transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-tuscan text-white text-sm font-semibold hover:bg-tuscan/90 transition-all hover-lift group"
           >
-            <span aria-hidden>↓</span> Strategy brief PDF (19 pages)
+            <span aria-hidden className="transition-transform group-hover:-translate-y-0.5">↓</span>
+            Strategy brief PDF (19 pages)
           </a>
           <a
             href="/downloads/evaluator-mapping.pdf"
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-white border border-tuscan text-tuscan text-sm font-semibold hover:bg-tuscan/5 transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-white border border-tuscan text-tuscan text-sm font-semibold hover:bg-tuscan/5 transition-all hover-lift group"
           >
-            <span aria-hidden>↓</span> Evaluator mapping PDF (1 page)
+            <span aria-hidden className="transition-transform group-hover:-translate-y-0.5">↓</span>
+            Evaluator mapping PDF (1 page)
           </a>
         </div>
         <p className="text-sm text-ink-2 mb-3">

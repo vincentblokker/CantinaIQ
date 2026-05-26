@@ -72,7 +72,7 @@ function VerdictBlock({ kind, title, intro, accent, badge, items }: BlockProps) 
         {items.map((item) => (
           <li
             key={item.name}
-            className="bg-white rounded-lg border border-stone-200 px-5 py-4"
+            className="bg-white rounded-lg border border-stone-200 px-5 py-4 hover-lift"
           >
             <div className="flex items-baseline justify-between gap-4 flex-wrap">
               <div>

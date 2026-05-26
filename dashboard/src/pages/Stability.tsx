@@ -63,7 +63,7 @@ export default function Stability() {
                 <th className="px-4 py-3 text-right font-semibold">Verdict</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-100">
+            <tbody className="divide-y divide-stone-100 [&_tr]:transition-colors [&_tr:hover]:bg-stone-50">
               {BOOTSTRAP.map((b) => {
                 const stable = b.appearances >= 160;
                 const flagged = b.p95 > 100;
@@ -113,7 +113,7 @@ export default function Stability() {
                 <th className="px-4 py-3 text-left font-semibold">Reading</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-100">
+            <tbody className="divide-y divide-stone-100 [&_tr]:transition-colors [&_tr:hover]:bg-stone-50">
               {SENSITIVITY.map((s) => (
                 <tr key={s.bayesianM} className={s.bayesianM === 200 ? "bg-tuscan/5" : ""}>
                   <td className="px-4 py-3 text-tuscan font-mono">{s.bayesianM}</td>
@@ -155,7 +155,7 @@ export default function Stability() {
                 <th className="px-4 py-3 text-right font-semibold">Score</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-100">
+            <tbody className="divide-y divide-stone-100 [&_tr]:transition-colors [&_tr:hover]:bg-stone-50">
               {ANOMALIES.map((a) => (
                 <tr key={a.name}>
                   <td className="px-4 py-3 text-ink font-serif">{a.name}</td>
@@ -189,7 +189,7 @@ interface NoteProps {
 
 function Note({ label, num, desc, accent }: NoteProps) {
   return (
-    <div className={`rounded-lg border ${accent} px-5 py-4`}>
+    <div className={`rounded-lg border ${accent} px-5 py-4 hover-lift`}>
       <div className="text-xs uppercase tracking-wide text-ink-2">{label}</div>
       <div className="font-serif text-3xl text-ink mt-1">{num}</div>
       <div className="text-xs text-ink-2 mt-1">{desc}</div>

@@ -99,7 +99,7 @@ export default function App() {
         </div>
       </header>
       <Breadcrumb />
-      <main className="max-w-6xl mx-auto px-6 py-8">
+      <main key={useLocation().pathname} className="page-enter max-w-6xl mx-auto px-6 py-8">
         <Routes>
           <Route path="/" element={<Overview />} />
           <Route path="/recommendation" element={<Recommendation />} />

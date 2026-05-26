@@ -41,7 +41,7 @@ export default function Bias() {
         </p>
       </header>
 
-      <section className="grid grid-cols-3 gap-4">
+      <section className="grid grid-cols-3 gap-4 stagger">
         <Callout
           number={over.length}
           label="Over-represented (×>1.3)"
@@ -137,7 +137,7 @@ interface CalloutProps {
 
 function Callout({ number, label, accent }: CalloutProps) {
   return (
-    <div className="bg-white rounded-lg border border-stone-200 px-5 py-5">
+    <div className="bg-white rounded-lg border border-stone-200 px-5 py-5 hover-lift">
       <div className={`font-serif text-4xl ${accent}`}>{number}</div>
       <div className="text-xs uppercase tracking-wide text-ink-2 mt-2">{label}</div>
     </div>
@@ -153,7 +153,7 @@ interface GroupProps {
 
 function BiasGroup({ title, accent, intro, items }: GroupProps) {
   return (
-    <div className={`rounded-lg border ${accent} p-5`}>
+    <div className={`rounded-lg border ${accent} p-5 hover-lift`}>
       <h3 className="font-serif text-lg text-ink mb-1">{title}</h3>
       <p className="text-sm text-ink-2 mb-3">{intro}</p>
       <ul className="space-y-1.5 text-sm">

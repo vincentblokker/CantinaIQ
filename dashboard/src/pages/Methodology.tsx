@@ -58,7 +58,7 @@ export default function Methodology() {
           {COMPOSITE_WEIGHTS.map((c) => (
             <div
               key={c.component}
-              className="bg-white border border-stone-200 rounded-lg p-3 flex items-center gap-4"
+              className="bg-white border border-stone-200 rounded-lg p-3 flex items-center gap-4 hover-lift"
             >
               <div className="flex-1">
                 <div className="font-serif text-ink">{c.component}</div>
@@ -67,7 +67,7 @@ export default function Methodology() {
               <div className="flex items-center gap-3 w-64">
                 <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-tuscan rounded-full"
+                    className="h-full bg-tuscan rounded-full transition-[width] duration-700 ease-out"
                     style={{ width: `${c.weight * 2.5}%` }}
                   />
                 </div>
@@ -239,7 +239,7 @@ export default function Methodology() {
 
 function Fact({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border border-stone-200 rounded-lg px-4 py-3 bg-white">
+    <div className="border border-stone-200 rounded-lg px-4 py-3 bg-white hover-lift">
       <div className="text-tuscan font-mono text-lg">{label}</div>
       <div className="text-xs text-ink-2 mt-1">{value}</div>
     </div>
@@ -248,7 +248,7 @@ function Fact({ label, value }: { label: string; value: string }) {
 
 function Stat({ value, label, sub }: { value: string | number; label: string; sub: string }) {
   return (
-    <div className="rounded-lg border border-stone-200 bg-white px-5 py-4">
+    <div className="rounded-lg border border-stone-200 bg-white px-5 py-4 hover-lift">
       <div className="font-serif text-3xl text-tuscan">{value}</div>
       <div className="text-xs uppercase tracking-wide text-ink-2 mt-1">{label}</div>
       <div className="text-xs text-ink-2 mt-2 italic">{sub}</div>
