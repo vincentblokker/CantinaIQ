@@ -15,41 +15,48 @@ interface WikiSummary {
   content_urls?: { desktop?: { page: string } };
 }
 
-const CRAWL_IDEAS = [
+const DEFERRED = [
   {
     label: "Estate website + contact info",
     why: "Direct outreach prep — who do you actually email at the estate?",
-    source: "Producer's own .it or .com domain (Firecrawl-scrapable)",
+    source: "Producer's own .it or .com domain",
+    cost: "Firecrawl credits at 762-producer scale",
+  },
+  {
+    label: "Hectares + farming method",
+    why: "Operational scale and certified sustainability practice.",
+    source: "Demeter + FederBio public registries",
+    cost: "Firecrawl credits to scale existing 5-producer command to 762",
   },
   {
     label: "Annual production volume (bottles/yr)",
     why: "Sense of whether Slurpini can secure a meaningful allocation.",
     source: "Producer website + Wine-Searcher producer pages",
-  },
-  {
-    label: "Hectares + farming method",
-    why: "Operational scale and sustainability practice — biodynamic, organic, conventional.",
-    source: "Demeter + FederBio public registries · ICEA · Suolo e Salute",
+    cost: "Wine-Searcher trade API requires a paid commercial subscription",
   },
   {
     label: "Critic scores per vintage",
     why: "Cross-check Vivino's consumer signal against expert opinion.",
     source: "Wine Advocate · James Suckling · Wine Spectator · Decanter",
+    cost: "All four sources are paywalled critic databases",
   },
   {
     label: "Distribution markets",
-    why: "Already in NL? Already in BeNeLux? Operational overlap with Slurpini's existing portfolio.",
-    source: "Wine-Searcher trade locator + producer press kits",
+    why: "Already in NL? Operational overlap with Slurpini's existing portfolio.",
+    source: "Wine-Searcher trade locator",
+    cost: "Wine-Searcher trade API is paid",
   },
   {
     label: "Travel from Amsterdam",
-    why: "Cost input for an on-site visit decision — flight + ground transport time.",
-    source: "Skyscanner + Google Maps APIs",
+    why: "Operational cost input for the on-site visit decision.",
+    source: "Google Maps Directions API",
+    cost: "Free tier exists but requires a billing-account credit card",
   },
   {
-    label: "Recent press mentions (2024-2026)",
-    why: "Reputational direction — are they trending up or down with critics and trade press?",
-    source: "Decanter + Drinks Business + Wine Industry Advisor",
+    label: "Recent press mentions (2024–2026)",
+    why: "Reputational direction — trending up or down with critics and trade press?",
+    source: "Decanter · Drinks Business · Wine Industry Advisor",
+    cost: "Press monitoring requires either paid scraping infrastructure or LLM credits per query",
   },
 ];
 
@@ -272,29 +279,36 @@ export default function ProducerDetailModal({ producer, onClose }: Props) {
           </div>
         </div>
 
-        {/* What we could crawl next */}
+        {/* Enrichments — all deferred for producer level (paid sources) */}
         <div>
           <h3 className="text-xs uppercase tracking-widest text-ink-2 font-semibold mb-2">
-            What we could enrich with next
+            Producer enrichments — all deferred
           </h3>
           <p className="text-sm text-ink-2 mb-3 max-w-3xl">
-            Producer-level data the pipeline does not yet pull — each is a
-            scrapable or API-accessible public source. Adding any of these
-            would change the recommendation from "this producer ranks high"
-            to "this producer ranks high <em>and</em> they can supply, <em>and</em>
-            they're already in NL retail, <em>and</em> they're biodynamic":
+            Producer-level data the pipeline does not yet pull. Every source
+            below requires a paid service, a billing-account API key, or
+            Firecrawl credits at a scale beyond the current run. Each item
+            documents what the blocker is so a future budget decision can
+            unlock the right one first:
           </p>
           <ul className="space-y-2">
-            {CRAWL_IDEAS.map((idea) => (
+            {DEFERRED.map((idea) => (
               <li
                 key={idea.label}
                 className="rounded-lg border border-stone-200 px-4 py-3 bg-stone-50/40 hover-lift"
               >
                 <div className="flex items-baseline justify-between gap-3 flex-wrap">
-                  <span className="font-serif text-ink">{idea.label}</span>
-                  <span className="text-xs text-ink-2 font-mono">{idea.source}</span>
+                  <span className="font-serif text-ink-2">
+                    <span className="text-stone-400 mr-1.5">○</span>
+                    {idea.label}
+                  </span>
+                  <span className="text-xs text-stone-500 italic">deferred</span>
                 </div>
-                <div className="text-xs text-ink-2 mt-1">{idea.why}</div>
+                <div className="text-xs text-ink-2 mt-1 ml-5">{idea.why}</div>
+                <div className="text-xs text-stone-500 mt-1 ml-5 italic">
+                  <strong className="not-italic">Source:</strong> {idea.source} ·{" "}
+                  <strong className="not-italic">Blocker:</strong> {idea.cost}
+                </div>
               </li>
             ))}
           </ul>

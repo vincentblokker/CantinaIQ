@@ -14,31 +14,36 @@ interface WikiSummary {
   content_urls?: { desktop?: { page: string } };
 }
 
-const CRAWL_IDEAS = [
+const DEFERRED = [
   {
     label: "Vintage variation per wine",
-    why: "2018 vs 2019 vs 2020 — same wine, different vintage scores. Vivino aggregates across vintages.",
-    source: "Vivino vintage-specific endpoints + Wine Advocate / James Suckling",
+    why: "Same wine, different vintage scores. Vivino aggregates across years.",
+    source: "Vivino vintage endpoints · Wine Advocate · James Suckling",
+    cost: "Vivino's vintage-specific API requires partner credentials; critic sources are paywalled",
   },
   {
     label: "Grape composition",
-    why: "The 'inferred grape or style' is a heuristic. Real DOCG / DOC rules constrain blends per appellation.",
-    source: "Consorzio rules per appellation + producer technical sheets",
+    why: "Real DOCG / DOC rules constrain blends per appellation — the inferred field is heuristic.",
+    source: "Consorzio rules + producer technical sheets",
+    cost: "Per-producer scraping at scale = Firecrawl credits",
   },
   {
-    label: "Cellar-aging recommendation",
-    why: "Slurpini's hospitality clients care about service-readiness. When should this be drunk?",
-    source: "Wine-Searcher drinking windows + Decanter vintage charts",
+    label: "Cellar-aging window",
+    why: "When should this be drunk? Restaurant-channel relevance.",
+    source: "Wine-Searcher drinking windows · Decanter vintage charts",
+    cost: "Wine-Searcher trade API is paid",
   },
   {
     label: "Food-pairing notes",
     why: "Restaurant-channel sales material. What plate does this wine sell against?",
-    source: "Producer tasting notes + Wine Folly pairing data",
+    source: "Producer tasting notes (per-bottle scrape)",
+    cost: "Firecrawl credits at per-wine scale; LLM normalisation pass",
   },
   {
-    label: "Alcohol percentage + residual sugar",
-    why: "Practical labelling + dry/off-dry classification — missing from Vivino aggregation.",
-    source: "Producer technical sheets · Vivino product pages (deep scrape)",
+    label: "Alcohol % + residual sugar",
+    why: "Practical labelling — missing from Vivino's aggregate export.",
+    source: "Producer technical sheets · Vivino product pages",
+    cost: "Deep per-wine scrape; Firecrawl credits",
   },
 ];
 
@@ -201,26 +206,34 @@ export default function WineDetailModal({ wine, onClose }: Props) {
           </div>
         </div>
 
-        {/* Enrichment ideas */}
+        {/* Enrichments — all deferred for wine level (paid scraping) */}
         <div>
           <h3 className="text-xs uppercase tracking-widest text-ink-2 font-semibold mb-2">
-            What we could enrich with next
+            Wine-level enrichments — all deferred
           </h3>
           <p className="text-sm text-ink-2 mb-3 max-w-3xl">
-            Per-wine attributes the Vivino export aggregates away — recoverable
-            with targeted scraping or paid critic-database access:
+            Per-wine attributes the Vivino export aggregates away. Each item
+            below requires a paid service or per-wine deep-scrape (Firecrawl
+            credits), so all are deferred until budget is allocated:
           </p>
           <ul className="space-y-2">
-            {CRAWL_IDEAS.map((idea) => (
+            {DEFERRED.map((idea) => (
               <li
                 key={idea.label}
                 className="rounded-lg border border-stone-200 px-4 py-3 bg-stone-50/40 hover-lift"
               >
                 <div className="flex items-baseline justify-between gap-3 flex-wrap">
-                  <span className="font-serif text-ink">{idea.label}</span>
-                  <span className="text-xs text-ink-2 font-mono">{idea.source}</span>
+                  <span className="font-serif text-ink-2">
+                    <span className="text-stone-400 mr-1.5">○</span>
+                    {idea.label}
+                  </span>
+                  <span className="text-xs text-stone-500 italic">deferred</span>
                 </div>
-                <div className="text-xs text-ink-2 mt-1">{idea.why}</div>
+                <div className="text-xs text-ink-2 mt-1 ml-5">{idea.why}</div>
+                <div className="text-xs text-stone-500 mt-1 ml-5 italic">
+                  <strong className="not-italic">Source:</strong> {idea.source} ·{" "}
+                  <strong className="not-italic">Blocker:</strong> {idea.cost}
+                </div>
               </li>
             ))}
           </ul>
