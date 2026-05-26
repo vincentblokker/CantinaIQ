@@ -45,7 +45,10 @@ export default function Producers() {
         </thead>
         <tbody className="divide-y divide-stone-100">
           {filtered.slice(0, 100).map((p) => (
-            <tr key={p.producer_name}>
+            <tr
+              key={p.producer_name}
+              className="odd:bg-white even:bg-stone-50/60 hover:bg-stone-100/80 transition-colors"
+            >
               <td className="px-3 py-2 font-serif">{p.producer_name}</td>
               <td className="px-3 py-2 text-ink-2">{p.macro_region}</td>
               <td className="px-3 py-2"><RecommendationPill value={p.recommendation} /></td>

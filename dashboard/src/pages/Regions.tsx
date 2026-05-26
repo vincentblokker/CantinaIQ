@@ -24,7 +24,10 @@ export default function Regions() {
         </thead>
         <tbody className="divide-y divide-stone-100">
           {rows.slice(0, 50).map((r) => (
-            <tr key={r.region}>
+            <tr
+              key={r.region}
+              className="odd:bg-white even:bg-stone-50/60 hover:bg-stone-100/80 transition-colors"
+            >
               <td className="px-3 py-2 font-serif">{r.region}</td>
               <td className="text-right tabular-nums px-3 py-2">{r.wines}</td>
               <td className="text-right tabular-nums px-3 py-2">{r.weighted_rating.toFixed(2)}</td>
