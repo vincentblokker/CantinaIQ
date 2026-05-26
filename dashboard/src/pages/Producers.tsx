@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Producer, loadProducers } from "../lib/data";
 import RecommendationPill from "../components/RecommendationPill";
+import ProducerDetailModal from "../components/ProducerDetailModal";
 
 export default function Producers() {
   const [rows, setRows] = useState<Producer[]>([]);
   const [filter, setFilter] = useState<string>("all");
+  const [selected, setSelected] = useState<Producer | null>(null);
 
   useEffect(() => {
     loadProducers().then((ps) =>
@@ -17,8 +19,11 @@ export default function Producers() {
 
   return (
     <div>
-      <div className="flex items-baseline gap-3 mb-4">
+      <div className="flex items-baseline gap-3 mb-4 flex-wrap">
         <h2 className="font-serif text-2xl text-ink">Producer shortlist</h2>
+        <p className="text-xs text-ink-2 italic ml-2">
+          Click <span className="inline-flex w-4 h-4 rounded-full border border-tuscan/40 text-tuscan items-center justify-center text-[10px] font-bold align-middle">i</span> for context, map, and enrichment roadmap.
+        </p>
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
@@ -41,6 +46,7 @@ export default function Producers() {
             <th className="text-right px-3 py-2">Weighted rating</th>
             <th className="text-right px-3 py-2">Avg price (€)</th>
             <th className="text-right px-3 py-2">Composite</th>
+            <th className="text-right px-3 py-2 w-10"></th>
           </tr>
         </thead>
         <tbody className="divide-y divide-stone-100">
@@ -55,10 +61,20 @@ export default function Producers() {
               <td className="text-right tabular-nums px-3 py-2">{p.weighted_rating.toFixed(2)}</td>
               <td className="text-right tabular-nums px-3 py-2">{Math.round(p.avg_price)}</td>
               <td className="text-right tabular-nums px-3 py-2">{p.composite_score.toFixed(3)}</td>
+              <td className="px-3 py-2 text-right">
+                <button
+                  onClick={() => setSelected(p)}
+                  aria-label={`More info about ${p.producer_name}`}
+                  className="inline-flex items-center justify-center w-6 h-6 rounded-full border border-stone-300 text-ink-2 text-xs font-bold hover:border-tuscan hover:text-tuscan hover:scale-110 transition-all"
+                >
+                  i
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
+      <ProducerDetailModal producer={selected} onClose={() => setSelected(null)} />
     </div>
   );
 }

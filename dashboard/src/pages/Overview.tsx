@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import MetricCard from "../components/MetricCard";
 import RecommendationPill from "../components/RecommendationPill";
+import ProducerDetailModal from "../components/ProducerDetailModal";
+import RegionDetailModal from "../components/RegionDetailModal";
 import {
   DashboardSummary,
   Producer,
@@ -16,6 +18,8 @@ export default function Overview() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [producers, setProducers] = useState<Producer[]>([]);
   const [regions, setRegions] = useState<Region[]>([]);
+  const [selectedProducer, setSelectedProducer] = useState<Producer | null>(null);
+  const [selectedRegion, setSelectedRegion] = useState<Region | null>(null);
 
   useEffect(() => {
     loadSummary().then(setSummary);
@@ -152,6 +156,13 @@ export default function Overview() {
               <RecommendationPill value={p.recommendation} />
               <span className="text-sm text-ink-2 tabular-nums">★ {p.weighted_rating.toFixed(2)}</span>
               <span className="text-sm text-ink-2 tabular-nums">€{Math.round(p.avg_price)}</span>
+              <button
+                onClick={() => setSelectedProducer(p)}
+                aria-label={`More info about ${p.producer_name}`}
+                className="inline-flex items-center justify-center w-6 h-6 rounded-full border border-stone-300 text-ink-2 text-xs font-bold hover:border-tuscan hover:text-tuscan hover:scale-110 transition-all"
+              >
+                i
+              </button>
             </li>
           ))}
         </ol>
@@ -170,6 +181,13 @@ export default function Overview() {
               <span className="text-sm text-ink-2 tabular-nums">★ {r.weighted_rating.toFixed(2)}</span>
               <span className="text-sm text-ink-2 tabular-nums">{r.wines} wines</span>
               <span className="text-sm text-ink-2 tabular-nums">€{Math.round(r.avg_price)}</span>
+              <button
+                onClick={() => setSelectedRegion(r)}
+                aria-label={`More info about ${r.region}`}
+                className="inline-flex items-center justify-center w-6 h-6 rounded-full border border-stone-300 text-ink-2 text-xs font-bold hover:border-tuscan hover:text-tuscan hover:scale-110 transition-all"
+              >
+                i
+              </button>
             </li>
           ))}
         </ol>
@@ -183,6 +201,15 @@ export default function Overview() {
           {overrep} regions over-represented · {underrep} under-represented · top-10 stability via 200-resample bootstrap
         </div>
       </footer>
+
+      <ProducerDetailModal
+        producer={selectedProducer}
+        onClose={() => setSelectedProducer(null)}
+      />
+      <RegionDetailModal
+        region={selectedRegion}
+        onClose={() => setSelectedRegion(null)}
+      />
     </div>
   );
 }
