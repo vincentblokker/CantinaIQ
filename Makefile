@@ -12,11 +12,16 @@
 # Set OPENROUTER_API_KEY (or source .env.local) to enable real producer
 # disambiguation. Without it the pipeline uses pass-1 results only.
 
-.PHONY: setup pipeline reports dashboard demo test clean serve-dashboard brief help
+.PHONY: setup pipeline reports dashboard demo test clean serve-dashboard brief help deploy redeploy
 .DEFAULT_GOAL := help
 
 PYTHON_DIR := supercharged
 DASH_DIR   := dashboard
+
+# Deploy target — overridable via `make deploy SSH_HOST=foo SSH_PATH=/var/www`
+SSH_HOST   ?= clubventure
+SSH_PATH   ?= /opt/apps/react-cantinaiq/site
+TARBALL    := cantinaiq-dashboard.tar.gz
 
 help:
 	@printf "CantinaIQ — Slurpini Partner Intelligence\n\n"
@@ -28,11 +33,15 @@ help:
 	@printf "  make dashboard  Build the Vite dashboard SPA\n"
 	@printf "  make serve-dashboard  Start the dashboard dev server on :5175\n"
 	@printf "  make test       Run the Python test suite (137 tests)\n"
+	@printf "  make deploy     Package current build and push to live server\n"
+	@printf "  make redeploy   Pipeline + reports + dashboard + deploy (full chain)\n"
 	@printf "  make clean      Remove generated artifacts\n\n"
 	@printf "Inputs:\n"
 	@printf "  Vivino-export.xlsx in supercharged/data/raw/\n"
 	@printf "  OPENROUTER_API_KEY in env (optional — enables LLM disambiguation)\n"
-	@printf "  FIRECRAWL_API_KEY  in env (optional — enables live enrichment + sustainability)\n"
+	@printf "  FIRECRAWL_API_KEY  in env (optional — enables live enrichment + sustainability)\n\n"
+	@printf "Deploy overrides:\n"
+	@printf "  SSH_HOST=$(SSH_HOST)   SSH_PATH=$(SSH_PATH)\n"
 
 setup:
 	@echo "→ installing Python dependencies (uv)"
@@ -91,3 +100,25 @@ clean:
 	       $(PYTHON_DIR)/data/runs/2026-* \
 	       $(DASH_DIR)/dist
 	@echo "✓ cleaned (kept config snapshots + raw data + reference cache)"
+
+# Deploy current dashboard build to the live server.
+# Creates a timestamped backup on the server before extracting.
+deploy:
+	@echo "→ packaging dashboard build"
+	@./deploy/package.sh
+	@echo "→ uploading tarball to $(SSH_HOST):/tmp/"
+	@scp $(TARBALL) $(SSH_HOST):/tmp/
+	@echo "→ backing up + extracting on server"
+	@ssh $(SSH_HOST) 'set -e; \
+	  STAMP=$$(date +%Y%m%d-%H%M); \
+	  echo "  backup → /tmp/cantinaiq-site-backup-$${STAMP}.tar.gz"; \
+	  tar -czf /tmp/cantinaiq-site-backup-$${STAMP}.tar.gz -C $(SSH_PATH) .; \
+	  tar --overwrite -xzf /tmp/$(TARBALL) -C $(SSH_PATH) 2>&1 | grep -v "LIBARCHIVE.xattr" || true; \
+	  echo "  ✓ extracted to $(SSH_PATH)"'
+	@printf "\n\033[32m✓ Live at https://cantinaiq.clubventure.nl/\033[0m\n"
+	@printf "  Rollback: ssh $(SSH_HOST) 'tar -xzf /tmp/cantinaiq-site-backup-<STAMP>.tar.gz -C $(SSH_PATH)'\n"
+
+# Full chain — re-run pipeline, regenerate reports, rebuild dashboard, deploy.
+# Use after editing supercharged/data/raw/Vivino-export.xlsx or config.
+redeploy: pipeline reports dashboard deploy
+	@printf "\033[32m✓ Full redeploy complete.\033[0m\n"

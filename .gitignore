@@ -42,3 +42,10 @@ deploy/*/preview/
 
 # Local briefings + scratchpad notes that aren't project artefacts.
 BRIEFING-*.md
+
+# Video production source materials — not needed for deploy or evaluation.
+# The delivered walkthrough lives in dashboard/public/downloads/ and is
+# served by the live site. The root-level master copy here is a duplicate.
+video-assets/
+/CantinaIQ-walkthrough.mp4
+/CantinaIQ-walkthrough-music-test.mp4

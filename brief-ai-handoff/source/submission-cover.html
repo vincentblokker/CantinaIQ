@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>CantinaIQ — Submission Cover</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red: #B83A1F;
+      --ink: #1A1815;
+      --ink-2: #5A4F44;
+      --rule: #DDD8D2;
+      --cream: #FAF7F2;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      font-size: 11pt;
+      line-height: 1.55;
+      color: var(--ink);
+      background: white;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    @page { size: A4 portrait; margin: 0; }
+
+    .page {
+      width: 210mm;
+      height: 297mm;
+      padding: 18mm 22mm;
+      position: relative;
+      page-break-after: avoid;
+    }
+
+    /* tag + title */
+    .tag {
+      color: var(--red);
+      font-size: 8.5pt;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 4mm;
+    }
+    h1.title {
+      font-size: 56pt;
+      line-height: 0.92;
+      letter-spacing: -0.025em;
+      font-weight: 800;
+      margin: 0 0 6mm 0;
+    }
+    h1.title .dot { color: var(--red); }
+
+    .lede {
+      font-size: 12pt;
+      line-height: 1.5;
+      color: var(--ink);
+      margin: 0 0 8mm 0;
+      max-width: 155mm;
+    }
+
+    /* hero image with play button overlay */
+    .hero {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      margin: 0 0 8mm 0;
+      overflow: hidden;
+      background: #000;
+    }
+    .hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .hero .play {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero .play::after {
+      content: '';
+      width: 0;
+      height: 0;
+      border-left: 24px solid var(--red);
+      border-top: 14px solid transparent;
+      border-bottom: 14px solid transparent;
+      margin-left: 6px;
+    }
+    .hero .caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 6mm 8mm;
+      background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+      color: white;
+      font-size: 10pt;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .hero .caption .title-c { font-size: 13pt; font-weight: 700; }
+    .hero .caption .meta { font-size: 9.5pt; opacity: 0.9; font-weight: 500; }
+
+    /* url block */
+    .url-block {
+      margin: 0 0 8mm 0;
+    }
+    .url-block .label {
+      font-size: 8pt;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-2);
+      font-weight: 600;
+      margin-bottom: 2mm;
+    }
+    .url-block .url {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+      font-size: 17pt;
+      font-weight: 700;
+      color: var(--red);
+      letter-spacing: -0.01em;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .hero-link {
+      display: block;
+      position: relative;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* sign-off */
+    .signoff {
+      position: absolute;
+      bottom: 18mm;
+      left: 22mm;
+      right: 22mm;
+      padding-top: 6mm;
+      border-top: 1px solid var(--rule);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 10pt;
+    }
+    .signoff .who { color: var(--ink); font-weight: 700; }
+    .signoff .meta { color: var(--ink-2); font-size: 9pt; }
+  </style>
+</head>
+<body>
+
+<section class="page">
+  <div class="tag">Amsterdam Data Academy — AI Professional Final Assignment</div>
+  <h1 class="title">Begin here<span class="dot">.</span></h1>
+
+  <p class="lede">
+    The submission is on the web. The 22 pages that follow are the strategy
+    brief — context for if you want it. Everything you need to evaluate is
+    one click away.
+  </p>
+
+  <a class="hero-link" href="https://cantinaiq.clubventure.nl/for-evaluators">
+    <div class="hero">
+      <img src="../../dashboard/public/downloads/walkthrough-poster.jpg" alt="Walkthrough video" />
+      <div class="play"></div>
+      <div class="caption">
+        <div class="title-c">3-minute walkthrough video</div>
+        <div class="meta">embedded at the top of the page</div>
+      </div>
+    </div>
+  </a>
+
+  <div class="url-block">
+    <div class="label">Start here</div>
+    <a class="url" href="https://cantinaiq.clubventure.nl/for-evaluators">cantinaiq.clubventure.nl/for-evaluators</a>
+  </div>
+
+  <div class="signoff">
+    <div class="who">Vincent Blokker</div>
+    <div class="meta">vincentblokker@gmail.com · github.com/vincentblokker/CantinaIQ</div>
+  </div>
+</section>
+
+</body>
+</html>

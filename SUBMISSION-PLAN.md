@@ -50,47 +50,39 @@ don't repeat.
 | 3a | Evaluator one-pager PDF | `/downloads/evaluator-mapping.pdf` (1 A4, 240 KB) | ✓ rendered |
 | 3b | Evaluator CTA on Overview | Soft tuscan banner above the fold | ✓ live |
 | 3c | ENRICHMENT-PLAN.md governance doc | [`ENRICHMENT-PLAN.md`](ENRICHMENT-PLAN.md) | ✓ committed |
-| 4 | Walkthrough video | Vimeo (unlisted) | ⏳ **next** — see [VIDEO-BRIEF.md](VIDEO-BRIEF.md) |
-| 5 | ADA submission email | — | ⏳ to draft after video lands |
+| 4 | Walkthrough video | Self-hosted at https://cantinaiq.clubventure.nl/downloads/walkthrough.mp4 · embedded on `/for-evaluators` | ✓ done — 3:00, 36 MB, 1080p H.264 |
+| 5 | ADA submission email | [ADA-SUBMISSION-EMAIL.md](ADA-SUBMISSION-EMAIL.md) | ⏳ draft ready, awaiting send |
 
 ---
 
 ## What's left to do
 
-### A. Video production (~4.5 hours, spread over 2-3 days)
+### A. Video production — ✓ done
 
-Full plan in [VIDEO-BRIEF.md](VIDEO-BRIEF.md). Summary:
+Final delivery: 3:00, 36 MB, 1080p H.264, English VO. Self-hosted at
+https://cantinaiq.clubventure.nl/downloads/walkthrough.mp4 with poster
+frame and inline HTML5 player embedded on `/for-evaluators`. Source
+files (Higgsfield stills, ElevenLabs lipsync clips, build scripts) in
+`video-assets/`.
 
-1. **Generate Higgsfield shots** (~1 hour, 200-250 credits of the 685
-   available). Soul Character `vblokker` is already trained — Soul ID
-   `dc0e1fc7-6d66-4c70-beee-eff4d84ccd97`. Four shots:
-   - Avatar intro (Soul Cinema, 9s)
-   - Wine cellar push-in (Seedance 2.0, 9s)
-   - Notebook pan (Seedance 2.0, 12s)
-   - Avatar outro (Soul Cinema, 14s)
-2. **Screencast the dashboard + PDF** (~1 hour, QuickTime). Three
-   takes — PDF walkthrough, dashboard tour, /for-evaluators.
-3. **Record voice-over** (~1 hour, Audacity or iPhone Voice Memos).
-   Script is in §5 of VIDEO-BRIEF, ~285 words at 140 wpm = ~2:00.
-4. **Edit** (~1 hour, iMovie or CapCut). Timeline assembly, captions,
-   lower-thirds, export to 1080p H.264.
-5. **Upload to Vimeo** (unlisted-with-link), grab the URL.
+Notes on delivery vs. earlier plan:
+- **Self-hosted, not Vimeo** — Vimeo free tier limits public links to
+  7 days; self-hosting on the existing Hetzner box is permanent and
+  matches the rest of the stack.
+- **3:00 instead of 2:00** — the screencast + bridge segments needed
+  more breathing room than the original ~2-min target allowed.
+- **Outro music added** (~13s under the aerial vineyard close) — the
+  earlier "no music bed" decision applied to the body; the outro
+  benefits from a soft cinematic landing without compromising the
+  governance-aware tone of the body.
 
-**Plan B**: if Soul output is unconvincing on shots 1 and 7, re-record
-those two with the iPhone front camera against the same warm-light
-backdrop. Same VO works, same edit timeline works.
+### B. Embed video URL — ✓ done
 
-### B. Embed video URL once it exists (~10 minutes)
-
-When the Vimeo URL is live, add it to three places:
-
-1. The repo `README.md` near the top, as a third row in the "Quick links"
-   block (next to PDF + live dashboard).
-2. The `/for-evaluators` page — a fourth download card or a banner
-   *"Prefer a guided tour? Watch the 2-minute walkthrough →"*.
-3. The ADA submission email body (see C).
-
-This is mechanical — I can do it in one PR once you have the URL.
+1. README.md — quick-links block lists strategy brief, dashboard,
+   rubric map, walkthrough video.
+2. `/for-evaluators` page — embedded inline as the first section
+   below the header (HTML5 player + poster + download fallback).
+3. ADA submission email — included in [ADA-SUBMISSION-EMAIL.md](ADA-SUBMISSION-EMAIL.md).
 
 ### C. Draft the ADA submission email (~30 minutes)
 
@@ -176,8 +168,10 @@ something material changes.
   hide them.
 - **Vimeo unlisted-with-link**, not YouTube. ADA's own case intro is
   on Vimeo (`vimeo.com/1135863784`); mirroring is professional courtesy.
-- **No music bed** under the video. The brief's tone is measured and
-  governance-aware; music would marketing-ise it.
+- **No music bed under the body of the video** — the brief's tone is
+  measured and governance-aware; body music would marketing-ise it.
+  *Revised in production:* outro carries ~13s of soft cinematic music
+  under the aerial vineyard close only. The body remains music-free.
 - **Subdomain `cantinaiq.clubventure.nl`**, not a path on an existing
   domain. The dashboard fetches assets and data from absolute paths
   (`/data/*`, `/assets/*`); a subpath would require a code change for
@@ -216,10 +210,10 @@ internally consistent:
       downloads serve `application/pdf`
 - [x] Rubric map page lists 16 criteria with working repo + SPA links
 - [x] ENRICHMENT-PLAN.md committed; region modal shows 4 shipped / 3 deferred
-- [ ] Walkthrough video uploaded, link embedded in 3 places
-- [ ] ADA email drafted, anchors verified, sent
+- [x] Walkthrough video produced, self-hosted, embedded in 3 places
+- [ ] ADA email drafted (✓), anchors verified, sent
 
-When all five rows above are checked, the submission goes out.
+When the last row is checked, the submission goes out.
 
 ---
 
@@ -277,5 +271,5 @@ CantinaIQ/
 
 ---
 
-*Last edited as the video was about to be produced. Next edit: insert
-the Vimeo URL once the video is up.*
+*Last edited 2026-05-27 after video production wrapped and deploy
+landed. Next edit: mark email sent.*

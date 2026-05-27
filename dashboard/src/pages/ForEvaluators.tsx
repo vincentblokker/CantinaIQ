@@ -17,6 +17,40 @@ export default function ForEvaluators() {
         </p>
       </header>
 
+      {/* Section 0 — walkthrough video */}
+      <section>
+        <h2 className="font-serif text-2xl text-ink mb-3">
+          Watch the 3-minute walkthrough
+        </h2>
+        <p className="text-sm text-ink-2 mb-4 max-w-3xl">
+          A guided tour through the strategy brief, the dashboard, and how the
+          rubric maps onto the evidence. The fastest way to orient before
+          diving into the artefacts below.
+        </p>
+        <div className="bg-white rounded-lg border border-stone-200 overflow-hidden shadow-sm">
+          <video
+            controls
+            preload="metadata"
+            poster="/downloads/walkthrough-poster.jpg"
+            className="w-full block"
+          >
+            <source src="/downloads/walkthrough.mp4" type="video/mp4" />
+            Your browser does not support HTML5 video. Download:{" "}
+            <a href="/downloads/walkthrough.mp4">walkthrough.mp4</a>
+          </video>
+        </div>
+        <p className="text-xs text-ink-2 mt-2">
+          3:00 · 36 MB · also downloadable:{" "}
+          <a
+            href="/downloads/walkthrough.mp4"
+            download
+            className="text-tuscan underline font-mono"
+          >
+            walkthrough.mp4
+          </a>
+        </p>
+      </section>
+
       {/* Section 1 — five-minute read */}
       <section>
         <h2 className="font-serif text-2xl text-ink mb-3">
