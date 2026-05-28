@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useDomainLabels } from "../i18n/domainLabels";
 import { Producer, loadProducers } from "../lib/data";
 import RecommendationPill from "../components/RecommendationPill";
 import ProducerDetailModal from "../components/ProducerDetailModal";
 
 export default function Producers() {
   const { t } = useTranslation();
+  const dl = useDomainLabels();
   const [rows, setRows] = useState<Producer[]>([]);
   const [filter, setFilter] = useState<string>("all");
   const [query, setQuery] = useState("");
@@ -49,11 +51,11 @@ export default function Producers() {
           className="text-sm border border-stone-300 rounded px-2 py-1.5 bg-white focus:border-tuscan focus:outline-none focus:ring-1 focus:ring-tuscan/30"
         >
           <option value="all">{t("producers.filterAll")}</option>
-          <option value="Premium Brand Builder">Premium Brand Builder</option>
-          <option value="Target">Target</option>
-          <option value="Value Opportunity">Value Opportunity</option>
-          <option value="Monitor">Monitor</option>
-          <option value="Avoid for Now">Avoid for Now</option>
+          <option value="Premium Brand Builder">{dl.recommendation("Premium Brand Builder")}</option>
+          <option value="Target">{dl.recommendation("Target")}</option>
+          <option value="Value Opportunity">{dl.recommendation("Value Opportunity")}</option>
+          <option value="Monitor">{dl.recommendation("Monitor")}</option>
+          <option value="Avoid for Now">{dl.recommendation("Avoid for Now")}</option>
         </select>
         <span className="ml-auto text-xs text-ink-2 tabular-nums">
           {filtered.length === rows.length

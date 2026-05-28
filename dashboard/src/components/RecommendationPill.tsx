@@ -1,4 +1,5 @@
 import { Recommendation } from "../lib/data";
+import { useDomainLabels } from "../i18n/domainLabels";
 
 const STYLES: Record<Recommendation, string> = {
   "Premium Brand Builder": "bg-purple-50 text-purple-800 border-purple-200",
@@ -9,13 +10,14 @@ const STYLES: Record<Recommendation, string> = {
 };
 
 export default function RecommendationPill({ value }: { value: Recommendation }) {
+  const dl = useDomainLabels();
   return (
     <span
       className={`inline-block px-2 py-0.5 text-xs rounded-full border ${
         STYLES[value] ?? STYLES.Monitor
       }`}
     >
-      {value}
+      {dl.recommendation(value)}
     </span>
   );
 }

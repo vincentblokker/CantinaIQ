@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Modal from "./Modal";
 import GlossedText from "./GlossedText";
+import { useNl } from "../i18n/domainLabels";
 import { Region } from "../lib/data";
 import { lookupRegion } from "../lib/regionMeta";
 import { BIAS_REGIONS } from "../lib/pdfData";
@@ -39,6 +40,7 @@ function vintageColour(grade: string): string {
 
 export default function RegionDetailModal({ region, onClose }: Props) {
   const { t } = useTranslation();
+  const nl = useNl();
   const [wiki, setWiki] = useState<WikiSummary | null>(null);
   const [wikiLoading, setWikiLoading] = useState(false);
   const [wikiError, setWikiError] = useState(false);
@@ -177,7 +179,7 @@ export default function RegionDetailModal({ region, onClose }: Props) {
                     {t("regionModal.macroRegionNotMapped")}{" "}
                   </span>
                 )}
-                <GlossedText>{meta.notes}</GlossedText>
+                <GlossedText>{nl ? meta.notesNl ?? meta.notes : meta.notes}</GlossedText>
               </p>
             )}
           </div>
@@ -238,7 +240,7 @@ export default function RegionDetailModal({ region, onClose }: Props) {
                 <h4 className="text-xs uppercase tracking-widest text-ink-2 font-semibold mb-2">
                   {t("regionModal.climateHeading")}
                 </h4>
-                <p className="text-sm text-ink leading-relaxed"><GlossedText>{meta.climate}</GlossedText></p>
+                <p className="text-sm text-ink leading-relaxed"><GlossedText>{nl ? meta.climateNl ?? meta.climate : meta.climate}</GlossedText></p>
               </div>
             )}
             {meta.terroir && (
@@ -246,7 +248,7 @@ export default function RegionDetailModal({ region, onClose }: Props) {
                 <h4 className="text-xs uppercase tracking-widest text-ink-2 font-semibold mb-2">
                   {t("regionModal.terroirHeading")}
                 </h4>
-                <p className="text-sm text-ink leading-relaxed"><GlossedText>{meta.terroir}</GlossedText></p>
+                <p className="text-sm text-ink leading-relaxed"><GlossedText>{nl ? meta.terroirNl ?? meta.terroir : meta.terroir}</GlossedText></p>
               </div>
             )}
           </div>

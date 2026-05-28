@@ -9,9 +9,11 @@ import {
 } from "../lib/pdfData";
 import { useTranslation } from "react-i18next";
 import GlossedText, { Term } from "../components/GlossedText";
+import { useNl } from "../i18n/domainLabels";
 
 export default function Methodology() {
   const { t } = useTranslation();
+  const nl = useNl();
   return (
     <div className="space-y-10">
       <header>
@@ -22,10 +24,13 @@ export default function Methodology() {
           {t("methodology.title")}
         </h1>
         <p className="text-ink-2 mt-3 max-w-3xl leading-relaxed">
-          The recommendation in <a href="/recommendation" className="text-tuscan underline">/recommendation</a> rests on a{" "}
-          <Term term="composite score">composite score</Term> whose components are visible, weighted, and
-          reproducible. The score is not the value of the document. The
-          transparency of the score is.
+          {nl ? "De aanbeveling in " : "The recommendation in "}
+          <a href="/recommendation" className="text-tuscan underline">/recommendation</a>
+          {nl ? " berust op een " : " rests on a "}
+          <Term term="composite score">{nl ? "samengestelde score" : "composite score"}</Term>
+          {nl
+            ? " waarvan de componenten zichtbaar, gewogen en reproduceerbaar zijn. De score is niet de waarde van het document. De transparantie van de score wel."
+            : " whose components are visible, weighted, and reproducible. The score is not the value of the document. The transparency of the score is."}
         </p>
       </header>
 
@@ -35,8 +40,9 @@ export default function Methodology() {
         </h2>
         <p className="text-sm text-ink-2 max-w-3xl mb-4">
           <GlossedText>
-            A wine with a 4.8 rating on 12 reviews must not outrank a wine with a
-            4.4 rating on 5,000 reviews. Both tracks apply the same shrinkage:
+            {nl
+              ? "Een wijn met een beoordeling van 4,8 op 12 reviews mag een wijn met een beoordeling van 4,4 op 5.000 reviews niet overtreffen. Beide trajecten passen dezelfde krimp toe:"
+              : "A wine with a 4.8 rating on 12 reviews must not outrank a wine with a 4.4 rating on 5,000 reviews. Both tracks apply the same shrinkage:"}
           </GlossedText>
         </p>
         <div className="bg-stone-50 border-l-4 border-tuscan px-5 py-4 font-mono text-lg text-ink">
@@ -45,8 +51,8 @@ export default function Methodology() {
         <div className="grid grid-cols-4 gap-3 mt-4 text-sm">
           <Fact label="r" value={t("methodology.factVivinoRating")} />
           <Fact label="n" value={t("methodology.factRatingCount")} />
-          <Fact label="m" value={`${RUN.bayesianM} (auto-median)`} />
-          <Fact label="μ" value={`${RUN.globalMean.toFixed(1)} (global mean)`} />
+          <Fact label="m" value={`${RUN.bayesianM}${nl ? " (auto-mediaan)" : " (auto-median)"}`} />
+          <Fact label="μ" value={`${RUN.globalMean.toFixed(1)}${nl ? " (globaal gemiddelde)" : " (global mean)"}`} />
         </div>
       </section>
 
@@ -55,9 +61,9 @@ export default function Methodology() {
           {t("methodology.compositeTitle")}
         </h2>
         <p className="text-sm text-ink-2 max-w-3xl mb-4">
-          The Slurpini Partner Intelligence Score is a weighted average of five
-          normalised components. Weights are business assumptions, versioned
-          per config snapshot.
+          {nl
+            ? "De Slurpini Partner Intelligence Score is een gewogen gemiddelde van vijf genormaliseerde componenten. Gewichten zijn bedrijfsaannames, geversioneerd per config-snapshot."
+            : "The Slurpini Partner Intelligence Score is a weighted average of five normalised components. Weights are business assumptions, versioned per config snapshot."}
         </p>
         <div className="space-y-2">
           {COMPOSITE_WEIGHTS.map((c) => (
@@ -66,8 +72,8 @@ export default function Methodology() {
               className="bg-white border border-stone-200 rounded-lg p-3 flex items-center gap-4 hover-lift"
             >
               <div className="flex-1">
-                <div className="font-serif text-ink">{c.component}</div>
-                <div className="text-xs text-ink-2 mt-0.5">{c.captures}</div>
+                <div className="font-serif text-ink">{nl ? c.componentNl : c.component}</div>
+                <div className="text-xs text-ink-2 mt-0.5">{nl ? c.capturesNl : c.captures}</div>
               </div>
               <div className="flex items-center gap-3 w-64">
                 <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
@@ -90,10 +96,13 @@ export default function Methodology() {
           {t("methodology.cleaningTitle")}
         </h2>
         <p className="text-sm text-ink-2 max-w-3xl mb-4">
-          The dataset arrives as a {RUN.rawRows.toLocaleString()}-row,
-          16-sheet Excel file with <Term term="mojibake">mojibake</Term> on diacritics, tuple-encoded
-          country fields, and cross-sheet duplication. The cascade from raw to
-          scored:
+          {nl
+            ? `De dataset arriveert als een Excel-bestand met ${RUN.rawRows.toLocaleString()} rijen verdeeld over 16 sheets, met `
+            : `The dataset arrives as a ${RUN.rawRows.toLocaleString()}-row, 16-sheet Excel file with `}
+          <Term term="mojibake">mojibake</Term>
+          {nl
+            ? " op diacritische tekens, tuple-gecodeerde landvelden en duplicatie tussen sheets. De cascade van ruw naar gescoord:"
+            : " on diacritics, tuple-encoded country fields, and cross-sheet duplication. The cascade from raw to scored:"}
         </p>
         <div className="bg-white rounded-lg border border-stone-200 overflow-hidden">
           <table className="w-full text-sm">
@@ -107,11 +116,11 @@ export default function Methodology() {
             <tbody className="divide-y divide-stone-100">
               {CLEANING_CASCADE.map((row) => (
                 <tr key={row.stage}>
-                  <td className="px-4 py-3 text-tuscan font-semibold">{row.stage}</td>
+                  <td className="px-4 py-3 text-tuscan font-semibold">{nl ? row.stageNl : row.stage}</td>
                   <td className="px-4 py-3 text-right text-ink tabular-nums">
                     {row.rowsOut.toLocaleString()}
                   </td>
-                  <td className="px-4 py-3 text-ink-2 text-xs">{row.topReason}</td>
+                  <td className="px-4 py-3 text-ink-2 text-xs">{nl ? row.topReasonNl : row.topReason}</td>
                 </tr>
               ))}
             </tbody>
@@ -124,9 +133,9 @@ export default function Methodology() {
           {t("methodology.extractionTitle")}
         </h2>
         <p className="text-sm text-ink-2 max-w-3xl mb-4">
-          Producer names are a string-extraction problem, not a field. A pass-1
-          alias whitelist resolves the top-50; pass-2 LLM disambiguation via
-          OpenRouter handles the remainder. Measured against{" "}
+          {nl
+            ? "Producentnamen zijn een string-extractieprobleem, geen veld. Een alias-whitelist in pass 1 lost de top-50 op; LLM-desambiguatie in pass 2 via OpenRouter verwerkt de rest. Gemeten tegen "
+            : "Producer names are a string-extraction problem, not a field. A pass-1 alias whitelist resolves the top-50; pass-2 LLM disambiguation via OpenRouter handles the remainder. Measured against "}
           <code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">
             known_producers_top50.csv
           </code>:
@@ -135,12 +144,12 @@ export default function Methodology() {
           <Stat
             value={`${(EXTRACTION_EVAL.recallExact * 100).toFixed(0)}%`}
             label={t("methodology.statRecallExact")}
-            sub={`${Math.round(EXTRACTION_EVAL.recallExact * EXTRACTION_EVAL.goldSize)} of ${EXTRACTION_EVAL.goldSize} gold producers`}
+            sub={`${Math.round(EXTRACTION_EVAL.recallExact * EXTRACTION_EVAL.goldSize)} ${nl ? "van" : "of"} ${EXTRACTION_EVAL.goldSize} ${nl ? "gold-producenten" : "gold producers"}`}
           />
           <Stat
             value={`${(EXTRACTION_EVAL.recallContains * 100).toFixed(0)}%`}
             label={t("methodology.statRecallContains")}
-            sub={`${Math.round(EXTRACTION_EVAL.recallContains * EXTRACTION_EVAL.goldSize)} of ${EXTRACTION_EVAL.goldSize} gold producers`}
+            sub={`${Math.round(EXTRACTION_EVAL.recallContains * EXTRACTION_EVAL.goldSize)} ${nl ? "van" : "of"} ${EXTRACTION_EVAL.goldSize} ${nl ? "gold-producenten" : "gold producers"}`}
           />
           <Stat
             value={EXTRACTION_EVAL.missed.length}
@@ -161,9 +170,9 @@ export default function Methodology() {
               {SEGMENTS.map((s) => (
                 <div key={s.name} className="flex items-start gap-3">
                   <span className={`px-2 py-0.5 text-xs rounded-full border font-semibold ${s.colorClass} whitespace-nowrap`}>
-                    {s.name}
+                    {nl ? s.nameNl : s.name}
                   </span>
-                  <span className="text-sm text-ink-2">{s.rule}</span>
+                  <span className="text-sm text-ink-2">{nl ? s.ruleNl : s.rule}</span>
                 </div>
               ))}
             </div>
@@ -174,9 +183,9 @@ export default function Methodology() {
               {ACTIONS.map((a) => (
                 <div key={a.name} className="flex items-start gap-3">
                   <span className="px-2 py-0.5 text-xs rounded-full border border-stone-300 bg-stone-50 text-stone-700 font-semibold whitespace-nowrap">
-                    {a.name}
+                    {nl ? a.nameNl : a.name}
                   </span>
-                  <span className="text-sm text-ink-2">{a.rationale}</span>
+                  <span className="text-sm text-ink-2">{nl ? a.rationaleNl : a.rationale}</span>
                 </div>
               ))}
             </div>
@@ -189,12 +198,15 @@ export default function Methodology() {
           {t("methodology.sustainabilityTitle")}
         </h2>
         <p className="text-sm text-ink-2 max-w-3xl mb-4">
-          Sustainability is Slurpini's stated USP and is absent from the Vivino
-          dataset.{" "}
+          {nl
+            ? "Duurzaamheid is de uitgesproken USP van Slurpini en ontbreekt in de Vivino-dataset. "
+            : "Sustainability is Slurpini's stated USP and is absent from the Vivino dataset. "}
           <code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">
             cantinaiq sustainability
           </code>{" "}
-          fills the gap by querying FederBio and Demeter via Firecrawl.
+          {nl
+            ? "vult het gat door FederBio en Demeter te bevragen via Firecrawl."
+            : "fills the gap by querying FederBio and Demeter via Firecrawl."}
         </p>
         <div className="bg-white rounded-lg border border-stone-200 overflow-hidden">
           <table className="w-full text-sm">
@@ -235,8 +247,8 @@ export default function Methodology() {
 
       <footer className="border-t border-stone-200 pt-4 text-xs text-ink-2">
         Config hash <code className="text-tuscan">{RUN.configHash}</code> · run{" "}
-        <code className="text-ink-2">{RUN.runId}</code> · {RUN.testsPassing} tests pass ·{" "}
-        {RUN.cliSubcommands} CLI subcommands
+        <code className="text-ink-2">{RUN.runId}</code> · {RUN.testsPassing} {nl ? "tests geslaagd" : "tests pass"} ·{" "}
+        {RUN.cliSubcommands} {nl ? "CLI-subcommando's" : "CLI subcommands"}
       </footer>
     </div>
   );

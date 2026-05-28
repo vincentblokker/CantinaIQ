@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useDomainLabels } from "../i18n/domainLabels";
 import MetricCard from "../components/MetricCard";
 import RecommendationPill from "../components/RecommendationPill";
 import ProducerDetailModal from "../components/ProducerDetailModal";
@@ -226,11 +227,12 @@ interface VerdictProps {
 }
 
 function VerdictCard({ kind, accent, badge, count, headline, samples }: VerdictProps) {
+  const dl = useDomainLabels();
   return (
     <div className={`rounded-lg border ${accent} p-5 hover-lift`}>
       <div className="flex items-baseline justify-between mb-3">
         <span className={`px-2 py-0.5 text-xs rounded-full border font-semibold uppercase tracking-wider ${badge}`}>
-          {kind}
+          {dl.action(kind)}
         </span>
         <span className="font-serif text-3xl text-ink">{count}</span>
       </div>

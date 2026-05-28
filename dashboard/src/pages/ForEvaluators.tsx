@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useNl } from "../i18n/domainLabels";
 import { FIVE_MINUTE_READ, RUBRIC } from "../lib/evaluatorMapping";
 
 export default function ForEvaluators() {
   const { t } = useTranslation();
+  const nl = useNl();
   return (
     <div className="space-y-10">
       <header>
@@ -69,7 +71,7 @@ export default function ForEvaluators() {
             <tbody className="divide-y divide-stone-100 [&_tr]:transition-colors [&_tr:hover]:bg-stone-50">
               {FIVE_MINUTE_READ.map((row) => (
                 <tr key={row.requirement}>
-                  <td className="px-4 py-3 text-ink font-serif">{row.requirement}</td>
+                  <td className="px-4 py-3 text-ink font-serif">{nl ? row.requirementNl : row.requirement}</td>
                   <td className="px-4 py-3">
                     <a
                       href={row.href}
@@ -107,14 +109,14 @@ export default function ForEvaluators() {
             <tbody className="divide-y divide-stone-100 [&_tr]:transition-colors [&_tr:hover]:bg-stone-50">
               {RUBRIC.map((row) => (
                 <tr key={row.criterion}>
-                  <td className="px-4 py-3 text-ink font-serif align-top">{row.criterion}</td>
+                  <td className="px-4 py-3 text-ink font-serif align-top">{nl ? row.criterionNl : row.criterion}</td>
                   <td className="px-4 py-3 text-ink-2 text-xs align-top">{row.briefSection}</td>
                   <td className="px-4 py-3 align-top">
                     <div className="flex flex-wrap gap-2">
                       {row.artefacts.map((a, i) => {
                         if (!a.href && !a.internal) {
                           return (
-                            <span key={i} className="text-ink-2 text-xs">{a.label}</span>
+                            <span key={i} className="text-ink-2 text-xs">{nl ? a.labelNl ?? a.label : a.label}</span>
                           );
                         }
                         if (a.internal) {
@@ -124,7 +126,7 @@ export default function ForEvaluators() {
                               to={a.label === "This site" ? "/" : a.label}
                               className="text-tuscan underline font-mono text-xs"
                             >
-                              {a.label}
+                              {nl ? a.labelNl ?? a.label : a.label}
                             </Link>
                           );
                         }

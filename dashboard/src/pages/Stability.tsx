@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import GlossedText, { Term } from "../components/GlossedText";
+import { useNl } from "../i18n/domainLabels";
 import {
   ANOMALIES,
   ANOMALIES_CONTAMINATION,
@@ -11,6 +12,7 @@ import {
 
 export default function Stability() {
   const { t } = useTranslation();
+  const nl = useNl();
   const stable = BOOTSTRAP.filter((b) => b.appearances >= 160);
   const borderline = BOOTSTRAP.filter((b) => b.p95 > 100);
 
@@ -25,11 +27,9 @@ export default function Stability() {
         </h1>
         <p className="text-ink-2 mt-3 max-w-3xl leading-relaxed">
           <GlossedText>
-            Three complementary checks. Bootstrap rank intervals tell you which
-            top-ten positions hold up under resampling. The sensitivity sweep
-            tells you whether the answer changes if you turn the shrinkage knob.
-            The anomaly forest flags rows that don't behave like the rest of the
-            dataset.
+            {nl
+              ? "Drie complementaire controles. Bootstrap-rangintervallen tonen welke top-tien-posities standhouden onder resampling. De gevoeligheidsanalyse laat zien of het antwoord verandert wanneer je aan de shrinkage-knop draait. Het anomalie-forest markeert rijen die zich niet gedragen zoals de rest van de dataset."
+              : "Three complementary checks. Bootstrap rank intervals tell you which top-ten positions hold up under resampling. The sensitivity sweep tells you whether the answer changes if you turn the shrinkage knob. The anomaly forest flags rows that don't behave like the rest of the dataset."}
           </GlossedText>
         </p>
       </header>
@@ -38,10 +38,9 @@ export default function Stability() {
         <h2 className="font-serif text-2xl text-ink">{t("stability.bootstrapTitle")}</h2>
         <p className="text-sm text-ink-2 mt-1 mb-4 max-w-3xl">
           <GlossedText>
-            200 resamples of the cleaned dataset. Producers that fall outside the
-            top-10 in a resample receive rank 11. A p95 above 100 means the
-            producer made the top-10 by accident in this run — too few reviews to
-            be stable.
+            {nl
+              ? "200 resamples van de opgeschoonde dataset. Producenten die in een resample buiten de top-10 vallen, krijgen rang 11. Een p95 boven de 100 betekent dat de producent in deze run per ongeluk de top-10 haalde — te weinig reviews om stabiel te zijn."
+              : "200 resamples of the cleaned dataset. Producers that fall outside the top-10 in a resample receive rank 11. A p95 above 100 means the producer made the top-10 by accident in this run — too few reviews to be stable."}
           </GlossedText>
         </p>
         <div className="grid grid-cols-2 gap-4 mb-5">
@@ -105,11 +104,14 @@ export default function Stability() {
       <section>
         <h2 className="font-serif text-2xl text-ink">{t("stability.sensitivityTitle")}</h2>
         <p className="text-sm text-ink-2 mt-1 mb-4 max-w-3xl">
-          <Term term="kendall-τ">Kendall-τ</Term> rank correlation of the top-twenty against a baseline of{" "}
+          <Term term="kendall-τ">Kendall-τ</Term>
+          {nl ? "-rangcorrelatie van de top-twintig tegen een baseline van" : " rank correlation of the top-twenty against a baseline of"}{" "}
           <code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">m = 200</code>.
-          Larger <code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">m</code> pulls
-          low-review producers further toward the global mean. The recommendation does not
-          depend on a hair-thin choice of <code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">m</code>.
+          {nl ? " Een grotere " : " Larger "}<code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">m</code>
+          {nl
+            ? " trekt producenten met weinig reviews verder naar het globale gemiddelde. De aanbeveling hangt niet af van een haarscherpe keuze van "
+            : " pulls low-review producers further toward the global mean. The recommendation does not depend on a hair-thin choice of "}
+          <code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">m</code>.
         </p>
         <div className="bg-white rounded-lg border border-stone-200 overflow-hidden">
           <table className="w-full text-sm">
@@ -125,7 +127,7 @@ export default function Stability() {
                 <tr key={s.bayesianM} className={s.bayesianM === 200 ? "bg-tuscan/5" : ""}>
                   <td className="px-4 py-3 text-tuscan font-mono">{s.bayesianM}</td>
                   <td className="px-4 py-3 text-ink-2 tabular-nums">{s.kendallTau.toFixed(3)}</td>
-                  <td className="px-4 py-3 text-ink-2">{s.reading}</td>
+                  <td className="px-4 py-3 text-ink-2">{nl ? s.readingNl : s.reading}</td>
                 </tr>
               ))}
             </tbody>
@@ -134,23 +136,24 @@ export default function Stability() {
         <p className="text-xs text-ink-2 mt-2">
           {t("stability.loggedRunPre")}{" "}
           <code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">m = {RUN.bayesianM}</code>{" "}
-          (auto-median strategy).
+          {nl ? "(auto-mediaan-strategie)." : "(auto-median strategy)."}
         </p>
       </section>
 
       <section>
         <h2 className="font-serif text-2xl text-ink">{t("stability.anomalyTitle")}</h2>
         <p className="text-sm text-ink-2 mt-1 mb-4 max-w-3xl">
-          An <Term term="isolation forest">Isolation Forest</Term> at{" "}
+          {nl ? "Een " : "An "}<Term term="isolation forest">Isolation Forest</Term>{nl ? " bij " : " at "}{" "}
           <code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">
             contamination = {ANOMALIES_CONTAMINATION}
           </code>{" "}
-          over the <code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">
+          {nl ? "over de feature-ruimte " : "over the "}<code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">
             (rating, log₁₀(reviews))
           </code>{" "}
-          feature space flagged <strong className="text-ink">{ANOMALIES_TOTAL} of {RUN.winesTotal.toLocaleString()}</strong>{" "}
-          wines as pattern-divergent. Flagged wines are not removed — the flag is
-          informational. Top 10:
+          {nl ? "markeerde " : "feature space flagged "}<strong className="text-ink">{nl ? `${ANOMALIES_TOTAL} van de ${RUN.winesTotal.toLocaleString()}` : `${ANOMALIES_TOTAL} of ${RUN.winesTotal.toLocaleString()}`}</strong>{" "}
+          {nl
+            ? "wijnen als patroonafwijkend. Gemarkeerde wijnen worden niet verwijderd — de markering is informatief. Top 10:"
+            : "wines as pattern-divergent. Flagged wines are not removed — the flag is informational. Top 10:"}
         </p>
         <div className="bg-white rounded-lg border border-stone-200 overflow-hidden">
           <table className="w-full text-sm">
@@ -179,10 +182,9 @@ export default function Stability() {
           </table>
         </div>
         <p className="text-xs text-ink-2 mt-3 max-w-3xl">
-          Typical hits: ratings ≥ 4.8 on fewer than 20 reviews (over-confident
-          niches); ratings ≤ 3.2 on tens of thousands of reviews (controversial
-          mass-market wines); price-against-rating outliers. The reviewer
-          decides what to do with that.
+          {nl
+            ? "Typische treffers: beoordelingen ≥ 4,8 op minder dan 20 reviews (overmoedige niches); beoordelingen ≤ 3,2 op tienduizenden reviews (controversiële massamarktwijnen); prijs-tegen-beoordeling-uitschieters. De beoordelaar beslist wat daarmee te doen."
+            : "Typical hits: ratings ≥ 4.8 on fewer than 20 reviews (over-confident niches); ratings ≤ 3.2 on tens of thousands of reviews (controversial mass-market wines); price-against-rating outliers. The reviewer decides what to do with that."}
         </p>
       </section>
     </div>

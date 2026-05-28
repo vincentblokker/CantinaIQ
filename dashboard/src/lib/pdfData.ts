@@ -24,10 +24,12 @@ export const RUN = {
 export interface VerdictItem {
   name: string;
   detail: string;
+  detailNl: string;
   weightedRating: number;
   reviews?: number;
   avgPrice?: number;
   note?: string;
+  noteNl?: string;
 }
 
 export const RECOMMENDATION = {
@@ -35,26 +37,32 @@ export const RECOMMENDATION = {
     {
       name: "Tenuta Masseto",
       detail: "Toscane · Premium Icon",
+      detailNl: "Toscane · Premium-icoon",
       weightedRating: 4.30,
       reviews: 4641,
       avgPrice: 1567,
       note: "Top-10 in 195 of 200 bootstrap resamples — defensible anchor.",
+      noteNl: "Top-10 in 195 van de 200 bootstrap-resamples — verdedigbaar anker.",
     },
     {
       name: "Tenuta San Guido",
       detail: "Bolgheri Sassicaia · Premium Icon",
+      detailNl: "Bolgheri Sassicaia · Premium-icoon",
       weightedRating: 4.24,
       reviews: 6199,
       avgPrice: 764,
       note: "Same prestige band as Masseto.",
+      noteNl: "Dezelfde prestigeklasse als Masseto.",
     },
     {
       name: "Marchesi Antinori",
       detail: "Toscane · Premium Icon",
+      detailNl: "Toscane · Premium-icoon",
       weightedRating: 4.20,
       reviews: 13363,
       avgPrice: 289,
       note: "Tignanello vintages anchor the portfolio.",
+      noteNl: "Tignanello-jaargangen vormen het anker van het portfolio.",
     },
   ] as VerdictItem[],
 
@@ -62,32 +70,42 @@ export const RECOMMENDATION = {
     {
       name: "Roma",
       detail: "Region · Value Opportunity",
+      detailNl: "Regio · Waardekans",
       weightedRating: 4.12,
       note: "Above-median quality at below-median price. Not in the Toscana over-represented band.",
+      noteNl: "Bovengemiddelde kwaliteit tegen een ondergemiddelde prijs. Zit niet in de oververtegenwoordigde Toscana-band.",
     },
     {
       name: "Torgiano",
       detail: "Region · Value Opportunity",
+      detailNl: "Regio · Waardekans",
       weightedRating: 4.16,
       note: "Umbrian micro-region with strong rating-per-euro signal.",
+      noteNl: "Umbrian micro-regio met een sterk beoordeling-per-euro-signaal.",
     },
     {
       name: "Ischia",
       detail: "Region · Value Opportunity",
+      detailNl: "Regio · Waardekans",
       weightedRating: 4.10,
       note: "Campanian island wines — niche but consistent.",
+      noteNl: "Campanian eilandwijnen — niche maar consistent.",
     },
     {
       name: "Puglia (Primitivo di Manduria)",
       detail: "Region · Value Opportunity",
+      detailNl: "Regio · Waardekans",
       weightedRating: 4.13,
       note: "Strongest bare-track signal — but flag ×0.61 under-sample factor.",
+      noteNl: "Sterkste signaal in het bare-traject — maar let op de ×0.61 ondervertegenwoordigingsfactor.",
     },
     {
       name: "Abruzzo",
       detail: "Region · Value Opportunity",
+      detailNl: "Regio · Waardekans",
       weightedRating: 4.29,
       note: "×0.52 under-represented in Vivino vs ICE NL imports.",
+      noteNl: "×0.52 ondervertegenwoordigd in Vivino t.o.v. ICE NL-importen.",
     },
   ] as VerdictItem[],
 
@@ -95,14 +113,18 @@ export const RECOMMENDATION = {
     {
       name: "Terre di San Vincenzo",
       detail: "Bootstrap-borderline",
+      detailNl: "Bootstrap-grensgeval",
       weightedRating: 4.32,
       note: "p95 bootstrap rank = 412. Top-ten by accident with too few reviews.",
+      noteNl: "p95 bootstrap-rang = 412. Per toeval in de top tien met te weinig reviews.",
     },
     {
       name: "Valdicava",
       detail: "Bootstrap-borderline",
+      detailNl: "Bootstrap-grensgeval",
       weightedRating: 4.28,
       note: "p95 bootstrap rank = 228. Worth a tasting before either dismissing or recommending.",
+      noteNl: "p95 bootstrap-rang = 228. Een proeverij waard voordat je hem afwijst of aanbeveelt.",
     },
   ] as VerdictItem[],
 } as const;
@@ -167,9 +189,9 @@ export const BOOTSTRAP: BootstrapItem[] = [
 // ── Sensitivity (sensitivity.md) ───────────────────────────────────────
 
 export const SENSITIVITY = [
-  { bayesianM: 200, kendallTau: 1.000, reading: "Reference ranking" },
-  { bayesianM: 500, kendallTau: 0.882, reading: "Strong agreement; minor re-orderings" },
-  { bayesianM: 800, kendallTau: 0.765, reading: "Material re-ordering; small-n producers drop" },
+  { bayesianM: 200, kendallTau: 1.000, reading: "Reference ranking", readingNl: "Referentierangschikking" },
+  { bayesianM: 500, kendallTau: 0.882, reading: "Strong agreement; minor re-orderings", readingNl: "Sterke overeenkomst; kleine herordeningen" },
+  { bayesianM: 800, kendallTau: 0.765, reading: "Material re-ordering; small-n producers drop", readingNl: "Aanzienlijke herordening; producenten met kleine n vallen weg" },
 ] as const;
 
 // ── Anomalies (anomalies.md, top-10 of 90) ─────────────────────────────
@@ -202,40 +224,40 @@ export const ANOMALIES: AnomalyWine[] = [
 // ── Methodology — 5-factor composite weights (methodology.md) ──────────
 
 export const COMPOSITE_WEIGHTS = [
-  { component: "Weighted Rating Score",      captures: "Bayesian-shrunk consumer preference",       weight: 35 },
-  { component: "Market Confidence Score",    captures: "Rewards reliable consumer signal (review volume)", weight: 20 },
-  { component: "Value for Money Score",      captures: "Quality at realistic price",                 weight: 20 },
-  { component: "Premium Fit Score",          captures: "Alignment with Slurpini's premium positioning", weight: 15 },
-  { component: "Portfolio Opportunity Score", captures: "Strategic gap-filling versus current import mix", weight: 10 },
+  { component: "Weighted Rating Score",      componentNl: "Gewogen-beoordelingsscore",   captures: "Bayesian-shrunk consumer preference",       capturesNl: "Bayesiaans gekrompen consumentenvoorkeur",       weight: 35 },
+  { component: "Market Confidence Score",    componentNl: "Marktvertrouwen-score",        captures: "Rewards reliable consumer signal (review volume)", capturesNl: "Beloont een betrouwbaar consumentensignaal (aantal reviews)", weight: 20 },
+  { component: "Value for Money Score",      componentNl: "Prijs-kwaliteitscore",         captures: "Quality at realistic price",                 capturesNl: "Kwaliteit tegen een realistische prijs",                 weight: 20 },
+  { component: "Premium Fit Score",          componentNl: "Premium-fit-score",            captures: "Alignment with Slurpini's premium positioning", capturesNl: "Aansluiting bij de premium-positionering van Slurpini", weight: 15 },
+  { component: "Portfolio Opportunity Score", componentNl: "Portfoliokans-score",         captures: "Strategic gap-filling versus current import mix", capturesNl: "Strategisch opvullen van gaten ten opzichte van de huidige importmix", weight: 10 },
 ] as const;
 
 // ── Market segments and recommendations (taxonomy) ─────────────────────
 
 export const SEGMENTS = [
-  { name: "Hidden Gem",          rule: "High rating, low price, low review count.",   colorClass: "bg-green-50 border-green-200 text-green-800" },
-  { name: "Premium Icon",        rule: "High rating, high price, high review count.", colorClass: "bg-purple-50 border-purple-200 text-purple-800" },
-  { name: "Commercial Value",    rule: "Solid rating, low price, high review count.", colorClass: "bg-blue-50 border-blue-200 text-blue-800" },
-  { name: "Overpriced Risk",     rule: "Moderate rating at premium price.",           colorClass: "bg-rose-50 border-rose-200 text-rose-800" },
-  { name: "Low Confidence Niche", rule: "Rating present but signal too thin.",        colorClass: "bg-stone-50 border-stone-200 text-stone-700" },
+  { name: "Hidden Gem",          nameNl: "Verborgen parel",            rule: "High rating, low price, low review count.",   ruleNl: "Hoge beoordeling, lage prijs, weinig reviews.",       colorClass: "bg-green-50 border-green-200 text-green-800" },
+  { name: "Premium Icon",        nameNl: "Premium-icoon",              rule: "High rating, high price, high review count.", ruleNl: "Hoge beoordeling, hoge prijs, veel reviews.",         colorClass: "bg-purple-50 border-purple-200 text-purple-800" },
+  { name: "Commercial Value",    nameNl: "Commerciële waarde",         rule: "Solid rating, low price, high review count.", ruleNl: "Solide beoordeling, lage prijs, veel reviews.",       colorClass: "bg-blue-50 border-blue-200 text-blue-800" },
+  { name: "Overpriced Risk",     nameNl: "Te duur risico",             rule: "Moderate rating at premium price.",           ruleNl: "Matige beoordeling tegen een premiumprijs.",         colorClass: "bg-rose-50 border-rose-200 text-rose-800" },
+  { name: "Low Confidence Niche", nameNl: "Niche met weinig signaal",  rule: "Rating present but signal too thin.",         ruleNl: "Beoordeling aanwezig maar signaal te dun.",          colorClass: "bg-stone-50 border-stone-200 text-stone-700" },
 ] as const;
 
 export const ACTIONS = [
-  { name: "Target",                rationale: "Investigate now." },
-  { name: "Premium Brand Builder", rationale: "Hold for prestige positioning." },
-  { name: "Value Opportunity",     rationale: "Scale into volume." },
-  { name: "Monitor",               rationale: "Re-evaluate next quarter." },
-  { name: "Avoid for Now",         rationale: "Signal does not justify outreach cost." },
+  { name: "Target",                nameNl: "Benaderen",          rationale: "Investigate now.",                        rationaleNl: "Nu onderzoeken." },
+  { name: "Premium Brand Builder", nameNl: "Premium merkbouwer", rationale: "Hold for prestige positioning.",          rationaleNl: "Aanhouden voor prestigepositionering." },
+  { name: "Value Opportunity",     nameNl: "Waardekans",         rationale: "Scale into volume.",                      rationaleNl: "Opschalen naar volume." },
+  { name: "Monitor",               nameNl: "Monitoren",          rationale: "Re-evaluate next quarter.",               rationaleNl: "Volgend kwartaal opnieuw beoordelen." },
+  { name: "Avoid for Now",         nameNl: "Nu vermijden",       rationale: "Signal does not justify outreach cost.",  rationaleNl: "Signaal rechtvaardigt de benaderingskosten niet." },
 ] as const;
 
 // ── Cleaning cascade (data-quality.md) ─────────────────────────────────
 
 export const CLEANING_CASCADE = [
-  { stage: "Ingestion",  rowsOut: 409777, removed: 0,      topReason: "—" },
-  { stage: "Cleaning",   rowsOut: 2986,   removed: 406791, topReason: "non_italian: 332,376 · duplicate: 74,396" },
-  { stage: "Validation", rowsOut: 2986,   removed: 0,      topReason: "Pandera contracts pass" },
-  { stage: "Enrichment", rowsOut: 2986,   removed: 0,      topReason: "Columns added, no rows dropped" },
-  { stage: "Scoring",    rowsOut: 2986,   removed: 0,      topReason: "Composite added" },
-  { stage: "Export",     rowsOut: 2986,   removed: 0,      topReason: "JSON + Parquet artefacts" },
+  { stage: "Ingestion",  stageNl: "Inname",     rowsOut: 409777, removed: 0,      topReason: "—",                                          topReasonNl: "—" },
+  { stage: "Cleaning",   stageNl: "Opschoning", rowsOut: 2986,   removed: 406791, topReason: "non_italian: 332,376 · duplicate: 74,396",   topReasonNl: "niet-Italiaans: 332.376 · duplicaat: 74.396" },
+  { stage: "Validation", stageNl: "Validatie",  rowsOut: 2986,   removed: 0,      topReason: "Pandera contracts pass",                     topReasonNl: "Pandera-contracten slagen" },
+  { stage: "Enrichment", stageNl: "Verrijking", rowsOut: 2986,   removed: 0,      topReason: "Columns added, no rows dropped",             topReasonNl: "Kolommen toegevoegd, geen rijen verwijderd" },
+  { stage: "Scoring",    stageNl: "Scoring",    rowsOut: 2986,   removed: 0,      topReason: "Composite added",                            topReasonNl: "Samengestelde score toegevoegd" },
+  { stage: "Export",     stageNl: "Export",     rowsOut: 2986,   removed: 0,      topReason: "JSON + Parquet artefacts",                   topReasonNl: "JSON- + Parquet-artefacten" },
 ] as const;
 
 // ── Producer extraction eval (producer-extraction-eval.json mirror) ────

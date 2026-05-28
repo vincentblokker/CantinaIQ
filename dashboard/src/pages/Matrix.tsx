@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useDomainLabels } from "../i18n/domainLabels";
 import { Producer, loadProducers } from "../lib/data";
 import {
   CartesianGrid,
@@ -22,6 +23,7 @@ const COLOUR_BY_SEGMENT: Record<string, string> = {
 
 export default function Matrix() {
   const { t } = useTranslation();
+  const dl = useDomainLabels();
   const [rows, setRows] = useState<Producer[]>([]);
   useEffect(() => {
     loadProducers().then(setRows);
@@ -75,7 +77,7 @@ export default function Matrix() {
                   <div className="bg-white border border-stone-200 rounded p-2 text-xs">
                     <div className="font-serif text-ink">{p.name}</div>
                     <div>★ {p.y.toFixed(2)} · €{Math.round(p.x)} · {t("matrix.tooltipReviews", { reviews: p.z.toLocaleString() })}</div>
-                    <div className="text-ink-2">{p.segment}</div>
+                    <div className="text-ink-2">{dl.segment(p.segment)}</div>
                   </div>
                 );
               }}

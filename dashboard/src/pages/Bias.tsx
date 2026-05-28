@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import { useTranslation } from "react-i18next";
 import GlossedText from "../components/GlossedText";
+import { useNl } from "../i18n/domainLabels";
 import { BIAS_REGIONS } from "../lib/pdfData";
 
 function colorFor(factor: number): string {
@@ -21,6 +22,7 @@ function colorFor(factor: number): string {
 
 export default function Bias() {
   const { t } = useTranslation();
+  const nl = useNl();
   const sorted = [...BIAS_REGIONS].sort((a, b) => b.factor - a.factor);
   const over = sorted.filter((r) => r.factor >= 1.3);
   const under = sorted.filter((r) => r.factor < 0.7);
@@ -37,11 +39,9 @@ export default function Bias() {
         </h1>
         <p className="text-ink-2 mt-3 max-w-3xl leading-relaxed">
           <GlossedText>
-            Regional distribution of the cleaned Italian Vivino dataset against
-            ICE Amsterdam import statistics for the Netherlands. Values above 1.3
-            mean Vivino over-represents that region; values below 0.7 mean it
-            under-represents it. The bias does not invalidate the analysis —
-            it shapes which recommendations need an asterisk.
+            {nl
+              ? "Regionale verdeling van de opgeschoonde Italiaanse Vivino-dataset afgezet tegen de importstatistieken van ICE Amsterdam voor Nederland. Waarden boven 1,3 betekenen dat Vivino die regio oververtegenwoordigt; waarden onder 0,7 betekenen dat Vivino haar ondervertegenwoordigt. De bias maakt de analyse niet ongeldig — hij bepaalt welke aanbevelingen een asterisk nodig hebben."
+              : "Regional distribution of the cleaned Italian Vivino dataset against ICE Amsterdam import statistics for the Netherlands. Values above 1.3 mean Vivino over-represents that region; values below 0.7 mean it under-represents it. The bias does not invalidate the analysis — it shapes which recommendations need an asterisk."}
           </GlossedText>
         </p>
       </header>
@@ -125,10 +125,9 @@ export default function Bias() {
       <section className="bg-stone-50 border border-stone-200 rounded-lg p-5 text-sm text-ink-2">
         <strong className="text-ink">{t("bias.readingLabel")}</strong>{" "}
         <GlossedText>
-          Toscana ×1.22 means Vivino contains 22% more Tuscan wines than NL
-          imports would predict. Puglia ×0.61 means Vivino under-represents
-          Apulian wines by 39%. The Vivino signal is most reliable in regions
-          Slurpini already knows well — the opposite of where it most needs help.
+          {nl
+            ? "Toscana ×1.22 betekent dat Vivino 22% meer Toscaanse wijnen bevat dan de NL-import zou voorspellen. Puglia ×0.61 betekent dat Vivino Apulische wijnen met 39% ondervertegenwoordigt. Het Vivino-signaal is het betrouwbaarst in regio's die Slurpini al goed kent — precies het tegenovergestelde van waar het de meeste hulp nodig heeft."
+            : "Toscana ×1.22 means Vivino contains 22% more Tuscan wines than NL imports would predict. Puglia ×0.61 means Vivino under-represents Apulian wines by 39%. The Vivino signal is most reliable in regions Slurpini already knows well — the opposite of where it most needs help."}
         </GlossedText>
       </section>
     </div>

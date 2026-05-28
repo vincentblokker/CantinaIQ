@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNl, useDomainLabels } from "../i18n/domainLabels";
 import { Wine, loadWines } from "../lib/data";
 import WineDetailModal from "../components/WineDetailModal";
 import { SEGMENTS } from "../lib/pdfData";
@@ -11,6 +12,8 @@ function segmentStyle(segment: string): string {
 
 export default function Wines() {
   const { t } = useTranslation();
+  const nl = useNl();
+  const dl = useDomainLabels();
   const [rows, setRows] = useState<Wine[]>([]);
   const [selected, setSelected] = useState<Wine | null>(null);
   const [query, setQuery] = useState("");
@@ -44,13 +47,18 @@ export default function Wines() {
       </div>
 
       <div className="rounded-lg border border-tuscan/30 bg-tuscan/5 px-4 py-3 mb-5 text-sm text-ink">
-        <strong>Scope note.</strong> This page shows the top-100 wines by composite
-        score — the deliberate <em>shortlist</em> the pipeline exports for the
-        dashboard. The full 2,986-wine dataset lives in{" "}
+        <strong>{nl ? "Scope-notitie." : "Scope note."}</strong>{" "}
+        {nl
+          ? "Deze pagina toont de top-100 wijnen op samengestelde score — de bewuste "
+          : "This page shows the top-100 wines by composite score — the deliberate "}
+        <em>shortlist</em>
+        {nl
+          ? " die de pipeline exporteert voor het dashboard. De volledige dataset van 2.986 wijnen staat in "
+          : " the pipeline exports for the dashboard. The full 2,986-wine dataset lives in "}
         <code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded text-xs">supercharged/data/processed/wines_scored.parquet</code>{" "}
-        — replay the run with the supercharged CLI to query it directly. A
-        future JSON export of all 2,986 is an obvious next step (see the
-        Methodology page for the cleaning cascade).
+        {nl
+          ? "— draai de run opnieuw met de supercharged-CLI om hem direct te bevragen. Een toekomstige JSON-export van alle 2.986 is een logische volgende stap (zie de Methodology-pagina voor de opschoningscascade)."
+          : "— replay the run with the supercharged CLI to query it directly. A future JSON export of all 2,986 is an obvious next step (see the Methodology page for the cleaning cascade)."}
       </div>
 
       <div className="flex items-baseline gap-3 flex-wrap mb-4">
@@ -69,7 +77,7 @@ export default function Wines() {
           <option value="all">{t("wines.allSegments")}</option>
           {SEGMENTS.map((s) => (
             <option key={s.name} value={s.name}>
-              {s.name}
+              {nl ? s.nameNl : s.name}
             </option>
           ))}
         </select>
@@ -113,7 +121,7 @@ export default function Wines() {
                 <span
                   className={`px-2 py-0.5 text-[10px] rounded-full border font-semibold ${segmentStyle(w.market_segment)}`}
                 >
-                  {w.market_segment}
+                  {dl.segment(w.market_segment)}
                 </span>
               </td>
               <td className="text-right tabular-nums px-3 py-2">

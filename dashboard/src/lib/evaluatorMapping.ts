@@ -10,6 +10,7 @@ const tree = (path: string) => `${REPO}/tree/main/${path}`;
 
 export interface FiveMinuteRow {
   requirement: string;
+  requirementNl: string;
   livesIn: string;
   href: string;
 }
@@ -17,16 +18,19 @@ export interface FiveMinuteRow {
 export const FIVE_MINUTE_READ: FiveMinuteRow[] = [
   {
     requirement: "(i) Crawler extension",
+    requirementNl: "(i) Crawler-uitbreiding",
     livesIn: "bare/crawler-extension.py",
     href: blob("bare/crawler-extension.py"),
   },
   {
     requirement: "(ii) EDA + analysis",
+    requirementNl: "(ii) EDA + analyse",
     livesIn: "bare/notebooks/slurpini-analysis.ipynb",
     href: blob("bare/notebooks/slurpini-analysis.ipynb"),
   },
   {
     requirement: "(iii) Written recommendation",
+    requirementNl: "(iii) Geschreven aanbeveling",
     livesIn: "bare/recommendation.md",
     href: blob("bare/recommendation.md"),
   },
@@ -34,12 +38,14 @@ export const FIVE_MINUTE_READ: FiveMinuteRow[] = [
 
 export interface RubricRow {
   criterion: string;
+  criterionNl: string;
   briefSection: string;          // e.g. "§03 From the Field (p5)"
   artefacts: ArtefactLink[];     // 1+ artefact links shown in the Repo / Dashboard column
 }
 
 export interface ArtefactLink {
   label: string;                 // visible text
+  labelNl?: string;              // Dutch translation — only for human-readable prose labels (omit for file paths / routes)
   href?: string;                 // external link (GitHub) — omit for plain text
   internal?: boolean;            // true for SPA links
 }
@@ -47,16 +53,19 @@ export interface ArtefactLink {
 export const RUBRIC: RubricRow[] = [
   {
     criterion: "Business framing of the problem",
+    criterionNl: "Zakelijke kadering van het probleem",
     briefSection: "§03 From the Field · p5",
     artefacts: [{ label: "supercharged/PRD.md", href: blob("supercharged/PRD.md") }],
   },
   {
     criterion: "Crawler extension as deliverable",
+    criterionNl: "Crawler-uitbreiding als deliverable",
     briefSection: "§07 Beyond the Brief · p14",
     artefacts: [{ label: "bare/crawler-extension.py", href: blob("bare/crawler-extension.py") }],
   },
   {
     criterion: "Exploratory data analysis",
+    criterionNl: "Verkennende data-analyse",
     briefSection: "§02 Vivino in Context · p3-4",
     artefacts: [
       { label: "bare/notebooks/slurpini-analysis.ipynb", href: blob("bare/notebooks/slurpini-analysis.ipynb") },
@@ -65,11 +74,13 @@ export const RUBRIC: RubricRow[] = [
   },
   {
     criterion: "Data cleaning + validation",
+    criterionNl: "Dataopschoning + validatie",
     briefSection: "§06 The Methodology · p13",
     artefacts: [{ label: "data-quality.md", href: blob("supercharged/reports/generated/data-quality.md") }],
   },
   {
     criterion: "Scoring methodology, transparent",
+    criterionNl: "Scoremethodologie, transparant",
     briefSection: "§06 The Methodology · p12",
     artefacts: [
       { label: "methodology.md", href: blob("supercharged/reports/generated/methodology.md") },
@@ -78,6 +89,7 @@ export const RUBRIC: RubricRow[] = [
   },
   {
     criterion: "Written recommendation, decision-ready",
+    criterionNl: "Geschreven aanbeveling, klaar voor besluitvorming",
     briefSection: "§05 The Recommendation · p10-11",
     artefacts: [
       { label: "bare/recommendation.md", href: blob("bare/recommendation.md") },
@@ -86,6 +98,7 @@ export const RUBRIC: RubricRow[] = [
   },
   {
     criterion: "Top-5 producers + regions ranking",
+    criterionNl: "Top-5 producenten + regio's rangschikking",
     briefSection: "§05 The Recommendation · p11",
     artefacts: [
       { label: "/producers", internal: true },
@@ -94,6 +107,7 @@ export const RUBRIC: RubricRow[] = [
   },
   {
     criterion: "Confidence intervals on the ranking",
+    criterionNl: "Betrouwbaarheidsintervallen op de rangschikking",
     briefSection: "§02 · p4 · §07 · p15",
     artefacts: [
       { label: "bootstrap-ci.md", href: blob("supercharged/reports/generated/bootstrap-ci.md") },
@@ -102,6 +116,7 @@ export const RUBRIC: RubricRow[] = [
   },
   {
     criterion: "External validity / bias quantification",
+    criterionNl: "Externe validiteit / kwantificering van bias",
     briefSection: "§02 · p4 · §07",
     artefacts: [
       { label: "bias-report.md", href: blob("supercharged/reports/generated/bias-report.md") },
@@ -110,6 +125,7 @@ export const RUBRIC: RubricRow[] = [
   },
   {
     criterion: "Reproducibility (config-hash, audit)",
+    criterionNl: "Reproduceerbaarheid (config-hash, audit)",
     briefSection: "§06 · p13",
     artefacts: [
       { label: "supercharged/", href: tree("supercharged") },
@@ -118,16 +134,19 @@ export const RUBRIC: RubricRow[] = [
   },
   {
     criterion: "Sensitivity to parameters",
+    criterionNl: "Gevoeligheid voor parameters",
     briefSection: "§07 · p15",
     artefacts: [{ label: "sensitivity.md", href: blob("supercharged/reports/generated/sensitivity.md") }],
   },
   {
     criterion: "Anomaly detection",
+    criterionNl: "Anomaliedetectie",
     briefSection: "§07 · p15",
     artefacts: [{ label: "anomalies.md", href: blob("supercharged/reports/generated/anomalies.md") }],
   },
   {
     criterion: "Tests + schema contracts",
+    criterionNl: "Tests + schemacontracten",
     briefSection: "§07 · p16",
     artefacts: [
       { label: "supercharged/tests/", href: tree("supercharged/tests") },
@@ -136,11 +155,13 @@ export const RUBRIC: RubricRow[] = [
   },
   {
     criterion: "Dashboard / live data product",
+    criterionNl: "Dashboard / live dataproduct",
     briefSection: "§07 · p16",
-    artefacts: [{ label: "This site", internal: true }],
+    artefacts: [{ label: "This site", labelNl: "Deze site", internal: true }],
   },
   {
     criterion: "Enrichment scope discipline (shipped vs deferred)",
+    criterionNl: "Discipline in verrijkingsscope (opgeleverd vs uitgesteld)",
     briefSection: "§08 Enrichments · p17-19",
     artefacts: [
       { label: "ENRICHMENT-PLAN.md", href: blob("ENRICHMENT-PLAN.md") },
@@ -149,6 +170,7 @@ export const RUBRIC: RubricRow[] = [
   },
   {
     criterion: "Responsible-AI reflection",
+    criterionNl: "Reflectie op verantwoorde AI",
     briefSection: "§09 Closing Observation · p20-21",
     artefacts: [{ label: "—" }],
   },
