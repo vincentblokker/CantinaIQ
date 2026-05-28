@@ -10,6 +10,7 @@ import {
   YAxis,
 } from "recharts";
 import { useTranslation } from "react-i18next";
+import GlossedText from "../components/GlossedText";
 import { BIAS_REGIONS } from "../lib/pdfData";
 
 function colorFor(factor: number): string {
@@ -35,11 +36,13 @@ export default function Bias() {
           {t("bias.headline")}
         </h1>
         <p className="text-ink-2 mt-3 max-w-3xl leading-relaxed">
-          Regional distribution of the cleaned Italian Vivino dataset against
-          ICE Amsterdam import statistics for the Netherlands. Values above 1.3
-          mean Vivino over-represents that region; values below 0.7 mean it
-          under-represents it. The bias does not invalidate the analysis —
-          it shapes which recommendations need an asterisk.
+          <GlossedText>
+            Regional distribution of the cleaned Italian Vivino dataset against
+            ICE Amsterdam import statistics for the Netherlands. Values above 1.3
+            mean Vivino over-represents that region; values below 0.7 mean it
+            under-represents it. The bias does not invalidate the analysis —
+            it shapes which recommendations need an asterisk.
+          </GlossedText>
         </p>
       </header>
 
@@ -120,11 +123,13 @@ export default function Bias() {
       </section>
 
       <section className="bg-stone-50 border border-stone-200 rounded-lg p-5 text-sm text-ink-2">
-        <strong className="text-ink">{t("bias.readingLabel")}</strong> Toscana ×1.22 means
-        Vivino contains 22% more Tuscan wines than NL imports would predict.
-        Puglia ×0.61 means Vivino under-represents Apulian wines by 39%. The
-        Vivino signal is most reliable in regions Slurpini already knows well —
-        the opposite of where it most needs help.
+        <strong className="text-ink">{t("bias.readingLabel")}</strong>{" "}
+        <GlossedText>
+          Toscana ×1.22 means Vivino contains 22% more Tuscan wines than NL
+          imports would predict. Puglia ×0.61 means Vivino under-represents
+          Apulian wines by 39%. The Vivino signal is most reliable in regions
+          Slurpini already knows well — the opposite of where it most needs help.
+        </GlossedText>
       </section>
     </div>
   );

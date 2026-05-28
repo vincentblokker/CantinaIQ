@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Modal from "./Modal";
+import GlossedText from "./GlossedText";
 import { Producer } from "../lib/data";
 import { lookupRegion } from "../lib/regionMeta";
 import { SUSTAINABILITY, SEGMENTS, ACTIONS } from "../lib/pdfData";
@@ -197,12 +198,12 @@ export default function ProducerDetailModal({ producer, onClose }: Props) {
           <div className="rounded-lg border border-stone-200 bg-stone-50/40 p-4">
             {segment && (
               <div className="text-sm text-ink-2 mb-1">
-                <span className="font-semibold text-ink">{segment.name}:</span> {segment.rule}
+                <span className="font-semibold text-ink">{segment.name}:</span> <GlossedText>{segment.rule}</GlossedText>
               </div>
             )}
             {action && (
               <div className="text-sm text-ink-2">
-                <span className="font-semibold text-ink">{action.name}:</span> {action.rationale}
+                <span className="font-semibold text-ink">{action.name}:</span> <GlossedText>{action.rationale}</GlossedText>
               </div>
             )}
           </div>
@@ -247,7 +248,7 @@ export default function ProducerDetailModal({ producer, onClose }: Props) {
             {wiki && (
               <div>
                 <p className="text-sm text-ink leading-relaxed">
-                  {wiki.extract}
+                  <GlossedText>{wiki.extract}</GlossedText>
                 </p>
                 {wiki.content_urls?.desktop?.page && (
                   <a
@@ -287,11 +288,13 @@ export default function ProducerDetailModal({ producer, onClose }: Props) {
             {t("producerModal.enrichmentsTitle")}
           </h3>
           <p className="text-sm text-ink-2 mb-3 max-w-3xl">
-            Producer-level data the pipeline does not yet pull. Every source
-            below requires a paid service, a billing-account API key, or
-            Firecrawl credits at a scale beyond the current run. Each item
-            documents what the blocker is so a future budget decision can
-            unlock the right one first:
+            <GlossedText>
+              Producer-level data the pipeline does not yet pull. Every source
+              below requires a paid service, a billing-account API key, or
+              Firecrawl credits at a scale beyond the current run. Each item
+              documents what the blocker is so a future budget decision can
+              unlock the right one first:
+            </GlossedText>
           </p>
           <ul className="space-y-2">
             {DEFERRED.map((idea) => (
@@ -306,10 +309,10 @@ export default function ProducerDetailModal({ producer, onClose }: Props) {
                   </span>
                   <span className="text-xs text-stone-500 italic">{t("producerModal.deferredTag")}</span>
                 </div>
-                <div className="text-xs text-ink-2 mt-1 ml-5">{idea.why}</div>
+                <div className="text-xs text-ink-2 mt-1 ml-5"><GlossedText>{idea.why}</GlossedText></div>
                 <div className="text-xs text-stone-500 mt-1 ml-5 italic">
-                  <strong className="not-italic">{t("producerModal.sourceLabel")}</strong> {idea.source} ·{" "}
-                  <strong className="not-italic">{t("producerModal.blockerLabel")}</strong> {idea.cost}
+                  <strong className="not-italic">{t("producerModal.sourceLabel")}</strong> <GlossedText>{idea.source}</GlossedText> ·{" "}
+                  <strong className="not-italic">{t("producerModal.blockerLabel")}</strong> <GlossedText>{idea.cost}</GlossedText>
                 </div>
               </li>
             ))}

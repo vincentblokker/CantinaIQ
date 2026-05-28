@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Modal from "./Modal";
+import GlossedText from "./GlossedText";
 import { Wine } from "../lib/data";
 import { lookupRegion } from "../lib/regionMeta";
 import { SEGMENTS } from "../lib/pdfData";
@@ -174,7 +175,7 @@ export default function WineDetailModal({ wine, onClose }: Props) {
             {wiki && (
               <div>
                 <p className="text-sm text-ink leading-relaxed line-clamp-[10]">
-                  {wiki.extract}
+                  <GlossedText>{wiki.extract}</GlossedText>
                 </p>
                 {wiki.content_urls?.desktop?.page && (
                   <a
@@ -229,10 +230,10 @@ export default function WineDetailModal({ wine, onClose }: Props) {
                   </span>
                   <span className="text-xs text-stone-500 italic">{t("wineModal.deferredBadge")}</span>
                 </div>
-                <div className="text-xs text-ink-2 mt-1 ml-5">{idea.why}</div>
+                <div className="text-xs text-ink-2 mt-1 ml-5"><GlossedText>{idea.why}</GlossedText></div>
                 <div className="text-xs text-stone-500 mt-1 ml-5 italic">
-                  <strong className="not-italic">{t("wineModal.sourceLabel")}</strong> {idea.source} ·{" "}
-                  <strong className="not-italic">{t("wineModal.blockerLabel")}</strong> {idea.cost}
+                  <strong className="not-italic">{t("wineModal.sourceLabel")}</strong> <GlossedText>{idea.source}</GlossedText> ·{" "}
+                  <strong className="not-italic">{t("wineModal.blockerLabel")}</strong> <GlossedText>{idea.cost}</GlossedText>
                 </div>
               </li>
             ))}

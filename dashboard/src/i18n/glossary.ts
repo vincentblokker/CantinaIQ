@@ -96,4 +96,43 @@ export const GLOSSARY: Record<string, GlossEntry> = {
   reproducibility: {
     nl: "Reproduceerbaarheid: dezelfde config + data levert exact dezelfde uitkomsten.",
   },
+  bayesian: {
+    nl: "Statistische aanpak die voorkennis (het gemiddelde) combineert met de waargenomen data.",
+  },
+  appellations: {
+    nl: "Beschermde herkomstbenamingen — wettelijk afgebakende wijngebieden met productieregels.",
+  },
+  appellation: {
+    nl: "Beschermde herkomstbenaming — een wettelijk afgebakend wijngebied met productieregels.",
+  },
+  varietals: {
+    nl: "Druivenrassen — de specifieke druifsoorten waarvan de wijn wordt gemaakt.",
+  },
+  varietal: {
+    nl: "Druivenras — de specifieke druifsoort waarvan de wijn wordt gemaakt.",
+  },
+  biodynamic: {
+    nl: "Biodynamisch: landbouw volgens een holistische, gecertificeerde methode (strenger dan biologisch).",
+  },
+  demeter: {
+    nl: "Internationaal keurmerk voor biodynamische landbouw.",
+  },
+  federbio: {
+    nl: "Italiaanse koepelorganisatie en keurmerk voor biologische landbouw.",
+  },
+  firecrawl: {
+    nl: "Webscraping-dienst die pagina's omzet naar gestructureerde data (betaald, op creditbasis).",
+  },
+  openrouter: {
+    nl: "Gateway die toegang geeft tot meerdere taalmodellen (LLM's) via één API.",
+  },
+  ice: {
+    nl: "Italiaans agentschap voor buitenlandse handel (Istituto per il Commercio Estero) — bron voor NL-importcijfers.",
+  },
+  usp: {
+    nl: "Unique Selling Point — het onderscheidende verkoopargument.",
+  },
+  mojibake: {
+    nl: "Verminkte tekens door een verkeerde tekencodering (bv. 'Italië' → 'Itali√´').",
+  },
 };
