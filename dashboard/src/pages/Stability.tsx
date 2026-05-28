@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   ANOMALIES,
   ANOMALIES_CONTAMINATION,
@@ -8,6 +9,7 @@ import {
 } from "../lib/pdfData";
 
 export default function Stability() {
+  const { t } = useTranslation();
   const stable = BOOTSTRAP.filter((b) => b.appearances >= 160);
   const borderline = BOOTSTRAP.filter((b) => b.p95 > 100);
 
@@ -15,10 +17,10 @@ export default function Stability() {
     <div className="space-y-10">
       <header>
         <div className="text-xs uppercase tracking-widest text-tuscan font-semibold">
-          Section 07 · Stability and anomalies
+          {t("stability.eyebrow")}
         </div>
         <h1 className="font-serif text-4xl text-ink mt-2">
-          How defensible is the ranking?
+          {t("stability.title")}
         </h1>
         <p className="text-ink-2 mt-3 max-w-3xl leading-relaxed">
           Three complementary checks. Bootstrap rank intervals tell you which
@@ -30,7 +32,7 @@ export default function Stability() {
       </header>
 
       <section>
-        <h2 className="font-serif text-2xl text-ink">Bootstrap rank stability</h2>
+        <h2 className="font-serif text-2xl text-ink">{t("stability.bootstrapTitle")}</h2>
         <p className="text-sm text-ink-2 mt-1 mb-4 max-w-3xl">
           200 resamples of the cleaned dataset. Producers that fall outside the
           top-10 in a resample receive rank 11. A p95 above 100 means the
@@ -40,27 +42,27 @@ export default function Stability() {
         <div className="grid grid-cols-2 gap-4 mb-5">
           <Note
             accent="border-purple-300 bg-purple-50/50"
-            label="Stable picks"
+            label={t("stability.noteStableLabel")}
             num={stable.length}
-            desc="≥ 160 of 200 resamples in top-10"
+            desc={t("stability.noteStableDesc")}
           />
           <Note
             accent="border-amber-300 bg-amber-50/50"
-            label="Borderline (audit)"
+            label={t("stability.noteBorderlineLabel")}
             num={borderline.length}
-            desc="p95 > 100 — top-10 by accident"
+            desc={t("stability.noteBorderlineDesc")}
           />
         </div>
         <div className="bg-white rounded-lg border border-stone-200 overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-stone-50 text-xs uppercase tracking-wide text-ink-2">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold">Producer</th>
+                <th className="px-4 py-3 text-left font-semibold">{t("stability.colProducer")}</th>
                 <th className="px-4 py-3 text-right font-semibold">p05</th>
                 <th className="px-4 py-3 text-right font-semibold">p50</th>
                 <th className="px-4 py-3 text-right font-semibold">p95</th>
-                <th className="px-4 py-3 text-right font-semibold">Appearances</th>
-                <th className="px-4 py-3 text-right font-semibold">Verdict</th>
+                <th className="px-4 py-3 text-right font-semibold">{t("stability.colAppearances")}</th>
+                <th className="px-4 py-3 text-right font-semibold">{t("stability.colVerdict")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100 [&_tr]:transition-colors [&_tr:hover]:bg-stone-50">
@@ -80,11 +82,11 @@ export default function Stability() {
                     </td>
                     <td className="px-4 py-3 text-right text-xs">
                       {flagged ? (
-                        <span className="text-amber-700 font-semibold">audit</span>
+                        <span className="text-amber-700 font-semibold">{t("stability.verdictAudit")}</span>
                       ) : stable ? (
-                        <span className="text-purple-700 font-semibold">stable</span>
+                        <span className="text-purple-700 font-semibold">{t("stability.verdictStable")}</span>
                       ) : (
-                        <span className="text-ink-2">noisy</span>
+                        <span className="text-ink-2">{t("stability.verdictNoisy")}</span>
                       )}
                     </td>
                   </tr>
@@ -96,7 +98,7 @@ export default function Stability() {
       </section>
 
       <section>
-        <h2 className="font-serif text-2xl text-ink">Sensitivity to shrinkage</h2>
+        <h2 className="font-serif text-2xl text-ink">{t("stability.sensitivityTitle")}</h2>
         <p className="text-sm text-ink-2 mt-1 mb-4 max-w-3xl">
           Kendall-τ rank correlation of the top-twenty against a baseline of{" "}
           <code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">m = 200</code>.
@@ -110,7 +112,7 @@ export default function Stability() {
               <tr>
                 <th className="px-4 py-3 text-left font-semibold">bayesian_m</th>
                 <th className="px-4 py-3 text-left font-semibold">Kendall-τ</th>
-                <th className="px-4 py-3 text-left font-semibold">Reading</th>
+                <th className="px-4 py-3 text-left font-semibold">{t("stability.colReading")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100 [&_tr]:transition-colors [&_tr:hover]:bg-stone-50">
@@ -125,12 +127,14 @@ export default function Stability() {
           </table>
         </div>
         <p className="text-xs text-ink-2 mt-2">
-          Logged run uses <code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">m = {RUN.bayesianM}</code> (auto-median strategy).
+          {t("stability.loggedRunPre")}{" "}
+          <code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">m = {RUN.bayesianM}</code>{" "}
+          (auto-median strategy).
         </p>
       </section>
 
       <section>
-        <h2 className="font-serif text-2xl text-ink">Anomaly detection</h2>
+        <h2 className="font-serif text-2xl text-ink">{t("stability.anomalyTitle")}</h2>
         <p className="text-sm text-ink-2 mt-1 mb-4 max-w-3xl">
           An Isolation Forest at{" "}
           <code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">
@@ -147,12 +151,12 @@ export default function Stability() {
           <table className="w-full text-sm">
             <thead className="bg-stone-50 text-xs uppercase tracking-wide text-ink-2">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold">Wine</th>
-                <th className="px-4 py-3 text-left font-semibold">Region</th>
-                <th className="px-4 py-3 text-right font-semibold">Rating</th>
-                <th className="px-4 py-3 text-right font-semibold">Reviews</th>
-                <th className="px-4 py-3 text-right font-semibold">Price</th>
-                <th className="px-4 py-3 text-right font-semibold">Score</th>
+                <th className="px-4 py-3 text-left font-semibold">{t("stability.colWine")}</th>
+                <th className="px-4 py-3 text-left font-semibold">{t("stability.colRegion")}</th>
+                <th className="px-4 py-3 text-right font-semibold">{t("stability.colRating")}</th>
+                <th className="px-4 py-3 text-right font-semibold">{t("stability.colReviews")}</th>
+                <th className="px-4 py-3 text-right font-semibold">{t("stability.colPrice")}</th>
+                <th className="px-4 py-3 text-right font-semibold">{t("stability.colScore")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100 [&_tr]:transition-colors [&_tr:hover]:bg-stone-50">

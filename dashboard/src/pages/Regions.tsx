@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Region, loadRegions } from "../lib/data";
 import RegionDetailModal from "../components/RegionDetailModal";
 
 export default function Regions() {
+  const { t } = useTranslation();
   const [rows, setRows] = useState<Region[]>([]);
   const [selected, setSelected] = useState<Region | null>(null);
   const [query, setQuery] = useState("");
@@ -26,9 +28,9 @@ export default function Regions() {
   return (
     <div>
       <div className="flex items-baseline justify-between gap-4 flex-wrap mb-2">
-        <h2 className="font-serif text-2xl text-ink">Region intelligence</h2>
+        <h2 className="font-serif text-2xl text-ink">{t("regions.title")}</h2>
         <p className="text-xs text-ink-2 italic">
-          Click <span className="inline-flex w-4 h-4 rounded-full border border-tuscan/40 text-tuscan items-center justify-center text-[10px] font-bold align-middle">i</span> on any region for context, map, and enrichment roadmap.
+          {t("regions.hintPre")} <span className="inline-flex w-4 h-4 rounded-full border border-tuscan/40 text-tuscan items-center justify-center text-[10px] font-bold align-middle">i</span> {t("regions.hintPost")}
         </p>
       </div>
 
@@ -37,25 +39,25 @@ export default function Regions() {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search region or macro-region…"
+          placeholder={t("regions.searchPlaceholder")}
           className="flex-1 min-w-[240px] max-w-md text-sm border border-stone-300 rounded px-3 py-1.5 bg-white focus:border-tuscan focus:outline-none focus:ring-1 focus:ring-tuscan/30"
         />
         <span className="text-xs text-ink-2 tabular-nums">
           {filtered.length === rows.length
-            ? `${rows.length} regions`
-            : `${filtered.length} of ${rows.length}`}
+            ? t("regions.countAll", { regions: rows.length })
+            : t("regions.countFiltered", { shown: filtered.length, total: rows.length })}
         </span>
       </div>
 
       <table className="w-full text-sm border border-stone-200 rounded-lg overflow-hidden bg-white">
         <thead className="bg-stone-50 text-ink-2 text-xs uppercase tracking-wide">
           <tr>
-            <th className="text-left px-3 py-2">Region</th>
-            <th className="text-left px-3 py-2">Macro region</th>
-            <th className="text-right px-3 py-2">Wines</th>
-            <th className="text-right px-3 py-2">Weighted rating</th>
-            <th className="text-right px-3 py-2">Avg price (€)</th>
-            <th className="text-right px-3 py-2">Reviews</th>
+            <th className="text-left px-3 py-2">{t("regions.colRegion")}</th>
+            <th className="text-left px-3 py-2">{t("regions.colMacroRegion")}</th>
+            <th className="text-right px-3 py-2">{t("regions.colWines")}</th>
+            <th className="text-right px-3 py-2">{t("regions.colWeightedRating")}</th>
+            <th className="text-right px-3 py-2">{t("regions.colAvgPrice")}</th>
+            <th className="text-right px-3 py-2">{t("regions.colReviews")}</th>
             <th className="text-right px-3 py-2 w-10"></th>
           </tr>
         </thead>
@@ -74,7 +76,7 @@ export default function Regions() {
               <td className="px-3 py-2 text-right">
                 <button
                   onClick={() => setSelected(r)}
-                  aria-label={`More info about ${r.region}`}
+                  aria-label={t("regions.moreInfo", { name: r.region })}
                   className="inline-flex items-center justify-center w-6 h-6 rounded-full border border-stone-300 text-ink-2 text-xs font-bold hover:border-tuscan hover:text-tuscan hover:scale-110 transition-all"
                 >
                   i
@@ -85,7 +87,7 @@ export default function Regions() {
           {filtered.length === 0 && (
             <tr>
               <td colSpan={7} className="text-center text-ink-2 italic py-8">
-                No regions match "{query}".
+                {t("regions.empty", { query })}
               </td>
             </tr>
           )}

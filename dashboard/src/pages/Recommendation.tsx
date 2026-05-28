@@ -1,20 +1,22 @@
+import { useTranslation } from "react-i18next";
 import { RECOMMENDATION, VerdictItem } from "../lib/pdfData";
 
 export default function Recommendation() {
+  const { t } = useTranslation();
   return (
     <div className="space-y-10">
       <header>
         <div className="text-xs uppercase tracking-widest text-tuscan font-semibold">
-          Section 05 · The Recommendation
+          {t("recommendation.eyebrow")}
         </div>
         <h1 className="font-serif text-4xl text-ink mt-2">
-          What the data tells Slurpini to do
+          {t("recommendation.title")}
         </h1>
         <p className="text-ink-2 mt-3 max-w-3xl leading-relaxed">
-          A three-part verdict. <strong>Hold</strong> the prestige tier,{" "}
-          <strong>Expand</strong> in the value-opportunity zone,{" "}
-          <strong>Audit</strong> the high-rating borderline. Each is qualified by
-          Vivino bias and bootstrap stability — see <a href="/bias" className="text-tuscan underline">/bias</a> and{" "}
+          {t("recommendation.leadIntro")} <strong>Hold</strong>{" "}
+          {t("recommendation.leadHold")}, <strong>Expand</strong>{" "}
+          {t("recommendation.leadExpand")}, <strong>Audit</strong>{" "}
+          {t("recommendation.leadAudit")} <a href="/bias" className="text-tuscan underline">/bias</a> {t("recommendation.leadAnd")}{" "}
           <a href="/stability" className="text-tuscan underline">/stability</a>.
         </p>
       </header>
@@ -23,8 +25,8 @@ export default function Recommendation() {
         kind="Hold"
         accent="border-purple-300 bg-purple-50/30"
         badge="bg-purple-100 text-purple-800 border-purple-200"
-        title="The defensible anchor"
-        intro="The data confirms what Slurpini already does. These are the wines whose presence in the portfolio is uncontroversial."
+        title={t("recommendation.holdTitle")}
+        intro={t("recommendation.holdIntro")}
         items={RECOMMENDATION.hold}
       />
 
@@ -32,8 +34,8 @@ export default function Recommendation() {
         kind="Expand"
         accent="border-green-300 bg-green-50/30"
         badge="bg-green-100 text-green-800 border-green-200"
-        title="The value-opportunity zone"
-        intro="Above-median weighted rating at well-below-median price. Bias-corrected — under-represented regions carry a tag."
+        title={t("recommendation.expandTitle")}
+        intro={t("recommendation.expandIntro")}
         items={RECOMMENDATION.expand}
       />
 
@@ -41,8 +43,8 @@ export default function Recommendation() {
         kind="Audit"
         accent="border-amber-300 bg-amber-50/30"
         badge="bg-amber-100 text-amber-800 border-amber-200"
-        title="The borderline producers"
-        intro="Top-ten by accident with too few reviews. Worth a tasting before either dismissing or recommending."
+        title={t("recommendation.auditTitle")}
+        intro={t("recommendation.auditIntro")}
         items={RECOMMENDATION.audit}
       />
     </div>
@@ -59,6 +61,7 @@ interface BlockProps {
 }
 
 function VerdictBlock({ kind, title, intro, accent, badge, items }: BlockProps) {
+  const { t } = useTranslation();
   return (
     <section className={`rounded-2xl border ${accent} p-6`}>
       <div className="flex items-baseline gap-3 mb-2">
@@ -84,7 +87,7 @@ function VerdictBlock({ kind, title, intro, accent, badge, items }: BlockProps) 
               <div className="flex gap-5 text-sm text-ink-2 tabular-nums">
                 <span>★ {item.weightedRating.toFixed(2)}</span>
                 {item.reviews !== undefined && (
-                  <span>{item.reviews.toLocaleString()} reviews</span>
+                  <span>{t("recommendation.reviews", { n: item.reviews.toLocaleString() })}</span>
                 )}
                 {item.avgPrice !== undefined && (
                   <span>€{item.avgPrice.toLocaleString()}</span>

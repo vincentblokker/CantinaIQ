@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import Modal from "./Modal";
+import GlossedText from "./GlossedText";
 import { Region } from "../lib/data";
 import { lookupRegion } from "../lib/regionMeta";
 import { BIAS_REGIONS } from "../lib/pdfData";
@@ -15,46 +17,18 @@ interface WikiSummary {
   content_urls?: { desktop?: { page: string } };
 }
 
-const SHIPPED = [
-  {
-    label: "DOC/DOCG appellation count",
-    why: "Production-tier signal — how many sub-appellations does this region carry?",
-    source: "Curated from public MIPAAF / EU eAmbrosia registry data",
-  },
-  {
-    label: "Annual production volume (hl)",
-    why: "Regional scale relative to Vivino sample size.",
-    source: "ISTAT viticulture statistics, 2022–2023",
-  },
-  {
-    label: "Vintage quality grades 2018–2024",
-    why: "Cross-check Vivino's aggregate score against consensus expert opinion per year.",
-    source: "Consensus expert ratings (Decanter / Jancis Robinson / Wine Enthusiast public charts)",
-  },
-  {
-    label: "Climate + terroir summary",
-    why: "Buying-committee context — what makes this region's wine taste the way it does?",
-    source: "Curated from regional consorzio publications and Italian Wine Central",
-  },
-];
+const SHIPPED_KEYS = [
+  { label: "shippedAppellationLabel", why: "shippedAppellationWhy", source: "shippedAppellationSource" },
+  { label: "shippedProductionLabel", why: "shippedProductionWhy", source: "shippedProductionSource" },
+  { label: "shippedVintageLabel", why: "shippedVintageWhy", source: "shippedVintageSource" },
+  { label: "shippedClimateLabel", why: "shippedClimateWhy", source: "shippedClimateSource" },
+] as const;
 
-const DEFERRED = [
-  {
-    label: "Producer biodynamic certifications at scale (762)",
-    why: "Slurpini's USP is sustainability — would surface Demeter + FederBio counts per region.",
-    blocker: "Firecrawl credits required for a 762-producer crawl. Pipeline command exists for 5; scale is the constraint.",
-  },
-  {
-    label: "NL trade volume (€)",
-    why: "Bias-correction depth — absolute import euros, not just relative share.",
-    blocker: "ICE Amsterdam customs data is published only as bound PDF reports; manual extraction required.",
-  },
-  {
-    label: "Travel cost from Amsterdam",
-    why: "Operational input for the on-site visit decision — flight time and ground transport.",
-    blocker: "Google Maps Directions API requires a billing account; deferred until budget is allocated.",
-  },
-];
+const DEFERRED_KEYS = [
+  { label: "deferredBiodynamicLabel", why: "deferredBiodynamicWhy", blocker: "deferredBiodynamicBlocker" },
+  { label: "deferredTradeLabel", why: "deferredTradeWhy", blocker: "deferredTradeBlocker" },
+  { label: "deferredTravelLabel", why: "deferredTravelWhy", blocker: "deferredTravelBlocker" },
+] as const;
 
 function vintageColour(grade: string): string {
   if (grade.startsWith("A")) return "bg-leaf/15 text-leaf border-leaf/30";
@@ -64,9 +38,21 @@ function vintageColour(grade: string): string {
 }
 
 export default function RegionDetailModal({ region, onClose }: Props) {
+  const { t } = useTranslation();
   const [wiki, setWiki] = useState<WikiSummary | null>(null);
   const [wikiLoading, setWikiLoading] = useState(false);
   const [wikiError, setWikiError] = useState(false);
+
+  const shipped = SHIPPED_KEYS.map((item) => ({
+    label: t(`regionModal.${item.label}`),
+    why: t(`regionModal.${item.why}`),
+    source: t(`regionModal.${item.source}`),
+  }));
+  const deferred = DEFERRED_KEYS.map((item) => ({
+    label: t(`regionModal.${item.label}`),
+    why: t(`regionModal.${item.why}`),
+    blocker: t(`regionModal.${item.blocker}`),
+  }));
 
   const meta = lookupRegion(region?.macro_region ?? region?.region);
   const bias = BIAS_REGIONS.find(
@@ -111,7 +97,7 @@ export default function RegionDetailModal({ region, onClose }: Props) {
           )}
           {bias && (
             <span className="text-xs text-ink-2">
-              Vivino vs ICE NL bias ·{" "}
+              {t("regionModal.biasLabel")} ·{" "}
               <span
                 className={
                   bias.factor < 0.7
@@ -129,28 +115,28 @@ export default function RegionDetailModal({ region, onClose }: Props) {
 
         {/* Stats grid — Vivino data */}
         <div className="grid grid-cols-4 gap-3 stagger">
-          <Stat label="Wines (Vivino)" value={region.wines.toString()} />
-          <Stat label="Weighted rating" value={region.weighted_rating.toFixed(2)} accent />
-          <Stat label="Avg price" value={`€${Math.round(region.avg_price)}`} />
-          <Stat label="Reviews" value={region.total_reviews.toLocaleString()} />
+          <Stat label={t("regionModal.statWines")} value={region.wines.toString()} />
+          <Stat label={t("regionModal.statWeightedRating")} value={region.weighted_rating.toFixed(2)} accent />
+          <Stat label={t("regionModal.statAvgPrice")} value={`€${Math.round(region.avg_price)}`} />
+          <Stat label={t("regionModal.statReviews")} value={region.total_reviews.toLocaleString()} />
         </div>
 
         {/* Regional facts — enriched */}
         {meta && (meta.docCount !== undefined || meta.annualHl !== undefined) && (
           <div className="rounded-lg border border-tuscan/20 bg-tuscan/5 p-4">
             <div className="text-xs uppercase tracking-widest text-tuscan font-semibold mb-3">
-              Regional facts {isFallback && <span className="text-ink-2 italic">(country-wide totals)</span>}
+              {t("regionModal.regionalFactsTitle")} {isFallback && <span className="text-ink-2 italic">{t("regionModal.regionalFactsCountryWide")}</span>}
             </div>
             <div className="grid grid-cols-4 gap-3">
               {meta.docgCount !== undefined && (
-                <Stat label="DOCG appellations" value={meta.docgCount.toString()} />
+                <Stat label={t("regionModal.statDocgAppellations")} value={meta.docgCount.toString()} />
               )}
               {meta.docCount !== undefined && (
-                <Stat label="DOC appellations" value={meta.docCount.toString()} />
+                <Stat label={t("regionModal.statDocAppellations")} value={meta.docCount.toString()} />
               )}
               {meta.annualHl !== undefined && (
                 <Stat
-                  label="Annual production"
+                  label={t("regionModal.statAnnualProduction")}
                   value={meta.annualHl >= 1_000_000
                     ? `${(meta.annualHl / 1_000_000).toFixed(1)}M hl`
                     : `${(meta.annualHl / 1000).toFixed(0)}k hl`}
@@ -159,7 +145,7 @@ export default function RegionDetailModal({ region, onClose }: Props) {
               )}
               {meta.docCount !== undefined && meta.docgCount !== undefined && (
                 <Stat
-                  label="Total protected"
+                  label={t("regionModal.statTotalProtected")}
                   value={(meta.docCount + meta.docgCount).toString()}
                 />
               )}
@@ -171,13 +157,13 @@ export default function RegionDetailModal({ region, onClose }: Props) {
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <h3 className="text-xs uppercase tracking-widest text-ink-2 font-semibold mb-2">
-              Where it sits
+              {t("regionModal.whereItSits")}
             </h3>
             {mapUrl && (
               <div className="aspect-[4/3] rounded-lg overflow-hidden border border-stone-200">
                 <iframe
                   src={mapUrl}
-                  title={`Map of ${region.macro_region ?? region.region}`}
+                  title={t("regionModal.mapTitle", { region: region.macro_region ?? region.region })}
                   className="w-full h-full"
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
@@ -188,29 +174,29 @@ export default function RegionDetailModal({ region, onClose }: Props) {
               <p className="text-xs text-ink-2 mt-2 italic">
                 {isFallback && (
                   <span className="text-tuscan/80 font-semibold not-italic">
-                    Macro-region not yet mapped —{" "}
+                    {t("regionModal.macroRegionNotMapped")}{" "}
                   </span>
                 )}
-                {meta.notes}
+                <GlossedText>{meta.notes}</GlossedText>
               </p>
             )}
           </div>
           <div>
             <h3 className="text-xs uppercase tracking-widest text-ink-2 font-semibold mb-2">
-              Context
+              {t("regionModal.contextHeading")}
             </h3>
             {wikiLoading && (
-              <div className="text-sm text-ink-2">Loading Wikipedia summary…</div>
+              <div className="text-sm text-ink-2">{t("regionModal.wikiLoading")}</div>
             )}
             {wikiError && (
               <div className="text-sm text-ink-2">
-                Wikipedia summary unavailable for this region.
+                {t("regionModal.wikiUnavailable")}
               </div>
             )}
             {wiki && (
               <div>
                 <p className="text-sm text-ink leading-relaxed line-clamp-[8]">
-                  {wiki.extract}
+                  <GlossedText>{wiki.extract}</GlossedText>
                 </p>
                 {wiki.content_urls?.desktop?.page && (
                   <a
@@ -219,7 +205,7 @@ export default function RegionDetailModal({ region, onClose }: Props) {
                     rel="noopener noreferrer"
                     className="inline-block mt-2 text-xs text-tuscan underline link-underline"
                   >
-                    Read full article on Wikipedia ↗
+                    {t("regionModal.readFullArticle")} ↗
                   </a>
                 )}
               </div>
@@ -227,7 +213,7 @@ export default function RegionDetailModal({ region, onClose }: Props) {
             {meta && meta.varietals.length > 0 && (
               <div className="mt-4">
                 <h4 className="text-xs uppercase tracking-widest text-ink-2 font-semibold mb-1">
-                  Signature varietals
+                  {t("regionModal.signatureVarietals")}
                 </h4>
                 <div className="flex flex-wrap gap-1.5">
                   {meta.varietals.map((v) => (
@@ -250,17 +236,17 @@ export default function RegionDetailModal({ region, onClose }: Props) {
             {meta.climate && (
               <div className="rounded-lg border border-stone-200 bg-white p-4">
                 <h4 className="text-xs uppercase tracking-widest text-ink-2 font-semibold mb-2">
-                  Climate
+                  {t("regionModal.climateHeading")}
                 </h4>
-                <p className="text-sm text-ink leading-relaxed">{meta.climate}</p>
+                <p className="text-sm text-ink leading-relaxed"><GlossedText>{meta.climate}</GlossedText></p>
               </div>
             )}
             {meta.terroir && (
               <div className="rounded-lg border border-stone-200 bg-white p-4">
                 <h4 className="text-xs uppercase tracking-widest text-ink-2 font-semibold mb-2">
-                  Terroir
+                  {t("regionModal.terroirHeading")}
                 </h4>
-                <p className="text-sm text-ink leading-relaxed">{meta.terroir}</p>
+                <p className="text-sm text-ink leading-relaxed"><GlossedText>{meta.terroir}</GlossedText></p>
               </div>
             )}
           </div>
@@ -270,7 +256,7 @@ export default function RegionDetailModal({ region, onClose }: Props) {
         {meta?.vintageScores && vintageYears.length > 0 && (
           <div>
             <h3 className="text-xs uppercase tracking-widest text-ink-2 font-semibold mb-2">
-              Vintage assessment 2018 – 2024
+              {t("regionModal.vintageAssessmentTitle")}
             </h3>
             <div className="grid grid-cols-7 gap-2">
               {vintageYears.map((year) => {
@@ -287,10 +273,7 @@ export default function RegionDetailModal({ region, onClose }: Props) {
               })}
             </div>
             <p className="text-xs text-ink-2 mt-2 italic">
-              Letter grades reflect consensus expert assessment of vintage
-              quality across the region. "—" = too recent for full
-              assessment. Higher grade ≠ higher individual wine quality;
-              great producers can outperform their vintage.
+              {t("regionModal.vintageNote")}
             </p>
           </div>
         )}
@@ -298,19 +281,17 @@ export default function RegionDetailModal({ region, onClose }: Props) {
         {/* Enrichments — shipped + deferred */}
         <div>
           <h3 className="text-xs uppercase tracking-widest text-ink-2 font-semibold mb-2">
-            Enrichments
+            {t("regionModal.enrichmentsHeading")}
           </h3>
           <p className="text-sm text-ink-2 mb-4 max-w-3xl">
-            What the modal pulls in beyond Vivino's raw export. Four
-            curated enrichments are integrated; three more are deferred
-            because they require paid services or manual PDF extraction.
+            {t("regionModal.enrichmentsLead")}
           </p>
 
           <h4 className="text-xs uppercase tracking-widest text-leaf font-semibold mb-2 mt-3">
-            ✓ Shipped ({SHIPPED.length})
+            {t("regionModal.shippedHeading", { shipped: shipped.length })}
           </h4>
           <ul className="space-y-2 mb-5">
-            {SHIPPED.map((item) => (
+            {shipped.map((item) => (
               <li
                 key={item.label}
                 className="rounded-lg border border-leaf/30 bg-leaf/5 px-4 py-3 hover-lift"
@@ -328,10 +309,10 @@ export default function RegionDetailModal({ region, onClose }: Props) {
           </ul>
 
           <h4 className="text-xs uppercase tracking-widest text-ink-2 font-semibold mb-2">
-            Deferred ({DEFERRED.length}) — paid sources
+            {t("regionModal.deferredHeading", { deferred: deferred.length })}
           </h4>
           <ul className="space-y-2">
-            {DEFERRED.map((item) => (
+            {deferred.map((item) => (
               <li
                 key={item.label}
                 className="rounded-lg border border-stone-200 bg-stone-50/40 px-4 py-3 hover-lift"
@@ -341,11 +322,11 @@ export default function RegionDetailModal({ region, onClose }: Props) {
                     <span className="text-stone-400 mr-1.5">○</span>
                     {item.label}
                   </span>
-                  <span className="text-xs text-stone-500 italic">deferred</span>
+                  <span className="text-xs text-stone-500 italic">{t("regionModal.deferredBadge")}</span>
                 </div>
                 <div className="text-xs text-ink-2 mt-1 ml-5">{item.why}</div>
                 <div className="text-xs text-stone-500 mt-1 ml-5 italic">
-                  <strong className="not-italic">Blocker:</strong> {item.blocker}
+                  <strong className="not-italic">{t("regionModal.blockerLabel")}</strong> {item.blocker}
                 </div>
               </li>
             ))}

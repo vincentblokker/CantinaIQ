@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Wine, loadWines } from "../lib/data";
 import WineDetailModal from "../components/WineDetailModal";
 import { SEGMENTS } from "../lib/pdfData";
@@ -9,6 +10,7 @@ function segmentStyle(segment: string): string {
 }
 
 export default function Wines() {
+  const { t } = useTranslation();
   const [rows, setRows] = useState<Wine[]>([]);
   const [selected, setSelected] = useState<Wine | null>(null);
   const [query, setQuery] = useState("");
@@ -35,9 +37,9 @@ export default function Wines() {
   return (
     <div>
       <div className="flex items-baseline gap-3 mb-1 flex-wrap">
-        <h2 className="font-serif text-2xl text-ink">Wine shortlist</h2>
+        <h2 className="font-serif text-2xl text-ink">{t("wines.title")}</h2>
         <p className="text-xs text-ink-2 italic">
-          Click <span className="inline-flex w-4 h-4 rounded-full border border-tuscan/40 text-tuscan items-center justify-center text-[10px] font-bold align-middle">i</span> on any wine for vintage, segment, region context, and per-wine enrichment ideas.
+          {t("wines.introBefore")} <span className="inline-flex w-4 h-4 rounded-full border border-tuscan/40 text-tuscan items-center justify-center text-[10px] font-bold align-middle">i</span> {t("wines.introAfter")}
         </p>
       </div>
 
@@ -56,7 +58,7 @@ export default function Wines() {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search wine name, producer, region…"
+          placeholder={t("wines.searchPlaceholder")}
           className="flex-1 min-w-[240px] max-w-md text-sm border border-stone-300 rounded px-3 py-1.5 bg-white focus:border-tuscan focus:outline-none focus:ring-1 focus:ring-tuscan/30"
         />
         <select
@@ -64,7 +66,7 @@ export default function Wines() {
           onChange={(e) => setSegmentFilter(e.target.value)}
           className="text-sm border border-stone-300 rounded px-2 py-1.5 bg-white focus:border-tuscan focus:outline-none focus:ring-1 focus:ring-tuscan/30"
         >
-          <option value="all">All segments</option>
+          <option value="all">{t("wines.allSegments")}</option>
           {SEGMENTS.map((s) => (
             <option key={s.name} value={s.name}>
               {s.name}
@@ -73,20 +75,20 @@ export default function Wines() {
         </select>
         <span className="ml-auto text-xs text-ink-2 tabular-nums">
           {filtered.length === rows.length
-            ? `${rows.length} wines`
-            : `${filtered.length} of ${rows.length}`}
+            ? t("wines.totalCount", { wines: rows.length })
+            : t("wines.filteredCount", { shown: filtered.length, total: rows.length })}
         </span>
       </div>
 
       <table className="w-full text-sm border border-stone-200 rounded-lg overflow-hidden bg-white">
         <thead className="bg-stone-50 text-ink-2 text-xs uppercase tracking-wide">
           <tr>
-            <th className="text-left px-3 py-2">Wine</th>
-            <th className="text-left px-3 py-2">Producer</th>
-            <th className="text-left px-3 py-2">Macro region</th>
-            <th className="text-left px-3 py-2">Segment</th>
+            <th className="text-left px-3 py-2">{t("wines.colWine")}</th>
+            <th className="text-left px-3 py-2">{t("wines.colProducer")}</th>
+            <th className="text-left px-3 py-2">{t("wines.colMacroRegion")}</th>
+            <th className="text-left px-3 py-2">{t("wines.colSegment")}</th>
             <th className="text-right px-3 py-2">★</th>
-            <th className="text-right px-3 py-2">Reviews</th>
+            <th className="text-right px-3 py-2">{t("wines.colReviews")}</th>
             <th className="text-right px-3 py-2">€</th>
             <th className="text-right px-3 py-2 w-10"></th>
           </tr>
@@ -126,7 +128,7 @@ export default function Wines() {
               <td className="px-3 py-2 text-right">
                 <button
                   onClick={() => setSelected(w)}
-                  aria-label={`More info about ${w.wine_name}`}
+                  aria-label={t("wines.moreInfoAbout", { wineName: w.wine_name })}
                   className="inline-flex items-center justify-center w-6 h-6 rounded-full border border-stone-300 text-ink-2 text-xs font-bold hover:border-tuscan hover:text-tuscan hover:scale-110 transition-all"
                 >
                   i
@@ -137,7 +139,7 @@ export default function Wines() {
           {filtered.length === 0 && (
             <tr>
               <td colSpan={8} className="text-center text-ink-2 italic py-8">
-                No wines match the current filters.
+                {t("wines.emptyState")}
               </td>
             </tr>
           )}

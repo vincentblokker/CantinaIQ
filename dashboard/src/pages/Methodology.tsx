@@ -7,20 +7,23 @@ import {
   SEGMENTS,
   SUSTAINABILITY,
 } from "../lib/pdfData";
+import { useTranslation } from "react-i18next";
+import GlossedText, { Term } from "../components/GlossedText";
 
 export default function Methodology() {
+  const { t } = useTranslation();
   return (
     <div className="space-y-10">
       <header>
         <div className="text-xs uppercase tracking-widest text-tuscan font-semibold">
-          Section 06 · The Methodology
+          {t("methodology.eyebrow")}
         </div>
         <h1 className="font-serif text-4xl text-ink mt-2">
-          How the score is constructed
+          {t("methodology.title")}
         </h1>
         <p className="text-ink-2 mt-3 max-w-3xl leading-relaxed">
-          The recommendation in <a href="/recommendation" className="text-tuscan underline">/recommendation</a> rests on a
-          composite score whose components are visible, weighted, and
+          The recommendation in <a href="/recommendation" className="text-tuscan underline">/recommendation</a> rests on a{" "}
+          <Term term="composite score">composite score</Term> whose components are visible, weighted, and
           reproducible. The score is not the value of the document. The
           transparency of the score is.
         </p>
@@ -28,18 +31,20 @@ export default function Methodology() {
 
       <section>
         <h2 className="font-serif text-2xl text-ink mb-3">
-          The Bayesian-shrunk weighted rating
+          {t("methodology.bayesianTitle")}
         </h2>
         <p className="text-sm text-ink-2 max-w-3xl mb-4">
-          A wine with a 4.8 rating on 12 reviews must not outrank a wine with a
-          4.4 rating on 5,000 reviews. Both tracks apply the same shrinkage:
+          <GlossedText>
+            A wine with a 4.8 rating on 12 reviews must not outrank a wine with a
+            4.4 rating on 5,000 reviews. Both tracks apply the same shrinkage:
+          </GlossedText>
         </p>
         <div className="bg-stone-50 border-l-4 border-tuscan px-5 py-4 font-mono text-lg text-ink">
           WR = ( n / (n + m) ) · r + ( m / (n + m) ) · μ
         </div>
         <div className="grid grid-cols-4 gap-3 mt-4 text-sm">
-          <Fact label="r" value="Vivino rating (0–5)" />
-          <Fact label="n" value="Rating count" />
+          <Fact label="r" value={t("methodology.factVivinoRating")} />
+          <Fact label="n" value={t("methodology.factRatingCount")} />
           <Fact label="m" value={`${RUN.bayesianM} (auto-median)`} />
           <Fact label="μ" value={`${RUN.globalMean.toFixed(1)} (global mean)`} />
         </div>
@@ -47,7 +52,7 @@ export default function Methodology() {
 
       <section>
         <h2 className="font-serif text-2xl text-ink mb-3">
-          The five-factor composite
+          {t("methodology.compositeTitle")}
         </h2>
         <p className="text-sm text-ink-2 max-w-3xl mb-4">
           The Slurpini Partner Intelligence Score is a weighted average of five
@@ -82,7 +87,7 @@ export default function Methodology() {
 
       <section>
         <h2 className="font-serif text-2xl text-ink mb-3">
-          The cleaning cascade
+          {t("methodology.cleaningTitle")}
         </h2>
         <p className="text-sm text-ink-2 max-w-3xl mb-4">
           The dataset arrives as a {RUN.rawRows.toLocaleString()}-row,
@@ -94,9 +99,9 @@ export default function Methodology() {
           <table className="w-full text-sm">
             <thead className="bg-stone-50 text-xs uppercase tracking-wide text-ink-2">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold">Stage</th>
-                <th className="px-4 py-3 text-right font-semibold">Rows out</th>
-                <th className="px-4 py-3 text-left font-semibold">Top reason</th>
+                <th className="px-4 py-3 text-left font-semibold">{t("methodology.thStage")}</th>
+                <th className="px-4 py-3 text-right font-semibold">{t("methodology.thRowsOut")}</th>
+                <th className="px-4 py-3 text-left font-semibold">{t("methodology.thTopReason")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
@@ -116,7 +121,7 @@ export default function Methodology() {
 
       <section>
         <h2 className="font-serif text-2xl text-ink mb-3">
-          Producer extraction
+          {t("methodology.extractionTitle")}
         </h2>
         <p className="text-sm text-ink-2 max-w-3xl mb-4">
           Producer names are a string-extraction problem, not a field. A pass-1
@@ -129,17 +134,17 @@ export default function Methodology() {
         <div className="grid grid-cols-3 gap-3">
           <Stat
             value={`${(EXTRACTION_EVAL.recallExact * 100).toFixed(0)}%`}
-            label="Recall — exact match"
+            label={t("methodology.statRecallExact")}
             sub={`${Math.round(EXTRACTION_EVAL.recallExact * EXTRACTION_EVAL.goldSize)} of ${EXTRACTION_EVAL.goldSize} gold producers`}
           />
           <Stat
             value={`${(EXTRACTION_EVAL.recallContains * 100).toFixed(0)}%`}
-            label="Recall — contains"
+            label={t("methodology.statRecallContains")}
             sub={`${Math.round(EXTRACTION_EVAL.recallContains * EXTRACTION_EVAL.goldSize)} of ${EXTRACTION_EVAL.goldSize} gold producers`}
           />
           <Stat
             value={EXTRACTION_EVAL.missed.length}
-            label="Missed by both"
+            label={t("methodology.statMissed")}
             sub={EXTRACTION_EVAL.missed.join(" · ")}
           />
         </div>
@@ -147,11 +152,11 @@ export default function Methodology() {
 
       <section>
         <h2 className="font-serif text-2xl text-ink mb-3">
-          Market segments and actions
+          {t("methodology.segmentsTitle")}
         </h2>
         <div className="grid grid-cols-2 gap-6">
           <div>
-            <h3 className="font-serif text-lg text-ink mb-2">Segments</h3>
+            <h3 className="font-serif text-lg text-ink mb-2">{t("methodology.segmentsSubhead")}</h3>
             <div className="space-y-2">
               {SEGMENTS.map((s) => (
                 <div key={s.name} className="flex items-start gap-3">
@@ -164,7 +169,7 @@ export default function Methodology() {
             </div>
           </div>
           <div>
-            <h3 className="font-serif text-lg text-ink mb-2">Actions</h3>
+            <h3 className="font-serif text-lg text-ink mb-2">{t("methodology.actionsSubhead")}</h3>
             <div className="space-y-2">
               {ACTIONS.map((a) => (
                 <div key={a.name} className="flex items-start gap-3">
@@ -181,7 +186,7 @@ export default function Methodology() {
 
       <section>
         <h2 className="font-serif text-2xl text-ink mb-3">
-          Sustainability — external registry lookup
+          {t("methodology.sustainabilityTitle")}
         </h2>
         <p className="text-sm text-ink-2 max-w-3xl mb-4">
           Sustainability is Slurpini's stated USP and is absent from the Vivino
@@ -195,9 +200,9 @@ export default function Methodology() {
           <table className="w-full text-sm">
             <thead className="bg-stone-50 text-xs uppercase tracking-wide text-ink-2">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold">Producer</th>
-                <th className="px-4 py-3 text-left font-semibold">Certification</th>
-                <th className="px-4 py-3 text-left font-semibold">Source</th>
+                <th className="px-4 py-3 text-left font-semibold">{t("methodology.thProducer")}</th>
+                <th className="px-4 py-3 text-left font-semibold">{t("methodology.thCertification")}</th>
+                <th className="px-4 py-3 text-left font-semibold">{t("methodology.thSource")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
@@ -217,7 +222,7 @@ export default function Methodology() {
                     {s.link && (
                       <a href={s.link} target="_blank" rel="noopener noreferrer"
                          className="text-tuscan text-xs underline">
-                        registry
+                        {t("methodology.registryLink")}
                       </a>
                     )}
                   </td>

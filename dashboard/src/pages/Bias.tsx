@@ -9,6 +9,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 import { BIAS_REGIONS } from "../lib/pdfData";
 
 function colorFor(factor: number): string {
@@ -18,6 +19,7 @@ function colorFor(factor: number): string {
 }
 
 export default function Bias() {
+  const { t } = useTranslation();
   const sorted = [...BIAS_REGIONS].sort((a, b) => b.factor - a.factor);
   const over = sorted.filter((r) => r.factor >= 1.3);
   const under = sorted.filter((r) => r.factor < 0.7);
@@ -27,10 +29,10 @@ export default function Bias() {
     <div className="space-y-8">
       <header>
         <div className="text-xs uppercase tracking-widest text-tuscan font-semibold">
-          Section 02b · Bias quantification
+          {t("bias.eyebrow")}
         </div>
         <h1 className="font-serif text-4xl text-ink mt-2">
-          Vivino is not the Dutch wine market.
+          {t("bias.headline")}
         </h1>
         <p className="text-ink-2 mt-3 max-w-3xl leading-relaxed">
           Regional distribution of the cleaned Italian Vivino dataset against
@@ -44,28 +46,27 @@ export default function Bias() {
       <section className="grid grid-cols-3 gap-4 stagger">
         <Callout
           number={over.length}
-          label="Over-represented (×>1.3)"
+          label={t("bias.calloutOver")}
           accent="text-tuscan"
         />
         <Callout
           number={balanced.length}
-          label="Within band (0.7 – 1.3)"
+          label={t("bias.calloutBalanced")}
           accent="text-ink-2"
         />
         <Callout
           number={under.length}
-          label="Under-represented (×<0.7)"
+          label={t("bias.calloutUnder")}
           accent="text-sea"
         />
       </section>
 
       <section className="bg-white rounded-lg border border-stone-200 p-6">
         <h2 className="font-serif text-xl text-ink mb-1">
-          Vivino / ICE NL ratio per region
+          {t("bias.chartTitle")}
         </h2>
         <p className="text-sm text-ink-2 mb-5">
-          Bars below 1.0 mean Vivino has fewer wines than NL import share would
-          predict. Bars above 1.0 mean over-supply.
+          {t("bias.chartLead")}
         </p>
         <ResponsiveContainer width="100%" height={520}>
           <BarChart
@@ -91,7 +92,7 @@ export default function Bias() {
             <ReferenceLine x={1.3} stroke="#8B3A2F" strokeDasharray="2 6" />
             <Tooltip
               cursor={{ fill: "rgba(184,58,31,0.05)" }}
-              formatter={(value: number) => [`×${value.toFixed(2)}`, "factor"]}
+              formatter={(value: number) => [`×${value.toFixed(2)}`, t("bias.tooltipFactor")]}
               labelStyle={{ color: "#1F1B16", fontWeight: 600 }}
             />
             <Bar dataKey="factor" radius={[0, 4, 4, 0]}>
@@ -105,21 +106,21 @@ export default function Bias() {
 
       <section className="grid grid-cols-2 gap-6">
         <BiasGroup
-          title="Under-represented — flag with asterisk"
+          title={t("bias.underGroupTitle")}
           accent="border-sea/40 bg-sea/5"
-          intro="If a recommendation involves these regions, mark it under-sampled. The Vivino signal is sparse there."
+          intro={t("bias.underGroupIntro")}
           items={under}
         />
         <BiasGroup
-          title="Over-represented — trim confidence"
+          title={t("bias.overGroupTitle")}
           accent="border-tuscan/40 bg-tuscan/5"
-          intro="Vivino's Anglo-young user base over-supplies these regions. Recommendations need extra scrutiny."
+          intro={t("bias.overGroupIntro")}
           items={over}
         />
       </section>
 
       <section className="bg-stone-50 border border-stone-200 rounded-lg p-5 text-sm text-ink-2">
-        <strong className="text-ink">Reading the chart:</strong> Toscana ×1.22 means
+        <strong className="text-ink">{t("bias.readingLabel")}</strong> Toscana ×1.22 means
         Vivino contains 22% more Tuscan wines than NL imports would predict.
         Puglia ×0.61 means Vivino under-represents Apulian wines by 39%. The
         Vivino signal is most reliable in regions Slurpini already knows well —

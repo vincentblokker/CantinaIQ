@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import Modal from "./Modal";
 import { Wine } from "../lib/data";
 import { lookupRegion } from "../lib/regionMeta";
@@ -53,6 +54,7 @@ function segmentStyle(segment: string): string {
 }
 
 export default function WineDetailModal({ wine, onClose }: Props) {
+  const { t } = useTranslation();
   const [wiki, setWiki] = useState<WikiSummary | null>(null);
   const [wikiLoading, setWikiLoading] = useState(false);
   const [wikiError, setWikiError] = useState(false);
@@ -98,7 +100,7 @@ export default function WineDetailModal({ wine, onClose }: Props) {
             {wine.market_segment}
           </span>
           <span className="text-xs text-ink-2">
-            by{" "}
+            {t("wineModal.byProducer")}{" "}
             <span className="font-semibold text-ink">{wine.producer_name}</span> ·{" "}
             <span className="italic">{wine.region}</span>
           </span>
@@ -107,8 +109,8 @@ export default function WineDetailModal({ wine, onClose }: Props) {
         {/* Stats grid */}
         <div className="grid grid-cols-4 gap-3">
           <Stat label="Weighted rating" value={wine.weighted_rating.toFixed(2)} accent />
-          <Stat label="Reviews" value={wine.rating_count.toLocaleString()} />
-          <Stat label="Price" value={`€${Math.round(wine.price)}`} />
+          <Stat label={t("wineModal.reviewsLabel")} value={wine.rating_count.toLocaleString()} />
+          <Stat label={t("wineModal.priceLabel")} value={`€${Math.round(wine.price)}`} />
           <Stat label="Composite" value={wine.composite_score.toFixed(3)} accent />
         </div>
 
@@ -117,13 +119,13 @@ export default function WineDetailModal({ wine, onClose }: Props) {
           <div className="grid grid-cols-3 gap-3">
             <div>
               <div className="text-[10px] uppercase tracking-widest text-ink-2 font-semibold mb-1">
-                Price segment
+                {t("wineModal.priceSegmentLabel")}
               </div>
               <div className="text-ink">{wine.price_segment}</div>
             </div>
             <div>
               <div className="text-[10px] uppercase tracking-widest text-ink-2 font-semibold mb-1">
-                Confidence signal
+                {t("wineModal.confidenceSignalLabel")}
               </div>
               <div className="text-ink">{wine.confidence_segment}</div>
             </div>
@@ -140,13 +142,13 @@ export default function WineDetailModal({ wine, onClose }: Props) {
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <h3 className="text-xs uppercase tracking-widest text-ink-2 font-semibold mb-2">
-              Where it's from
+              {t("wineModal.whereItsFrom")}
             </h3>
             {mapUrl && (
               <div className="aspect-[4/3] rounded-lg overflow-hidden border border-stone-200">
                 <iframe
                   src={mapUrl}
-                  title={`Map of ${wine.macro_region}`}
+                  title={t("wineModal.mapTitle", { region: wine.macro_region })}
                   className="w-full h-full"
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
@@ -159,14 +161,14 @@ export default function WineDetailModal({ wine, onClose }: Props) {
           </div>
           <div>
             <h3 className="text-xs uppercase tracking-widest text-ink-2 font-semibold mb-2">
-              Region context
+              {t("wineModal.regionContext")}
             </h3>
             {wikiLoading && (
-              <div className="text-sm text-ink-2">Loading region context…</div>
+              <div className="text-sm text-ink-2">{t("wineModal.regionContextLoading")}</div>
             )}
             {wikiError && (
               <div className="text-sm text-ink-2">
-                Wikipedia region context unavailable.
+                {t("wineModal.regionContextUnavailable")}
               </div>
             )}
             {wiki && (
@@ -181,7 +183,7 @@ export default function WineDetailModal({ wine, onClose }: Props) {
                     rel="noopener noreferrer"
                     className="inline-block mt-2 text-xs text-tuscan underline link-underline"
                   >
-                    Read full region article on Wikipedia ↗
+                    {t("wineModal.readFullArticle")} ↗
                   </a>
                 )}
               </div>
@@ -189,7 +191,7 @@ export default function WineDetailModal({ wine, onClose }: Props) {
             {meta && meta.varietals.length > 0 && (
               <div className="mt-4">
                 <h4 className="text-xs uppercase tracking-widest text-ink-2 font-semibold mb-1">
-                  Region's signature varietals
+                  {t("wineModal.signatureVarietals")}
                 </h4>
                 <div className="flex flex-wrap gap-1.5">
                   {meta.varietals.map((v) => (
@@ -209,12 +211,10 @@ export default function WineDetailModal({ wine, onClose }: Props) {
         {/* Enrichments — all deferred for wine level (paid scraping) */}
         <div>
           <h3 className="text-xs uppercase tracking-widest text-ink-2 font-semibold mb-2">
-            Wine-level enrichments — all deferred
+            {t("wineModal.enrichmentsHeading")}
           </h3>
           <p className="text-sm text-ink-2 mb-3 max-w-3xl">
-            Per-wine attributes the Vivino export aggregates away. Each item
-            below requires a paid service or per-wine deep-scrape (Firecrawl
-            credits), so all are deferred until budget is allocated:
+            {t("wineModal.enrichmentsLead")}
           </p>
           <ul className="space-y-2">
             {DEFERRED.map((idea) => (
@@ -227,12 +227,12 @@ export default function WineDetailModal({ wine, onClose }: Props) {
                     <span className="text-stone-400 mr-1.5">○</span>
                     {idea.label}
                   </span>
-                  <span className="text-xs text-stone-500 italic">deferred</span>
+                  <span className="text-xs text-stone-500 italic">{t("wineModal.deferredBadge")}</span>
                 </div>
                 <div className="text-xs text-ink-2 mt-1 ml-5">{idea.why}</div>
                 <div className="text-xs text-stone-500 mt-1 ml-5 italic">
-                  <strong className="not-italic">Source:</strong> {idea.source} ·{" "}
-                  <strong className="not-italic">Blocker:</strong> {idea.cost}
+                  <strong className="not-italic">{t("wineModal.sourceLabel")}</strong> {idea.source} ·{" "}
+                  <strong className="not-italic">{t("wineModal.blockerLabel")}</strong> {idea.cost}
                 </div>
               </li>
             ))}

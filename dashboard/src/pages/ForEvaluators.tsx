@@ -1,31 +1,30 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { FIVE_MINUTE_READ, RUBRIC } from "../lib/evaluatorMapping";
 
 export default function ForEvaluators() {
+  const { t } = useTranslation();
   return (
     <div className="space-y-10">
       <header>
         <div className="text-xs uppercase tracking-widest text-tuscan font-semibold">
-          For evaluators
+          {t("forEvaluators.eyebrow")}
         </div>
         <h1 className="font-serif text-4xl text-ink mt-2">
-          Map the rubric to the evidence.
+          {t("forEvaluators.title")}
         </h1>
         <p className="text-ink-2 mt-3 max-w-3xl">
-          A click-through index from each evaluation criterion to where the
-          evidence lives — in the strategy brief PDF and in the repo.
+          {t("forEvaluators.intro")}
         </p>
       </header>
 
       {/* Section 0 — walkthrough video */}
       <section>
         <h2 className="font-serif text-2xl text-ink mb-3">
-          Watch the 3-minute walkthrough
+          {t("forEvaluators.videoTitle")}
         </h2>
         <p className="text-sm text-ink-2 mb-4 max-w-3xl">
-          A guided tour through the strategy brief, the dashboard, and how the
-          rubric maps onto the evidence. The fastest way to orient before
-          diving into the artefacts below.
+          {t("forEvaluators.videoLead")}
         </p>
         <div className="bg-white rounded-lg border border-stone-200 overflow-hidden shadow-sm">
           <video
@@ -35,12 +34,12 @@ export default function ForEvaluators() {
             className="w-full block"
           >
             <source src="/downloads/walkthrough.mp4" type="video/mp4" />
-            Your browser does not support HTML5 video. Download:{" "}
+            {t("forEvaluators.videoFallback")}{" "}
             <a href="/downloads/walkthrough.mp4">walkthrough.mp4</a>
           </video>
         </div>
         <p className="text-xs text-ink-2 mt-2">
-          3:00 · 36 MB · also downloadable:{" "}
+          {t("forEvaluators.videoMeta")}{" "}
           <a
             href="/downloads/walkthrough.mp4"
             download
@@ -54,18 +53,17 @@ export default function ForEvaluators() {
       {/* Section 1 — five-minute read */}
       <section>
         <h2 className="font-serif text-2xl text-ink mb-3">
-          If you only have five minutes
+          {t("forEvaluators.fiveMinTitle")}
         </h2>
         <p className="text-sm text-ink-2 mb-4 max-w-3xl">
-          Everything ADA's brief literally asks for sits in <code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">bare/</code> —
-          one notebook, one crawler-extension script, one half-page recommendation. The three deliverables, mapped:
+          {t("forEvaluators.fiveMinLeadPre")}<code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">bare/</code>{t("forEvaluators.fiveMinLeadPost")}
         </p>
         <div className="bg-white rounded-lg border border-stone-200 overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-stone-50 text-xs uppercase tracking-wide text-ink-2">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold">Brief requirement</th>
-                <th className="px-4 py-3 text-left font-semibold">Lives in</th>
+                <th className="px-4 py-3 text-left font-semibold">{t("forEvaluators.colRequirement")}</th>
+                <th className="px-4 py-3 text-left font-semibold">{t("forEvaluators.colLivesIn")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100 [&_tr]:transition-colors [&_tr:hover]:bg-stone-50">
@@ -92,19 +90,18 @@ export default function ForEvaluators() {
       {/* Section 2 — rubric mapping */}
       <section>
         <h2 className="font-serif text-2xl text-ink mb-3">
-          Rubric mapping
+          {t("forEvaluators.rubricTitle")}
         </h2>
         <p className="text-sm text-ink-2 mb-4 max-w-3xl">
-          The complete index. Each row points to a section in the strategy brief PDF
-          and to a file in the repo or a page on this dashboard.
+          {t("forEvaluators.rubricLead")}
         </p>
         <div className="bg-white rounded-lg border border-stone-200 overflow-x-auto">
           <table className="w-full text-sm min-w-[720px]">
             <thead className="bg-stone-50 text-xs uppercase tracking-wide text-ink-2">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold w-1/3">Criterion</th>
-                <th className="px-4 py-3 text-left font-semibold w-1/4">Strategy Brief PDF</th>
-                <th className="px-4 py-3 text-left font-semibold">Repo / Dashboard</th>
+                <th className="px-4 py-3 text-left font-semibold w-1/3">{t("forEvaluators.colCriterion")}</th>
+                <th className="px-4 py-3 text-left font-semibold w-1/4">{t("forEvaluators.colBrief")}</th>
+                <th className="px-4 py-3 text-left font-semibold">{t("forEvaluators.colRepo")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100 [&_tr]:transition-colors [&_tr:hover]:bg-stone-50">
@@ -155,7 +152,7 @@ export default function ForEvaluators() {
       {/* Section 3 — downloads + run-it-yourself */}
       <section>
         <h2 className="font-serif text-2xl text-ink mb-3">
-          Download or run it yourself
+          {t("forEvaluators.downloadTitle")}
         </h2>
         <div className="flex flex-wrap gap-3 mb-5">
           <a
@@ -163,18 +160,18 @@ export default function ForEvaluators() {
             className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-tuscan text-white text-sm font-semibold hover:bg-tuscan/90 transition-all hover-lift group"
           >
             <span aria-hidden className="transition-transform group-hover:-translate-y-0.5">↓</span>
-            Strategy brief PDF (19 pages)
+            {t("forEvaluators.downloadBrief", { pages: 19 })}
           </a>
           <a
             href="/downloads/evaluator-mapping.pdf"
             className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-white border border-tuscan text-tuscan text-sm font-semibold hover:bg-tuscan/5 transition-all hover-lift group"
           >
             <span aria-hidden className="transition-transform group-hover:-translate-y-0.5">↓</span>
-            Evaluator mapping PDF (1 page)
+            {t("forEvaluators.downloadMapping", { pages: 1 })}
           </a>
         </div>
         <p className="text-sm text-ink-2 mb-3">
-          Or clone the repo and run the full pipeline locally:
+          {t("forEvaluators.cloneLead")}
         </p>
         <pre className="bg-ink text-cream font-mono text-xs p-4 rounded-lg overflow-x-auto leading-relaxed">
 {`git clone https://github.com/vincentblokker/CantinaIQ
@@ -182,9 +179,9 @@ cd CantinaIQ
 make setup && make demo`}
         </pre>
         <p className="text-xs text-ink-2 mt-3">
-          End-to-end run completes in ~30 seconds. Outputs land in{" "}
+          {t("forEvaluators.runOutputPre")}{" "}
           <code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">supercharged/reports/generated/</code>{" "}
-          and the dashboard build in <code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">dashboard/dist/</code>.
+          {t("forEvaluators.runOutputMid")} <code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">dashboard/dist/</code>{t("forEvaluators.runOutputPost")}
         </p>
       </section>
     </div>

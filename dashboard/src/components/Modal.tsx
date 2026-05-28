@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 interface ModalProps {
   open: boolean;
@@ -8,6 +9,7 @@ interface ModalProps {
 }
 
 export default function Modal({ open, onClose, title, children }: ModalProps) {
+  const { t } = useTranslation();
   const ref = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -33,7 +35,7 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
         <h2 className="font-serif text-xl text-ink">{title}</h2>
         <button
           onClick={onClose}
-          aria-label="Close"
+          aria-label={t("common.close")}
           className="text-ink-2 hover:text-tuscan transition-colors text-2xl leading-none -mr-1 px-2"
         >
           ×

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Producer, loadProducers } from "../lib/data";
 import {
   CartesianGrid,
@@ -20,6 +21,7 @@ const COLOUR_BY_SEGMENT: Record<string, string> = {
 };
 
 export default function Matrix() {
+  const { t } = useTranslation();
   const [rows, setRows] = useState<Producer[]>([]);
   useEffect(() => {
     loadProducers().then(setRows);
@@ -36,7 +38,7 @@ export default function Matrix() {
 
   return (
     <div>
-      <h2 className="font-serif text-2xl text-ink mb-4">Opportunity matrix</h2>
+      <h2 className="font-serif text-2xl text-ink mb-4">{t("matrix.title")}</h2>
       <div className="bg-white border border-stone-200 rounded-lg p-4">
         <ResponsiveContainer width="100%" height={500}>
           <ScatterChart margin={{ top: 20, right: 30, bottom: 30, left: 30 }}>
@@ -44,7 +46,7 @@ export default function Matrix() {
             <XAxis
               type="number"
               dataKey="x"
-              name="Avg price (€)"
+              name={t("matrix.axisPrice")}
               scale="log"
               domain={[1, 3000]}
               ticks={[5, 20, 50, 100, 300, 1000, 3000]}
@@ -53,7 +55,7 @@ export default function Matrix() {
             <YAxis
               type="number"
               dataKey="y"
-              name="Weighted rating"
+              name={t("matrix.axisRating")}
               domain={[3.0, 5.0]}
               tickFormatter={(v) => v.toFixed(1)}
             />
@@ -72,7 +74,7 @@ export default function Matrix() {
                 return (
                   <div className="bg-white border border-stone-200 rounded p-2 text-xs">
                     <div className="font-serif text-ink">{p.name}</div>
-                    <div>★ {p.y.toFixed(2)} · €{Math.round(p.x)} · {p.z.toLocaleString()} reviews</div>
+                    <div>★ {p.y.toFixed(2)} · €{Math.round(p.x)} · {t("matrix.tooltipReviews", { reviews: p.z.toLocaleString() })}</div>
                     <div className="text-ink-2">{p.segment}</div>
                   </div>
                 );
@@ -83,8 +85,7 @@ export default function Matrix() {
         </ResponsiveContainer>
       </div>
       <p className="text-xs text-ink-2 mt-3">
-        X = log-price, Y = weighted rating, bubble size ∝ review count. Top-left = Hidden Gem,
-        top-right = Premium Icon, bottom = Overpriced or Commercial Value.
+        {t("matrix.legendAxes")} {t("matrix.legendQuadrants")}
       </p>
     </div>
   );

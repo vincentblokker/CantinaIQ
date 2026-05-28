@@ -1,5 +1,6 @@
 import { Link, NavLink, Route, Routes, useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import Overview from "./pages/Overview";
 import Recommendation from "./pages/Recommendation";
 import Regions from "./pages/Regions";
@@ -10,30 +11,31 @@ import Stability from "./pages/Stability";
 import Methodology from "./pages/Methodology";
 import ForEvaluators from "./pages/ForEvaluators";
 import Wines from "./pages/Wines";
+import LanguageToggle from "./components/LanguageToggle";
 
 const NAV_ITEMS = [
-  { to: "/", label: "Overview", end: true },
-  { to: "/recommendation", label: "Recommendation" },
-  { to: "/matrix", label: "Matrix" },
-  { to: "/wines", label: "Wines" },
-  { to: "/regions", label: "Regions" },
-  { to: "/producers", label: "Producers" },
-  { to: "/bias", label: "Bias" },
-  { to: "/stability", label: "Stability" },
-  { to: "/methodology", label: "Methodology" },
-];
+  { to: "/", labelKey: "nav.overview" },
+  { to: "/recommendation", labelKey: "nav.recommendation" },
+  { to: "/matrix", labelKey: "nav.matrix" },
+  { to: "/wines", labelKey: "nav.wines" },
+  { to: "/regions", labelKey: "nav.regions" },
+  { to: "/producers", labelKey: "nav.producers" },
+  { to: "/bias", labelKey: "nav.bias" },
+  { to: "/stability", labelKey: "nav.stability" },
+  { to: "/methodology", labelKey: "nav.methodology" },
+] as const;
 
-const PAGE_LABEL: Record<string, string> = {
-  "/recommendation": "Recommendation",
-  "/matrix": "Opportunity Matrix",
-  "/wines": "Wines",
-  "/regions": "Regions",
-  "/producers": "Producers",
-  "/bias": "Bias",
-  "/stability": "Stability",
-  "/methodology": "Methodology",
-  "/for-evaluators": "For Evaluators",
-};
+const BREADCRUMB_KEY = {
+  "/recommendation": "breadcrumb.recommendation",
+  "/matrix": "breadcrumb.matrix",
+  "/wines": "breadcrumb.wines",
+  "/regions": "breadcrumb.regions",
+  "/producers": "breadcrumb.producers",
+  "/bias": "breadcrumb.bias",
+  "/stability": "breadcrumb.stability",
+  "/methodology": "breadcrumb.methodology",
+  "/for-evaluators": "breadcrumb.forEvaluators",
+} as const;
 
 const navLink = ({ isActive }: { isActive: boolean }) =>
   `relative pb-1 transition-colors ${
@@ -52,8 +54,10 @@ function ScrollToTop() {
 
 function Breadcrumb() {
   const { pathname } = useLocation();
+  const { t } = useTranslation();
   if (pathname === "/") return null;
-  const label = PAGE_LABEL[pathname] ?? pathname.replace("/", "");
+  const key = BREADCRUMB_KEY[pathname as keyof typeof BREADCRUMB_KEY];
+  const label = key ? t(key) : pathname.replace("/", "");
   return (
     <div className="bg-stone-50 border-b border-stone-200">
       <div className="max-w-6xl mx-auto px-6 py-3 flex items-center gap-2 text-sm">
@@ -61,7 +65,7 @@ function Breadcrumb() {
           to="/"
           className="text-tuscan font-semibold hover:underline inline-flex items-center gap-1"
         >
-          <span aria-hidden>←</span> Overview
+          <span aria-hidden>←</span> {t("breadcrumb.backToOverview")}
         </Link>
         <span className="text-stone-400" aria-hidden>/</span>
         <span className="text-ink-2">{label}</span>
@@ -71,6 +75,7 @@ function Breadcrumb() {
 }
 
 export default function App() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen">
       <ScrollToTop />
@@ -78,12 +83,12 @@ export default function App() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-baseline gap-8 flex-wrap">
           <Link to="/" className="font-serif text-2xl text-ink hover:text-tuscan transition-colors">
             CantinaIQ
-            <span className="ml-2 text-sm text-ink-2 font-sans">— Slurpini Partner Intelligence</span>
+            <span className="ml-2 text-sm text-ink-2 font-sans">{t("brand.tagline")}</span>
           </Link>
           <nav className="ml-auto flex items-baseline gap-x-5 gap-y-2 text-sm flex-wrap">
             {NAV_ITEMS.map((item) => (
-              <NavLink key={item.to} to={item.to} end={item.end} className={navLink}>
-                {item.label}
+              <NavLink key={item.to} to={item.to} end={item.to === "/"} className={navLink}>
+                {t(item.labelKey)}
               </NavLink>
             ))}
             <NavLink
@@ -96,8 +101,9 @@ export default function App() {
                 }`
               }
             >
-              For Evaluators
+              {t("nav.forEvaluators")}
             </NavLink>
+            <LanguageToggle />
           </nav>
         </div>
       </header>
@@ -122,14 +128,15 @@ export default function App() {
 }
 
 function Footer() {
+  const { t } = useTranslation();
   return (
     <footer className="border-t border-stone-200 bg-stone-50 mt-12">
       <div className="max-w-6xl mx-auto px-6 py-6 flex items-baseline gap-6 flex-wrap text-xs text-ink-2">
         <span className="font-semibold text-ink">CantinaIQ</span>
         <span>·</span>
-        <Link to="/" className="hover:text-tuscan">Overview</Link>
-        <Link to="/recommendation" className="hover:text-tuscan">Recommendation</Link>
-        <Link to="/for-evaluators" className="hover:text-tuscan">For Evaluators</Link>
+        <Link to="/" className="hover:text-tuscan">{t("footer.overview")}</Link>
+        <Link to="/recommendation" className="hover:text-tuscan">{t("footer.recommendation")}</Link>
+        <Link to="/for-evaluators" className="hover:text-tuscan">{t("footer.forEvaluators")}</Link>
         <span className="ml-auto">
           <a
             href="https://github.com/vincentblokker/CantinaIQ"

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import MetricCard from "../components/MetricCard";
 import RecommendationPill from "../components/RecommendationPill";
 import ProducerDetailModal from "../components/ProducerDetailModal";
@@ -15,6 +16,7 @@ import {
 import { RECOMMENDATION, BIAS_REGIONS, EXTRACTION_EVAL } from "../lib/pdfData";
 
 export default function Overview() {
+  const { t } = useTranslation();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [producers, setProducers] = useState<Producer[]>([]);
   const [regions, setRegions] = useState<Region[]>([]);
@@ -37,7 +39,7 @@ export default function Overview() {
   const underrep = BIAS_REGIONS.filter((r) => r.factor < 0.7).length;
   const overrep = BIAS_REGIONS.filter((r) => r.factor >= 1.3).length;
 
-  if (!summary) return <div className="text-ink-2">Loading…</div>;
+  if (!summary) return <div className="text-ink-2">{t("overview.loading")}</div>;
 
   return (
     <div className="space-y-10">
@@ -48,13 +50,13 @@ export default function Overview() {
       >
         <div className="flex items-baseline gap-4 flex-wrap">
           <span className="text-xs uppercase tracking-widest text-tuscan font-semibold whitespace-nowrap">
-            Evaluating this submission?
+            {t("overview.ctaTag")}
           </span>
           <span className="text-sm text-ink flex-1">
-            Use the rubric map to confirm coverage in two minutes — each ADA criterion is linked to the brief section and the source file.
+            {t("overview.ctaBody")}
           </span>
           <span className="text-tuscan text-sm font-semibold whitespace-nowrap group-hover:translate-x-0.5 transition-transform">
-            Open rubric map →
+            {t("overview.ctaLink")}
           </span>
         </div>
       </Link>
@@ -62,39 +64,39 @@ export default function Overview() {
       {/* Headline */}
       <section className="border-b border-stone-200 pb-6">
         <div className="text-xs uppercase tracking-widest text-tuscan font-semibold">
-          Slurpini Partner Intelligence — board-level recommendation
+          {t("overview.eyebrow")}
         </div>
         <h1 className="font-serif text-4xl text-ink mt-2 max-w-3xl leading-tight">
-          {summary.totals.wines.toLocaleString()} Italian wines, scored, segmented, and ranked — with confidence bands.
+          {t("overview.headline", { wines: summary.totals.wines.toLocaleString() })}
         </h1>
         <p className="text-ink-2 mt-3 max-w-3xl leading-relaxed">
-          Every number on this dashboard traces back to pipeline run{" "}
+          {t("overview.tracePre")}
           <code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded text-sm">
             {summary.config_hash}
-          </code>.
-          Replay the run, get the same numbers.
+          </code>
+          {t("overview.tracePost")}
         </p>
       </section>
 
       {/* KPI row */}
       <section className="grid grid-cols-4 gap-4 stagger">
-        <MetricCard label="Wines analysed" value={summary.totals.wines.toLocaleString()} />
-        <MetricCard label="Producers" value={summary.totals.producers.toLocaleString()} />
-        <MetricCard label="Regions" value={summary.totals.regions} />
+        <MetricCard label={t("overview.kpiWines")} value={summary.totals.wines.toLocaleString()} />
+        <MetricCard label={t("overview.kpiProducers")} value={summary.totals.producers.toLocaleString()} />
+        <MetricCard label={t("overview.kpiRegions")} value={summary.totals.regions} />
         <MetricCard
-          label="Extraction recall"
+          label={t("overview.kpiRecall")}
           value={`${(EXTRACTION_EVAL.recallContains * 100).toFixed(0)}%`}
-          hint="contains-match on known top-50"
+          hint={t("overview.kpiRecallHint")}
         />
       </section>
 
       {/* The verdict block */}
       <section>
-        <h2 className="font-serif text-2xl text-ink mb-1">The verdict</h2>
+        <h2 className="font-serif text-2xl text-ink mb-1">{t("overview.verdictTitle")}</h2>
         <p className="text-sm text-ink-2 mb-4">
-          The three-part recommendation in one screen.{" "}
+          {t("overview.verdictLead")}{" "}
           <Link to="/recommendation" className="text-tuscan underline">
-            See full detail →
+            {t("overview.verdictDetailLink")}
           </Link>
         </p>
         <div className="grid grid-cols-3 gap-4 stagger">
@@ -103,7 +105,7 @@ export default function Overview() {
             accent="border-purple-300 bg-purple-50/40"
             badge="bg-purple-100 text-purple-800 border-purple-200"
             count={RECOMMENDATION.hold.length}
-            headline="The defensible anchor"
+            headline={t("overview.verdictHoldHeadline")}
             samples={RECOMMENDATION.hold.slice(0, 2).map((h) => h.name)}
           />
           <VerdictCard
@@ -111,7 +113,7 @@ export default function Overview() {
             accent="border-green-300 bg-green-50/40"
             badge="bg-green-100 text-green-800 border-green-200"
             count={RECOMMENDATION.expand.length}
-            headline="The value-opportunity zone"
+            headline={t("overview.verdictExpandHeadline")}
             samples={RECOMMENDATION.expand.slice(0, 3).map((h) => h.name)}
           />
           <VerdictCard
@@ -119,7 +121,7 @@ export default function Overview() {
             accent="border-amber-300 bg-amber-50/40"
             badge="bg-amber-100 text-amber-800 border-amber-200"
             count={RECOMMENDATION.audit.length}
-            headline="The borderline producers"
+            headline={t("overview.verdictAuditHeadline")}
             samples={RECOMMENDATION.audit.map((h) => h.name)}
           />
         </div>
@@ -129,24 +131,24 @@ export default function Overview() {
       <section className="grid grid-cols-2 gap-4">
         <HonestCard
           accent="border-sea/30 bg-sea/5"
-          tag="External validity"
-          headline={`${underrep} regions under-represented in Vivino`}
-          body="Puglia ×0.61, Abruzzo ×0.52, Campania ×0.55. The Vivino signal is most reliable where Slurpini already knows the market — the opposite of where it most needs help."
-          link={<Link to="/bias" className="text-sea underline">See the bias report →</Link>}
+          tag={t("overview.biasTag")}
+          headline={t("overview.biasHeadline", { regions: underrep })}
+          body={t("overview.biasBody")}
+          link={<Link to="/bias" className="text-sea underline">{t("overview.biasLink")}</Link>}
         />
         <HonestCard
           accent="border-amber-300 bg-amber-50/30"
-          tag="Stability"
-          headline="2 producers in the raw top-10 are top-10 by accident"
-          body="Terre di San Vincenzo and Valdicava show p95 bootstrap ranks of 412 and 228. The bare track lists them at face value; this track flags them."
-          link={<Link to="/stability" className="text-amber-700 underline">See bootstrap detail →</Link>}
+          tag={t("overview.stabilityTag")}
+          headline={t("overview.stabilityHeadline")}
+          body={t("overview.stabilityBody")}
+          link={<Link to="/stability" className="text-amber-700 underline">{t("overview.stabilityLink")}</Link>}
         />
       </section>
 
       {/* Top producers */}
       <section>
         <h2 className="font-serif text-xl text-ink mb-3">
-          Top 5 producers by composite score
+          {t("overview.topProducersTitle")}
         </h2>
         <ol className="divide-y divide-stone-200 rounded-lg border border-stone-200 bg-white">
           {topProducers.map((p, i) => (
@@ -158,7 +160,7 @@ export default function Overview() {
               <span className="text-sm text-ink-2 tabular-nums">€{Math.round(p.avg_price)}</span>
               <button
                 onClick={() => setSelectedProducer(p)}
-                aria-label={`More info about ${p.producer_name}`}
+                aria-label={t("overview.moreInfo", { name: p.producer_name })}
                 className="inline-flex items-center justify-center w-6 h-6 rounded-full border border-stone-300 text-ink-2 text-xs font-bold hover:border-tuscan hover:text-tuscan hover:scale-110 transition-all"
               >
                 i
@@ -171,7 +173,7 @@ export default function Overview() {
       {/* Top regions */}
       <section>
         <h2 className="font-serif text-xl text-ink mb-3">
-          Top 5 regions by weighted rating
+          {t("overview.topRegionsTitle")}
         </h2>
         <ol className="divide-y divide-stone-200 rounded-lg border border-stone-200 bg-white">
           {topRegions.map((r, i) => (
@@ -179,11 +181,11 @@ export default function Overview() {
               <span className="text-ink-2 text-sm w-6">#{i + 1}</span>
               <span className="font-serif text-ink flex-1">{r.region}</span>
               <span className="text-sm text-ink-2 tabular-nums">★ {r.weighted_rating.toFixed(2)}</span>
-              <span className="text-sm text-ink-2 tabular-nums">{r.wines} wines</span>
+              <span className="text-sm text-ink-2 tabular-nums">{t("overview.regionWines", { wines: r.wines })}</span>
               <span className="text-sm text-ink-2 tabular-nums">€{Math.round(r.avg_price)}</span>
               <button
                 onClick={() => setSelectedRegion(r)}
-                aria-label={`More info about ${r.region}`}
+                aria-label={t("overview.moreInfo", { name: r.region })}
                 className="inline-flex items-center justify-center w-6 h-6 rounded-full border border-stone-300 text-ink-2 text-xs font-bold hover:border-tuscan hover:text-tuscan hover:scale-110 transition-all"
               >
                 i
@@ -195,10 +197,10 @@ export default function Overview() {
 
       <footer className="text-xs text-ink-2 pt-6 border-t border-stone-200 flex justify-between flex-wrap gap-2">
         <div>
-          Config hash <span className="font-mono text-tuscan">{summary.config_hash}</span> · run {summary.run_id}
+          {t("overview.footerHashLabel")} <span className="font-mono text-tuscan">{summary.config_hash}</span> · {t("overview.footerRunLabel")} {summary.run_id}
         </div>
         <div>
-          {overrep} regions over-represented · {underrep} under-represented · top-10 stability via 200-resample bootstrap
+          {t("overview.footerStats", { over: overrep, under: underrep })}
         </div>
       </footer>
 

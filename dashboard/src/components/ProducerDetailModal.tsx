@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import Modal from "./Modal";
 import { Producer } from "../lib/data";
 import { lookupRegion } from "../lib/regionMeta";
@@ -78,6 +79,7 @@ function recommendationStyle(rec: string): string {
 }
 
 export default function ProducerDetailModal({ producer, onClose }: Props) {
+  const { t } = useTranslation();
   const [wiki, setWiki] = useState<WikiSummary | null>(null);
   const [wikiLoading, setWikiLoading] = useState(false);
   const [wikiError, setWikiError] = useState(false);
@@ -177,7 +179,7 @@ export default function ProducerDetailModal({ producer, onClose }: Props) {
           )}
           {cert?.certification && (
             <span className="px-2 py-0.5 text-xs rounded-full border border-leaf/40 bg-leaf/10 text-leaf font-semibold">
-              {cert.certification} certified
+              {t("producerModal.certifiedBadge", { certification: cert.certification })}
             </span>
           )}
         </div>
@@ -185,8 +187,8 @@ export default function ProducerDetailModal({ producer, onClose }: Props) {
         {/* Stats grid */}
         <div className="grid grid-cols-4 gap-3">
           <Stat label="Weighted rating" value={producer.weighted_rating.toFixed(2)} accent />
-          <Stat label="Reviews" value={producer.total_reviews.toLocaleString()} />
-          <Stat label="Avg price" value={`€${Math.round(producer.avg_price)}`} />
+          <Stat label={t("producerModal.statReviews")} value={producer.total_reviews.toLocaleString()} />
+          <Stat label={t("producerModal.statAvgPrice")} value={`€${Math.round(producer.avg_price)}`} />
           <Stat label="Composite score" value={producer.composite_score.toFixed(3)} accent />
         </div>
 
@@ -210,13 +212,13 @@ export default function ProducerDetailModal({ producer, onClose }: Props) {
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <h3 className="text-xs uppercase tracking-widest text-ink-2 font-semibold mb-2">
-              Where it's based
+              {t("producerModal.whereBasedTitle")}
             </h3>
             {mapUrl && (
               <div className="aspect-[4/3] rounded-lg overflow-hidden border border-stone-200">
                 <iframe
                   src={mapUrl}
-                  title={`Map of ${producer.macro_region}`}
+                  title={t("producerModal.mapAriaLabel", { region: producer.macro_region })}
                   className="w-full h-full"
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
@@ -229,14 +231,14 @@ export default function ProducerDetailModal({ producer, onClose }: Props) {
           </div>
           <div>
             <h3 className="text-xs uppercase tracking-widest text-ink-2 font-semibold mb-2">
-              Context
+              {t("producerModal.contextTitle")}
             </h3>
             {wikiLoading && (
-              <div className="text-sm text-ink-2">Looking up {producer.producer_name} on Wikipedia…</div>
+              <div className="text-sm text-ink-2">{t("producerModal.wikiLoading", { producer: producer.producer_name })}</div>
             )}
             {wikiError && (
               <div className="text-sm text-ink-2 leading-relaxed">
-                No Wikipedia page found for <em>{producer.producer_name}</em>. The
+                {t("producerModal.wikiErrorIntro")} <em>{producer.producer_name}</em>. The
                 producer may be too small for an English-language Wikipedia entry,
                 or the name needs disambiguation. Italian or producer-website
                 lookup belongs in the next enrichment pass (see below).
@@ -254,7 +256,7 @@ export default function ProducerDetailModal({ producer, onClose }: Props) {
                     rel="noopener noreferrer"
                     className="inline-block mt-2 text-xs text-tuscan underline link-underline"
                   >
-                    Read full article on Wikipedia ↗
+                    {t("producerModal.wikiReadMore")}
                   </a>
                 )}
               </div>
@@ -262,7 +264,7 @@ export default function ProducerDetailModal({ producer, onClose }: Props) {
             {meta && meta.varietals.length > 0 && (
               <div className="mt-4">
                 <h4 className="text-xs uppercase tracking-widest text-ink-2 font-semibold mb-1">
-                  Region's signature varietals
+                  {t("producerModal.signatureVarietalsTitle")}
                 </h4>
                 <div className="flex flex-wrap gap-1.5">
                   {meta.varietals.map((v) => (
@@ -282,7 +284,7 @@ export default function ProducerDetailModal({ producer, onClose }: Props) {
         {/* Enrichments — all deferred for producer level (paid sources) */}
         <div>
           <h3 className="text-xs uppercase tracking-widest text-ink-2 font-semibold mb-2">
-            Producer enrichments — all deferred
+            {t("producerModal.enrichmentsTitle")}
           </h3>
           <p className="text-sm text-ink-2 mb-3 max-w-3xl">
             Producer-level data the pipeline does not yet pull. Every source
@@ -302,12 +304,12 @@ export default function ProducerDetailModal({ producer, onClose }: Props) {
                     <span className="text-stone-400 mr-1.5">○</span>
                     {idea.label}
                   </span>
-                  <span className="text-xs text-stone-500 italic">deferred</span>
+                  <span className="text-xs text-stone-500 italic">{t("producerModal.deferredTag")}</span>
                 </div>
                 <div className="text-xs text-ink-2 mt-1 ml-5">{idea.why}</div>
                 <div className="text-xs text-stone-500 mt-1 ml-5 italic">
-                  <strong className="not-italic">Source:</strong> {idea.source} ·{" "}
-                  <strong className="not-italic">Blocker:</strong> {idea.cost}
+                  <strong className="not-italic">{t("producerModal.sourceLabel")}</strong> {idea.source} ·{" "}
+                  <strong className="not-italic">{t("producerModal.blockerLabel")}</strong> {idea.cost}
                 </div>
               </li>
             ))}
