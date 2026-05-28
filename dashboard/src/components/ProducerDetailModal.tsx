@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import Modal from "./Modal";
 import GlossedText from "./GlossedText";
 import { useNl, useDomainLabels } from "../i18n/domainLabels";
+import { fetchWikiSummary } from "../lib/wikiSummary";
 import { Producer } from "../lib/data";
 import { lookupRegion } from "../lib/regionMeta";
 import { SUSTAINABILITY, SEGMENTS, ACTIONS } from "../lib/pdfData";
@@ -145,43 +146,29 @@ export default function ProducerDetailModal({ producer, onClose }: Props) {
       stripped !== name ? stripped.replace(/ /g, "_") : null,
       `${stripped.replace(/ /g, "_")}_(wine)`,
       `${stripped.replace(/ /g, "_")}_(winery)`,
+      // Last resort: the macro-region — keeps the Context section in Dutch when
+      // the producer itself has no (Dutch) Wikipedia article.
+      producer.macro_region,
     ].filter(Boolean) as string[];
 
     setWikiLoading(true);
     setWikiError(false);
 
     let cancelled = false;
-    (async () => {
-      for (const slug of slugs) {
+    fetchWikiSummary(slugs, nl)
+      .then((j) => {
         if (cancelled) return;
-        try {
-          const r = await fetch(
-            `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(slug)}`,
-          );
-          if (!r.ok) continue;
-          const j: WikiSummary = await r.json();
-          // Skip too-short / disambiguation extracts
-          if (j.extract && j.extract.length > 80 && !/may refer to/i.test(j.extract)) {
-            if (!cancelled) {
-              setWiki(j);
-              setWikiLoading(false);
-            }
-            return;
-          }
-        } catch {
-          // try next
-        }
-      }
-      if (!cancelled) {
-        setWikiError(true);
-        setWikiLoading(false);
-      }
-    })();
+        if (j) setWiki(j);
+        else setWikiError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setWikiLoading(false);
+      });
 
     return () => {
       cancelled = true;
     };
-  }, [producer]);
+  }, [producer, nl]);
 
   if (!producer) return null;
 

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import Modal from "./Modal";
 import GlossedText from "./GlossedText";
 import { useNl, useDomainLabels } from "../i18n/domainLabels";
+import { fetchWikiSummary } from "../lib/wikiSummary";
 import { Wine } from "../lib/data";
 import { lookupRegion } from "../lib/regionMeta";
 import { SEGMENTS } from "../lib/pdfData";
@@ -92,12 +93,20 @@ export default function WineDetailModal({ wine, onClose }: Props) {
     }
     setWikiLoading(true);
     setWikiError(false);
-    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${meta.wikipediaSlug}`)
-      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
-      .then((j: WikiSummary) => setWiki(j))
-      .catch(() => setWikiError(true))
-      .finally(() => setWikiLoading(false));
-  }, [wine, meta]);
+    let cancelled = false;
+    fetchWikiSummary([meta.wikipediaSlug, wine.macro_region, wine.region], nl)
+      .then((j) => {
+        if (cancelled) return;
+        if (j) setWiki(j);
+        else setWikiError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setWikiLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [wine, meta, nl]);
 
   if (!wine) return null;
 

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import Modal from "./Modal";
 import GlossedText from "./GlossedText";
 import { useNl } from "../i18n/domainLabels";
+import { fetchWikiSummary } from "../lib/wikiSummary";
 import { Region } from "../lib/data";
 import { lookupRegion } from "../lib/regionMeta";
 import { BIAS_REGIONS } from "../lib/pdfData";
@@ -70,12 +71,20 @@ export default function RegionDetailModal({ region, onClose }: Props) {
     }
     setWikiLoading(true);
     setWikiError(false);
-    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${meta.wikipediaSlug}`)
-      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
-      .then((j) => setWiki(j))
-      .catch(() => setWikiError(true))
-      .finally(() => setWikiLoading(false));
-  }, [region, meta]);
+    let cancelled = false;
+    fetchWikiSummary([meta.wikipediaSlug, region.macro_region, region.region], nl)
+      .then((j) => {
+        if (cancelled) return;
+        if (j) setWiki(j);
+        else setWikiError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setWikiLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [region, meta, nl]);
 
   if (!region) return null;
 
