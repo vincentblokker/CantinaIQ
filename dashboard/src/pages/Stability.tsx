@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import GlossedText, { Term } from "../components/GlossedText";
 import {
   ANOMALIES,
   ANOMALIES_CONTAMINATION,
@@ -23,21 +24,25 @@ export default function Stability() {
           {t("stability.title")}
         </h1>
         <p className="text-ink-2 mt-3 max-w-3xl leading-relaxed">
-          Three complementary checks. Bootstrap rank intervals tell you which
-          top-ten positions hold up under resampling. The sensitivity sweep
-          tells you whether the answer changes if you turn the shrinkage knob.
-          The anomaly forest flags rows that don't behave like the rest of the
-          dataset.
+          <GlossedText>
+            Three complementary checks. Bootstrap rank intervals tell you which
+            top-ten positions hold up under resampling. The sensitivity sweep
+            tells you whether the answer changes if you turn the shrinkage knob.
+            The anomaly forest flags rows that don't behave like the rest of the
+            dataset.
+          </GlossedText>
         </p>
       </header>
 
       <section>
         <h2 className="font-serif text-2xl text-ink">{t("stability.bootstrapTitle")}</h2>
         <p className="text-sm text-ink-2 mt-1 mb-4 max-w-3xl">
-          200 resamples of the cleaned dataset. Producers that fall outside the
-          top-10 in a resample receive rank 11. A p95 above 100 means the
-          producer made the top-10 by accident in this run — too few reviews to
-          be stable.
+          <GlossedText>
+            200 resamples of the cleaned dataset. Producers that fall outside the
+            top-10 in a resample receive rank 11. A p95 above 100 means the
+            producer made the top-10 by accident in this run — too few reviews to
+            be stable.
+          </GlossedText>
         </p>
         <div className="grid grid-cols-2 gap-4 mb-5">
           <Note
@@ -100,7 +105,7 @@ export default function Stability() {
       <section>
         <h2 className="font-serif text-2xl text-ink">{t("stability.sensitivityTitle")}</h2>
         <p className="text-sm text-ink-2 mt-1 mb-4 max-w-3xl">
-          Kendall-τ rank correlation of the top-twenty against a baseline of{" "}
+          <Term term="kendall-τ">Kendall-τ</Term> rank correlation of the top-twenty against a baseline of{" "}
           <code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">m = 200</code>.
           Larger <code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">m</code> pulls
           low-review producers further toward the global mean. The recommendation does not
@@ -136,7 +141,7 @@ export default function Stability() {
       <section>
         <h2 className="font-serif text-2xl text-ink">{t("stability.anomalyTitle")}</h2>
         <p className="text-sm text-ink-2 mt-1 mb-4 max-w-3xl">
-          An Isolation Forest at{" "}
+          An <Term term="isolation forest">Isolation Forest</Term> at{" "}
           <code className="text-tuscan bg-tuscan/10 px-1 py-0.5 rounded">
             contamination = {ANOMALIES_CONTAMINATION}
           </code>{" "}

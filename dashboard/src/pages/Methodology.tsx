@@ -91,7 +91,7 @@ export default function Methodology() {
         </h2>
         <p className="text-sm text-ink-2 max-w-3xl mb-4">
           The dataset arrives as a {RUN.rawRows.toLocaleString()}-row,
-          16-sheet Excel file with mojibake on diacritics, tuple-encoded
+          16-sheet Excel file with <Term term="mojibake">mojibake</Term> on diacritics, tuple-encoded
           country fields, and cross-sheet duplication. The cascade from raw to
           scored:
         </p>

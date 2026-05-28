@@ -49,7 +49,7 @@ export const nl: typeof en = {
     kpiWines: "Geanalyseerde wijnen",
     kpiProducers: "Producenten",
     kpiRegions: "Regio's",
-    kpiRecall: "Extraction recall",
+    kpiRecall: "Extractie-recall",
     kpiRecallHint: "contains-match op bekende top 50",
     verdictTitle: "Het oordeel",
     verdictLead: "De drieledige aanbeveling op één scherm.",
@@ -77,7 +77,7 @@ export const nl: typeof en = {
       "{{over}} regio's oververtegenwoordigd · {{under}} ondervertegenwoordigd · top-10-stabiliteit via 200-resample bootstrap",
   },
   recommendation: {
-    eyebrow: "Section 05 · The Recommendation",
+    eyebrow: "Sectie 05 · De aanbeveling",
     title: "Wat de data Slurpini aanraadt",
     leadIntro: "Een verdict in drie delen.",
     leadHold: "de prestige-tier",
@@ -255,7 +255,7 @@ export const nl: typeof en = {
   regionModal: {
     biasLabel: "Vivino versus ICE NL-vertekening",
     statWines: "Wijnen (Vivino)",
-    statWeightedRating: "Gewogen beoordeling",
+    statWeightedRating: "Weighted rating",
     statAvgPrice: "Gem. prijs",
     statReviews: "Reviews",
     regionalFactsTitle: "Regiokerncijfers",
@@ -320,7 +320,7 @@ export const nl: typeof en = {
   },
   producerModal: {
     certifiedBadge: "{{certification}}-gecertificeerd",
-    statReviews: "Beoordelingen",
+    statReviews: "Reviews",
     statAvgPrice: "Gem. prijs",
     whereBasedTitle: "Waar het gevestigd is",
     mapAriaLabel: "Kaart van {{region}}",
@@ -336,7 +336,7 @@ export const nl: typeof en = {
   },
   wineModal: {
     byProducer: "van",
-    reviewsLabel: "Beoordelingen",
+    reviewsLabel: "Reviews",
     priceLabel: "Prijs",
     priceSegmentLabel: "Prijssegment",
     confidenceSignalLabel: "Betrouwbaarheidssignaal",

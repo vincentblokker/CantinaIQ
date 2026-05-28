@@ -87,8 +87,8 @@ export const GLOSSARY: Record<string, GlossEntry> = {
   recall: {
     nl: "Aandeel van de werkelijk relevante items dat het model correct terugvindt.",
   },
-  "isolation forest at": {
-    nl: "Isolation Forest: detecteert uitschieters in reviewpatronen.",
+  p95: {
+    nl: "95e percentiel: 95% van de uitkomsten ligt hieronder — hier de zwakste ranglijstpositie over alle resamples.",
   },
   pandera: {
     nl: "Python-bibliotheek die dataframes valideert tegen expliciete schema-contracten.",
